@@ -20,7 +20,7 @@ class ProcessAndroidResources extends ConventionTask {
       arg(value: "-J")
       arg(path: genDir.absolutePath)
       arg(value: "-M")
-      arg(path: androidConvention.androidManifest)
+      arg(path: androidConvention.androidManifest.absolutePath)
       arg(value: "-S")
       arg(path: androidConvention.resDir.absolutePath)
       arg(value: "-I")
