@@ -5,7 +5,6 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin 
 import org.gradle.api.plugins.ProjectPluginsContainer;
 
-import com.jvoegele.gradle.tasks.android.Dex 
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
 
@@ -65,7 +64,6 @@ class AndroidPlugin implements Plugin {
   public void use(Project project, ProjectPluginsContainer plugins) {
     JavaPlugin javaPlugin = plugins.usePlugin(JavaPlugin.class, project);
 
-    //project.configurations.add(ANDROID_CONFIGURATION_NAME).setVisible(false).setTransitive(true);
     androidConvention = new AndroidPluginConvention(project)
     project.convention.plugins.android = androidConvention
 
@@ -139,7 +137,7 @@ class AndroidPlugin implements Plugin {
       ant.apkbuilder(outfolder: project.buildDir,
                      basename: project.name,
                      signed: true,
-                     'verbose': true /*FIXME*/) {
+                     'verbose': verbose) {
         ant.file(path: androidConvention.intermediateDexFile.absolutePath)
         //sourcefolder(path: project.sourceSets.main.java)
         nativefolder(path: androidConvention.nativeLibsDir)
@@ -147,7 +145,7 @@ class AndroidPlugin implements Plugin {
       }
 
       ant.exec(executable: ant.zipalign, failonerror: true) {
-        // FIXME: use some global verbosity setting and add this if set: arg(line="${v.option}" />
+        if (verbose) arg(line: '-v')
         arg(value: '-f')
         arg(value: 4)
         arg(path: new File(project.buildDir, "${project.name}-debug-unaligned.apk"))
