@@ -13,6 +13,7 @@ class ProcessAndroidResources extends ConventionTask {
     def androidConvention = project.convention.plugins.android
     def genDir = androidConvention.genDir
     genDir.mkdirs()
+    project.logger.info("Generating R.java / Manifest.java from the resources...")
     project.ant.exec(executable: ant.aapt, failonerror: "true") {
       arg(value: "package")
       if (verbose) arg(line: "-v")

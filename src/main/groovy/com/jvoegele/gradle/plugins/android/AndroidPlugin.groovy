@@ -1,5 +1,6 @@
 package com.jvoegele.gradle.plugins.android
 
+import org.gradle.api.logging.LogLevel;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin
@@ -29,6 +30,7 @@ class AndroidPlugin implements Plugin {
   private toolsDir
 
   private Project project
+  private logger
 
   private androidProcessResourcesTask, proguardTask, androidPackageDebugTask, androidPackageReleaseTask,
   androidInstallTask, androidUninstallTask
@@ -40,6 +42,7 @@ class AndroidPlugin implements Plugin {
     JavaPlugin javaPlugin = plugins.usePlugin(JavaPlugin.class, project);
 
     this.project = project
+    this.logger = project.logger
 
     androidConvention = new AndroidPluginConvention(project)
     project.convention.plugins.android = androidConvention
@@ -93,6 +96,7 @@ class AndroidPlugin implements Plugin {
     defineAndroidInstallTask()
     defineAndroidUninstallTask()
     defineTaskDependencies()
+    configureTaskLogging()
   }
 
   private void defineAndroidProcessResourcesTask() {
@@ -109,6 +113,7 @@ class AndroidPlugin implements Plugin {
     androidPackageDebugTask = project.task(ANDROID_PACKAGE_DEBUG_TASK_NAME) << {
       androidPackage(ant, true)
       zipAlign(ant, ant['out.debug.unaligned.package'], ant['out.debug.package'])
+      logger.info("Debug Package: " + ant['out.debug.package'])
     }
     androidPackageDebugTask.description =
         "Creates the Android application apk package, signed with debug key"
@@ -125,9 +130,9 @@ class AndroidPlugin implements Plugin {
       } catch (Exception ignoreBecauseWeCheckForNullLaterAnywayAfterAll) {}
 
       if (!keyStore || !keyAlias) {
-        ant.echo("No key.store and key.alias properties found in build.properties.")
-        ant.echo("Please sign ${ant['out.unsigned.package']} manually")
-        ant.echo("and run zipalign from the Android SDK tools.")
+        logger.warn("No key.store and key.alias properties found in build.properties.")
+        logger.warn("Please sign ${ant['out.unsigned.package']} manually")
+        logger.warn("and run zipalign from the Android SDK tools.")
       }
       else {
         def console = System.console()
@@ -136,6 +141,7 @@ class AndroidPlugin implements Plugin {
         String keyAliasPassword = new String(console.readPassword(
             "Please enter password for alias '${keyAlias}': "))
 
+        logger.info("Signing final apk...")
         ant.signjar(jar: ant['out.unsigned.package'],
                     signedjar: ant['out.unaligned.package'],
                     keystore: keyStore,
@@ -145,6 +151,7 @@ class AndroidPlugin implements Plugin {
                     verbose: true)
 
         zipAlign(ant, ant['out.unaligned.package'], ant['out.release.package'])
+        logger.info("Release Package: " + ant['out.release.package'])
       }
     }
     androidPackageReleaseTask.description =
@@ -153,6 +160,7 @@ class AndroidPlugin implements Plugin {
 
   private void defineAndroidInstallTask() {
     androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME) << {
+      logger.info("Installing ${ant['out.debug.package']} onto default emulator or device...")
       ant.exec(executable: ant['adb'], failonerror: true) {
         arg(line: ant['adb.device.arg'])
         arg(value: 'install')
@@ -171,9 +179,10 @@ class AndroidPlugin implements Plugin {
         manifestPackage = ant['manifest.package']
       } catch (Exception ignoreBecauseWeCheckForNullLaterAnywayAfterAll) {}
       if (!manifestPackage) {
-        ant.echo("Unable to uninstall, manifest.package property is not defined.")
+        logger.error("Unable to uninstall, manifest.package property is not defined.")
       }
       else {
+        logger.info("Uninstalling ${ant['manifest.package']} from the default emulator or device...")
         ant.exec(executable: ant['adb'], failonerror: true) {
           arg(line: ant['adb.device.arg'])
           arg(value: "uninstall")
@@ -194,6 +203,15 @@ class AndroidPlugin implements Plugin {
     androidInstallTask.dependsOn(ANDROID_PACKAGE_DEBUG_TASK_NAME)
   }
 
+  private void configureTaskLogging() {
+    androidProcessResourcesTask.captureStandardOutput(LogLevel.INFO)
+    proguardTask.captureStandardOutput(LogLevel.INFO)
+    androidPackageDebugTask.captureStandardOutput(LogLevel.INFO)
+    androidPackageReleaseTask.captureStandardOutput(LogLevel.INFO)
+    androidInstallTask.captureStandardOutput(LogLevel.INFO)
+    androidUninstallTask.captureStandardOutput(LogLevel.INFO)
+  }
+
   private void configureCompile() {
     def mainSource = project.tasks.compileJava.source
     project.tasks.compileJava.source = [androidConvention.genDir, mainSource]
@@ -203,6 +221,7 @@ class AndroidPlugin implements Plugin {
   }
 
   private void androidPackage(ant, boolean sign) {
+    logger.info("Converting compiled files and external libraries into ${androidConvention.intermediateDexFile}...")
     ant.apply(executable: ant.dx, failonerror: true, parallel: true) {
       arg(value: "--dex")
       arg(value: "--output=${androidConvention.intermediateDexFile}")
@@ -211,6 +230,7 @@ class AndroidPlugin implements Plugin {
       fileset(dir: project.buildDir, includes: "*.jar")
     }
 
+    logger.info("Packaging resources")
     ant.aaptexec(executable: ant.aapt,
                  command: 'package',
                  manifest: androidConvention.androidManifest.path,
@@ -232,6 +252,7 @@ class AndroidPlugin implements Plugin {
   }
 
   private void zipAlign(ant, inPackage, outPackage) {
+    logger.info("Running zip align on final apk...")
     ant.exec(executable: ant.zipalign, failonerror: true) {
       if (verbose) arg(line: '-v')
       arg(value: '-f')
