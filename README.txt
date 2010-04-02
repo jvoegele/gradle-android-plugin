@@ -21,7 +21,7 @@ extending the Java plugin.  Furthermore, the incorporation of ProGuard
 into the build not only ensures that Android application packages are
 small and tight, it also trivially enables the use of Scala for Android
 application development simply by incorporating the existing Scala
-plugin into the build.  ProGuard will incorporate only those classes
+plugin into the build.  ProGuard will include only those classes
 from the Scala library that are actually used by your Android
 application, resulting in an application package that is as small as
 possible.
@@ -36,20 +36,25 @@ build:
 :androidProcessResources
    Generate R.java source file from Android resource XML files
    (:compileJava task depends on this task)
+
 :proguard
    Process classes and JARs with ProGuard
    -> :classes
+
 :androidPackageDebug
    Creates the Android application apk package, signed with debug key
    -> :proguard
    (:assemble lifecycle task depends on this task)
+
 :androidPackageRelease
    Creates the Android application apk package, which must be signed
    before it is published
    -> :proguard
+
 :androidInstall
    Installs the debug package onto a running emulator or device
    -> :androidPackageDebug
+
 :androidUninstall
    Uninstalls the application from a running emulator or device
 
@@ -71,7 +76,16 @@ move the source code to the directory expected by Gradle.
 1) Create a build.gradle file in the root directory of the project, and
 include the Android plugin as follows:
 
-    usePlugin com.jvoegele.gradle.plugins.android.AndroidPlugin
+
+buildscript {
+  repositories {
+    mavenRepo(urls: 'http://jvoegele.com/maven2/')
+  }
+  dependencies {
+    classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0-SNAPSHOT'
+  }
+}
+usePlugin com.jvoegele.gradle.plugins.android.AndroidPlugin
 
 2) The android create project command created the source code in the src
 directory of the project.  The Android plugin tries to conform to the
@@ -115,6 +129,13 @@ build.gradle file.
 FUTURE DIRECTIONS
 =================
 
-In a future version of the Android plugin, I would like to integrate
-with the Eclipse plugin to ensure that Eclipse projects generated with
-"gradle eclipse" are optimized for Android development.
+* In a future version of the Android plugin, I would like to integrate
+  with the Eclipse plugin to ensure that Eclipse projects generated with
+  "gradle eclipse" are optimized for Android development.
+* Update to Gradle 0.9
+* Make it easier to declare the plugin in the build.gradle file, ideally
+  by simply saying:
+    usePlugin 'android'
+  or
+    apply plugin: 'android'
+
