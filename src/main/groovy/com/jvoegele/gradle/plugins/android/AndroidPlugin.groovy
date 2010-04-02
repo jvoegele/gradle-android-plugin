@@ -78,8 +78,11 @@ class AndroidPlugin implements Plugin {
     // android.jar, android.aidl, aapt, aidl, and dx
     ant.setup('import': false)
 
+    ant.taskdef(name: "xpath", classname: "com.android.ant.XPathTask", classpathref: "android.antlibs")
     ant.taskdef(name: "aaptexec", classname: "com.android.ant.AaptExecLoopTask", classpathref: "android.antlibs")
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
+
+    ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
   }
 
   private void defineTasks() {
@@ -163,7 +166,20 @@ class AndroidPlugin implements Plugin {
 
   private void defineAndroidUninstallTask() {
     androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME) << {
-
+      String manifestPackage = null
+      try {
+        manifestPackage = ant['manifest.package']
+      } catch (Exception ignoreBecauseWeCheckForNullLaterAnywayAfterAll) {}
+      if (!manifestPackage) {
+        ant.echo("Unable to uninstall, manifest.package property is not defined.")
+      }
+      else {
+        ant.exec(executable: ant['adb'], failonerror: true) {
+          arg(line: ant['adb.device.arg'])
+          arg(value: "uninstall")
+          arg(value: ant['manifest.package'])
+        }
+      }
     }
     androidUninstallTask.description =
         "Uninstalls the application from a running emulator or device"
