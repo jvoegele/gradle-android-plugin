@@ -2,7 +2,7 @@ usePlugin 'groovy'
 usePlugin 'maven'
 usePlugin 'eclipse'
 
-version = '1.0-SNAPSHOT'
+version = '0.8-SNAPSHOT'
 group = 'com.jvoegele.gradle.plugins'
 
 uploadArchives {
