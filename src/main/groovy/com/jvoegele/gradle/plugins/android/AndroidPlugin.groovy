@@ -3,6 +3,7 @@ package com.jvoegele.gradle.plugins.android
 import org.gradle.api.logging.LogLevel;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.plugins.JavaPlugin
 
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
@@ -37,7 +38,7 @@ class AndroidPlugin implements Plugin<Project> {
 
   @Override
   public void apply(Project project) {
-    def javaPlugin = plugins.usePlugin(JavaPlugin.class, project);
+    project.plugins.apply(JavaPlugin.class)
 
     this.project = project
     this.logger = project.logger

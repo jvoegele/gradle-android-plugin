@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 
-version = '1.0-SNAPSHOT'
+version = '0.9-SNAPSHOT'
 group = 'com.jvoegele.gradle.plugins'
 
 uploadArchives {
@@ -14,7 +14,7 @@ uploadArchives {
 dependencies {
     // Add all JAR files in the lib directory of theGradle installation directory
     // to the groovy configuration (is also used by compile configuration)
-    groovy fileTree(dir: new File(gradle.gradleHomeDir, 'lib'), includes: ['*.jar'])
+    groovy fileTree(dir: new File(gradle.gradleHomeDir, 'lib'), includes: ['**/*.jar'])
 }
 
 // Make sure all code is compiled, tested and checked before uploadArchives.
