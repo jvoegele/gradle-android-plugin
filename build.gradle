@@ -1,20 +1,33 @@
-usePlugin 'groovy'
-usePlugin 'maven'
-usePlugin 'eclipse'
+apply plugin: 'groovy'
+apply plugin: 'maven'
+apply plugin: 'eclipse'
 
-version = '0.8'
+version = '0.9'
 group = 'com.jvoegele.gradle.plugins'
+
+configurations {
+    sshDeploy
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    sshDeploy 'org.apache.maven.wagon:wagon-ssh:1.0-beta-6'
+}
 
 uploadArchives {
     repositories.mavenDeployer {
-        repository url: 'file:///tmp/maven2'
+        configuration = configurations.sshDeploy
+        repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
     }
 }
 
 dependencies {
     // Add all JAR files in the lib directory of theGradle installation directory
     // to the groovy configuration (is also used by compile configuration)
-    groovy fileTree(dir: new File(gradle.gradleHomeDir, 'lib'), includes: ['*.jar'])
+    groovy fileTree(dir: new File(gradle.gradleHomeDir, 'lib'), includes: ['**/*.jar'])
 }
 
 // Make sure all code is compiled, tested and checked before uploadArchives.

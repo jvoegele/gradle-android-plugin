@@ -4,7 +4,6 @@ import org.gradle.api.logging.LogLevel;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.ProjectPluginsContainer;
 
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
@@ -14,7 +13,7 @@ import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
  *
  * @author Jason Voegele (jason@jvoegele.com)
  */
-class AndroidPlugin implements Plugin {
+class AndroidPlugin implements Plugin<Project> {
   private static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
   private static final PROGUARD_TASK_NAME = "proguard"
   private static final ANDROID_PACKAGE_DEBUG_TASK_NAME = "androidPackageDebug"
@@ -38,8 +37,8 @@ class AndroidPlugin implements Plugin {
   boolean verbose = false
 
   @Override
-  public void use(Project project, ProjectPluginsContainer plugins) {
-    JavaPlugin javaPlugin = plugins.usePlugin(JavaPlugin.class, project);
+  public void apply(Project project) {
+    project.plugins.apply(JavaPlugin.class)
 
     this.project = project
     this.logger = project.logger
