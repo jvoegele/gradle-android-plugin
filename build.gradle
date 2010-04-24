@@ -5,9 +5,22 @@ apply plugin: 'eclipse'
 version = '0.9'
 group = 'com.jvoegele.gradle.plugins'
 
+configurations {
+    sshDeploy
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    sshDeploy 'org.apache.maven.wagon:wagon-ssh:1.0-beta-6'
+}
+
 uploadArchives {
     repositories.mavenDeployer {
-        repository url: 'file:///tmp/maven2'
+        configuration = configurations.sshDeploy
+        repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
     }
 }
 
