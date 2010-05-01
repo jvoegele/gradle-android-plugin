@@ -225,8 +225,8 @@ class AndroidPlugin implements Plugin<Project> {
       arg(value: "--dex")
       arg(value: "--output=${androidConvention.intermediateDexFile}")
       if (verbose) arg(line: "--verbose")
-      arg(path: project.sourceSets.main.classesDir)
-      fileset(dir: project.buildDir, includes: "*.jar")
+      //arg(path: project.sourceSets.main.classesDir)
+      fileset(file: proguardTask.outJar)
     }
 
     logger.info("Packaging resources")
