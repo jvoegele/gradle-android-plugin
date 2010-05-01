@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 
-version = '0.9'
+version = '1.0-SNAPSHOT'
 group = 'com.jvoegele.gradle.plugins'
 
 configurations {
@@ -19,8 +19,9 @@ dependencies {
 
 uploadArchives {
     repositories.mavenDeployer {
-        configuration = configurations.sshDeploy
-        repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
+        //configuration = configurations.sshDeploy
+        //repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
+        repository(url: "file:///tmp/maven2")
     }
 }
 
