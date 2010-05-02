@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 
-version = '0.9.1'
+version = '0.9.2'
 group = 'com.jvoegele.gradle.plugins'
 
 configurations {
