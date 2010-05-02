@@ -13,11 +13,11 @@ class AndroidPluginConvention {
 
   AndroidPluginConvention(Project project) {
     this.project = project
-    resDir = new File(project.rootDir, 'res')
+    resDir = new File(project.projectDir, 'res')
     genDir = new File(project.buildDir, 'gen')
     assetsDir = new File(project.buildDir, 'assets')
-    nativeLibsDir = new File(project.rootDir, 'libs')
-    androidManifest = new File(project.rootDir, 'AndroidManifest.xml')
+    nativeLibsDir = new File(project.projectDir, 'libs')
+    androidManifest = new File(project.projectDir, 'AndroidManifest.xml')
     intermediateDexFile = new File(project.buildDir, "classes.dex")
   }
 }
