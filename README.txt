@@ -82,10 +82,10 @@ buildscript {
     mavenRepo(urls: 'http://jvoegele.com/maven2/')
   }
   dependencies {
-    classpath 'com.jvoegele.gradle.plugins:android-plugin:0.8'
+    classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0-SNAPSHOT'
   }
 }
-usePlugin com.jvoegele.gradle.plugins.android.AndroidPlugin
+apply plugin: com.jvoegele.gradle.plugins.android.AndroidPlugin
 
 2) The android create project command created the source code in the src
 directory of the project.  The Android plugin tries to conform to the
@@ -132,7 +132,6 @@ FUTURE DIRECTIONS
 * In a future version of the Android plugin, I would like to integrate
   with the Eclipse plugin to ensure that Eclipse projects generated with
   "gradle eclipse" are optimized for Android development.
-* Update to Gradle 0.9
 * Make it easier to declare the plugin in the build.gradle file, ideally
   by simply saying:
     usePlugin 'android'
