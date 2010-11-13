@@ -5,8 +5,10 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin
 
+import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory 
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
+import com.jvoegele.gradle.tasks.android.AndroidAntTask
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -27,6 +29,7 @@ class AndroidPlugin implements Plugin<Project> {
   private androidConvention
   private sdkDir
   private toolsDir
+  private AndroidSdkToolsFactory sdkTools
 
   private Project project
   private logger
@@ -68,6 +71,7 @@ class AndroidPlugin implements Plugin<Project> {
     ant.property(name: 'adb.device.arg', value: '')
 
     def outDir = project.buildDir.absolutePath
+    ant.property(name: "resource.package.file.name", value: "${project.name}.ap_")
     ant.property(name: "out.debug.unaligned.package", location: "${outDir}/${project.name}-debug-unaligned.apk")
     ant.property(name: "out.debug.package", location: "${outDir}/${project.name}-debug.apk")
     ant.property(name: "out.unsigned.package", location: "${outDir}/${project.name}-unsigned.apk")
@@ -85,6 +89,10 @@ class AndroidPlugin implements Plugin<Project> {
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
+    ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/application/@android:hasCode",
+              output: "manifest.hasCode", 'default': "true")
+
+    sdkTools = new AndroidSdkToolsFactory(project)
   }
 
   private void defineTasks() {
@@ -230,24 +238,8 @@ class AndroidPlugin implements Plugin<Project> {
     }
 
     logger.info("Packaging resources")
-    ant.aaptexec(executable: ant.aapt,
-                 command: 'package',
-                 manifest: androidConvention.androidManifest.path,
-                 resources: androidConvention.resDir.path,
-                 assets: androidConvention.assetsDir,
-                 androidjar: ant['android.jar'],
-                 outfolder: project.buildDir,
-                 basename: project.name)
-
-    ant.apkbuilder(outfolder: project.buildDir,
-        basename: project.name,
-        signed: sign,
-        'verbose': verbose) {
-          ant.file(path: androidConvention.intermediateDexFile.absolutePath)
-          //sourcefolder(path: project.sourceSets.main.java)
-          nativefolder(path: androidConvention.nativeLibsDir)
-          //jarfolder(path: androidConvention.nativeLibsDir)
-        }
+    sdkTools.aaptexec.execute(command: 'package')
+    sdkTools.apkbuilder.execute('sign': sign, 'verbose': verbose)
   }
 
   private void zipAlign(ant, inPackage, outPackage) {
