@@ -14,7 +14,7 @@ Features of the Android plugin include:
   release key for publication to Android Market.
 * Incorporation of ProGuard to ensure that applications have minimal
   memory footprint.
-* Create Android applications in Scala (and possibly Groovy or Clojure).
+* Easily create Android applications in Scala (and possibly Groovy or Clojure).
 
 The Android plugin fully integrates into the Gradle build lifecycle by
 extending the Java plugin.  Furthermore, the incorporation of ProGuard
@@ -71,30 +71,43 @@ $ android create project --target 2 --path ./MyAndroidApp \
 This will create and Android application skeleton that you can
 immediately build using Ant.  To build with Gradle instead, you must (1)
 create a build.gradle file that includes the Android plugin, and (2)
-move the source code to the directory expected by Gradle.
+either move the source code to the directory expected by Gradle, or tell Gradle to use the src directory of your project directly.
 
 1) Create a build.gradle file in the root directory of the project, and
 include the Android plugin as follows:
-
 
 buildscript {
   repositories {
     mavenRepo(urls: 'http://jvoegele.com/maven2/')
   }
   dependencies {
-    classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0-SNAPSHOT'
+    classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0'
   }
 }
 apply plugin: com.jvoegele.gradle.plugins.android.AndroidPlugin
+repositories {
+    mavenCentral()
+}
 
-2) The android create project command created the source code in the src
-directory of the project.  The Android plugin tries to conform to the
+2) The android create project command created the source code directly in the src directory of the project.  The Android plugin tries to conform to the
 conventions established by Android's Ant-based build, but in this case
-it must conform to Gradle's "source sets" convention.  Therefore, the
-source should be moved to src/main/java instead.  Once you've done this
-you can, of course, utilize Gradle's source sets to their full extent
-by placing resources in src/main/resources, Scala source files in
-src/main/scala etc.
+it is better to conform to Gradle's "source sets" convention, since it allows
+you to have separate test source code, or to use multiple languages.
+Therefore, I recommend that the source should be moved to src/main/java
+instead.  Once you've done this you can, of course, utilize Gradle's source 
+sets to their full extent by placing resources in src/main/resources, Scala
+source files in src/main/scala etc.  However, if you prefer to keep your
+source code directly in the src directory (for example, if you need to retain
+compatibility with Ant) then you can do so by configuring the Java source set
+in your build.gradle file.  Just add the following to build.gradle:
+
+sourceSets {
+  main {
+    java {
+      srcDir 'src/java'
+    }
+  }
+}
 
 If your Android project was initially created by Eclipse rather than
 the android create project command, then you will have some additional
