@@ -211,12 +211,12 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void configureTaskLogging() {
-    androidProcessResourcesTask.captureStandardOutput(LogLevel.INFO)
-    proguardTask.captureStandardOutput(LogLevel.INFO)
-    androidPackageDebugTask.captureStandardOutput(LogLevel.INFO)
-    androidPackageReleaseTask.captureStandardOutput(LogLevel.INFO)
-    androidInstallTask.captureStandardOutput(LogLevel.INFO)
-    androidUninstallTask.captureStandardOutput(LogLevel.INFO)
+    androidProcessResourcesTask.logging.captureStandardOutput(LogLevel.INFO)
+    proguardTask.logging.captureStandardOutput(LogLevel.INFO)
+    androidPackageDebugTask.logging.captureStandardOutput(LogLevel.INFO)
+    androidPackageReleaseTask.logging.captureStandardOutput(LogLevel.INFO)
+    androidInstallTask.logging.captureStandardOutput(LogLevel.INFO)
+    androidUninstallTask.logging.captureStandardOutput(LogLevel.INFO)
   }
 
   private void configureCompile() {
