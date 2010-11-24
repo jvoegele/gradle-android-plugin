@@ -19,8 +19,9 @@ dependencies {
 
 uploadArchives {
     repositories.mavenDeployer {
-        configuration = configurations.sshDeploy
-        repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
+        //configuration = configurations.sshDeploy
+        //repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
+        repository(url: "file:///tmp/maven2")
     }
 }
 
