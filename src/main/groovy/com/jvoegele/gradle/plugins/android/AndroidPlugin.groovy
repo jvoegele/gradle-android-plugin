@@ -203,7 +203,7 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineTaskDependencies() {
     project.tasks.compileJava.dependsOn(androidProcessResourcesTask)
-    proguardTask.dependsOn('classes')
+    proguardTask.dependsOn('jar')
     androidPackageDebugTask.dependsOn(proguardTask)
     androidPackageReleaseTask.dependsOn(proguardTask)
     project.tasks.assemble.dependsOn(ANDROID_PACKAGE_DEBUG_TASK_NAME)

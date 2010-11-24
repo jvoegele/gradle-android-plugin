@@ -6,6 +6,10 @@ import groovy.util.XmlSlurper;
 import org.gradle.api.internal.ConventionTask;
 import org.gradle.api.tasks.TaskAction;
 
+/**
+ * Uses the ProGuard tool to create a minimal JAR containing only those classes
+ * and resources actually used by the application code.
+ */
 class ProGuard extends ConventionTask {
   private static final String PRO_GUARD_RESOURCE = "proguard/ant/task.properties"
 
@@ -18,16 +22,21 @@ class ProGuard extends ConventionTask {
   boolean note = false
   boolean obfuscate = false
   
-  File outJar = new File(project.libsDir, "classes.min.jar")
+  final File outJar = new File(project.libsDir, "classes.min.jar")
 
   @TaskAction
   protected void process() {
-    if (!enabled) return
+    if (!enabled) {
+      ant.copy(file: project.jar.archivePath, tofile: outJar, overwrite: true)
+      return
+    }
 
     defineProGuardTask()
+    ant.delete(file: outJar)
     ant.proguard('warn': warn, 'obfuscate': obfuscate,
                  'allowaccessmodification': true, 'overloadaggressively': true) {
-      injar(file: project.sourceSets.main.classesDir)
+      //injar(file: project.sourceSets.main.classesDir)
+      injar(path: project.libsDir)
       project.configurations.compile.files.each { dependency ->
         injar(file: dependency)
       }
@@ -39,6 +48,7 @@ class ProGuard extends ConventionTask {
       keep(access: 'public', 'extends': 'android.content.BroadcastReceiver')
       keep(access: 'public', 'extends': 'android.content.ContentProvider')
       keep(access: 'public', 'name': '**.R')
+      keep('name': '**.R$*')
     }
   }
 
