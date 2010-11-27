@@ -22,6 +22,7 @@ class ApkBuilderTask_r7 extends AndroidAntTask {
                    hascode: ant['manifest.hasCode'],
                    verbose: args.get('verbose', false)) {
       dex(path: androidConvention.intermediateDexFile)
+      sourcefolder(path: project.sourceSets.main.classesDir)
       nativefolder(path: androidConvention.nativeLibsDir)
     }
 /*
