@@ -5,10 +5,10 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin
 
+import com.jvoegele.gradle.enhancements.JavadocEnhancement 
 import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory 
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
-import com.jvoegele.gradle.tasks.android.AndroidAntTask
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -51,6 +51,7 @@ class AndroidPlugin implements Plugin<Project> {
 
     androidSetup()
     defineTasks()
+    configureEnhancements()
     configureCompile()
   }
 
@@ -217,6 +218,14 @@ class AndroidPlugin implements Plugin<Project> {
     androidPackageReleaseTask.logging.captureStandardOutput(LogLevel.INFO)
     androidInstallTask.logging.captureStandardOutput(LogLevel.INFO)
     androidUninstallTask.logging.captureStandardOutput(LogLevel.INFO)
+  }
+
+  /**
+   * Configure enhancements to other Gradle plugins so that they work better in
+   * concert with the Android plugin.
+   */
+  private void configureEnhancements() {
+    new JavadocEnhancement(project).apply()
   }
 
   private void configureCompile() {
