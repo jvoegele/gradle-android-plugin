@@ -10,8 +10,8 @@ class AndroidPluginConvention {
   File nativeLibsDir
   File androidManifest
   File intermediateDexFile
-  String apkBaseName
-  File apkArchivePath
+  private String apkBaseName
+  private File apkArchivePath
   
   AndroidPluginConvention(Project project) {
     this.project = project
@@ -25,11 +25,32 @@ class AndroidPluginConvention {
 	// Output paths
     genDir = new File(project.buildDir, 'gen')
     intermediateDexFile = new File(project.libsDir, "classes.dex")
+  }
+  
+  /**
+   * This value has to be calculated dinamically
+   * @return
+   */
+  public String getApkBaseName() {
     apkBaseName = project.jar.baseName 
-//        + (project.jar.appendix != null ? "-"+project.jar.appendix : "") 
-//        + (project.version != null ? "-"+project.version : "") 
-//        + (project.jar.classifier != null ? "-"+project.jar.classifier : "") 
-//        + ".apk"
-    apkArchivePath = new File (project.distsDir, apkBaseName + ".apk")
+    if (project.jar.appendix != null && project.jar.appendix.length() > 0) {
+      apkBaseName += "-"+project.jar.appendix
+    }
+    if (project.version != null && project.version.length() > 0) {
+      apkBaseName += "-"+project.version
+    }
+    if (project.jar.classifier != null && project.jar.classifier.length() > 0) {
+      apkBaseName += "-"+project.jar.classifier
+    }
+    return apkBaseName 
+  }
+  
+  /**
+   * This value has to be calculated dinamically
+   * @return
+   */
+  public File getApkArchivePath() {
+    apkArchivePath = new File (project.distsDir, getApkBaseName() + ".apk")
+    return apkArchivePath
   }
 }

@@ -31,7 +31,7 @@ class AndroidPackageTask extends ConventionTask {
     ant = project.ant
     
     // Create necessary directories for this task
-    androidConvention.apkArchivePath.getParentFile().mkdirs()
+    androidConvention.getApkArchivePath().getParentFile().mkdirs()
   }
   
   @TaskAction
@@ -48,14 +48,14 @@ class AndroidPackageTask extends ConventionTask {
     }
     
     // Create temporary file for the zipaligning
-    File temp = new File (project.libsDir, androidConvention.apkBaseName + "-unaligned.apk")
-    ant.copy(file: androidConvention.apkArchivePath.toString(), toFile: temp.toString())
+    File temp = new File (project.libsDir, androidConvention.getApkBaseName() + "-unaligned.apk")
+    ant.copy(file: androidConvention.getApkArchivePath().toString(), toFile: temp.toString())
     // Do the alignment
-    zipAlign(temp, androidConvention.apkArchivePath)
+    zipAlign(temp, androidConvention.getApkArchivePath())
     // Remove temp file
     temp.delete()
     
-    logger.info("Final Package: " + androidConvention.apkArchivePath)
+    logger.info("Final Package: " + androidConvention.getApkArchivePath())
   }
   
   private void sign() {
