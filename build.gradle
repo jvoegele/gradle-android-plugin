@@ -34,3 +34,7 @@ dependencies {
 // Make sure all code is compiled, tested and checked before uploadArchives.
 uploadArchives.dependsOn ':build'
 
+// Facility to quicly clean Gradle's plugin cache
+uploadArchives << {
+	delete ("C:/Documents and Settings/71727/.gradle/cache/com.jvoegele.gradle.plugins")
+}

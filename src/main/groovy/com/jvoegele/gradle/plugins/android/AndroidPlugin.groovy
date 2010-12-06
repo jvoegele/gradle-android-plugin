@@ -5,10 +5,9 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin
 
-import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory 
+import com.jvoegele.gradle.tasks.android.AndroidPackageTask;
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
-import com.jvoegele.gradle.tasks.android.AndroidAntTask
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -18,23 +17,21 @@ import com.jvoegele.gradle.tasks.android.AndroidAntTask
 class AndroidPlugin implements Plugin<Project> {
   private static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
   private static final PROGUARD_TASK_NAME = "proguard"
-  private static final ANDROID_PACKAGE_DEBUG_TASK_NAME = "androidPackageDebug"
-  private static final ANDROID_PACKAGE_RELEASE_TASK_NAME = "androidPackageRelease"
+  private static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
   private static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
   private static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
 
   private static final PROPERTIES_FILES = ['local', 'build', 'default']
   private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
 
-  private androidConvention
+  private AndroidPluginConvention androidConvention
   private sdkDir
   private toolsDir
-  private AndroidSdkToolsFactory sdkTools
 
   private Project project
   private logger
 
-  private androidProcessResourcesTask, proguardTask, androidPackageDebugTask, androidPackageReleaseTask,
+  private androidProcessResourcesTask, proguardTask, androidPackageTask, 
   androidInstallTask, androidUninstallTask
 
   boolean verbose = false
@@ -72,11 +69,13 @@ class AndroidPlugin implements Plugin<Project> {
 
     def outDir = project.buildDir.absolutePath
     ant.property(name: "resource.package.file.name", value: "${project.name}.ap_")
+	/* Use Gradle standard properties instead, like archivePath.
     ant.property(name: "out.debug.unaligned.package", location: "${outDir}/${project.name}-debug-unaligned.apk")
     ant.property(name: "out.debug.package", location: "${outDir}/${project.name}-debug.apk")
     ant.property(name: "out.unsigned.package", location: "${outDir}/${project.name}-unsigned.apk")
     ant.property(name: "out.unaligned.package", location: "${outDir}/${project.name}-unaligned.apk")
     ant.property(name: "out.release.package", location: "${outDir}/${project.name}-release.apk")
+    */
 
     ant.taskdef(name: 'setup', classname: 'com.android.ant.SetupTask', classpathref: 'android.antlibs')
 
@@ -91,15 +90,12 @@ class AndroidPlugin implements Plugin<Project> {
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/application/@android:hasCode",
               output: "manifest.hasCode", 'default': "true")
-
-    sdkTools = new AndroidSdkToolsFactory(project)
   }
 
   private void defineTasks() {
     defineAndroidProcessResourcesTask()
     defineProguardTask()
-    defineAndroidPackageDebugTask()
-    defineAndroidPackageReleaseTask()
+    defineAndroidPackageTask()
     defineAndroidInstallTask()
     defineAndroidUninstallTask()
     defineTaskDependencies()
@@ -116,53 +112,9 @@ class AndroidPlugin implements Plugin<Project> {
     proguardTask.description = "Process classes and JARs with ProGuard"
   }
 
-  private void defineAndroidPackageDebugTask() {
-    androidPackageDebugTask = project.task(ANDROID_PACKAGE_DEBUG_TASK_NAME) << {
-      androidPackage(ant, true)
-      zipAlign(ant, ant['out.debug.unaligned.package'], ant['out.debug.package'])
-      logger.info("Debug Package: " + ant['out.debug.package'])
-    }
-    androidPackageDebugTask.description =
-        "Creates the Android application apk package, signed with debug key"
-  }
-
-  private void defineAndroidPackageReleaseTask() {
-    androidPackageReleaseTask = project.task(ANDROID_PACKAGE_RELEASE_TASK_NAME) << {
-      androidPackage(ant, false)
-
-      String keyStore, keyAlias
-      try {
-        keyStore = ant['key.store']
-        keyAlias = ant['key.alias']
-      } catch (Exception ignoreBecauseWeCheckForNullLaterAnywayAfterAll) {}
-
-      if (!keyStore || !keyAlias) {
-        logger.warn("No key.store and key.alias properties found in build.properties.")
-        logger.warn("Please sign ${ant['out.unsigned.package']} manually")
-        logger.warn("and run zipalign from the Android SDK tools.")
-      }
-      else {
-        def console = System.console()
-        String keyStorePassword = new String(console.readPassword(
-            "Please enter keystore password (store:${keyStore}): "))
-        String keyAliasPassword = new String(console.readPassword(
-            "Please enter password for alias '${keyAlias}': "))
-
-        logger.info("Signing final apk...")
-        ant.signjar(jar: ant['out.unsigned.package'],
-                    signedjar: ant['out.unaligned.package'],
-                    keystore: keyStore,
-                    storepass: keyStorePassword,
-                    alias: keyAlias,
-                    keypass: keyAliasPassword,
-                    verbose: true)
-
-        zipAlign(ant, ant['out.unaligned.package'], ant['out.release.package'])
-        logger.info("Release Package: " + ant['out.release.package'])
-      }
-    }
-    androidPackageReleaseTask.description =
-        "Creates the Android application apk package, which must be signed before it is published"
+  private void defineAndroidPackageTask() {
+    androidPackageTask = project.tasks.add(ANDROID_PACKAGE_TASK_NAME, AndroidPackageTask.class)
+    androidPackageTask.description = "Creates the Android application apk package, optionally signed, zipaligned"
   }
 
   private void defineAndroidInstallTask() {
@@ -203,18 +155,16 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineTaskDependencies() {
     project.tasks.compileJava.dependsOn(androidProcessResourcesTask)
-    proguardTask.dependsOn('jar')
-    androidPackageDebugTask.dependsOn(proguardTask)
-    androidPackageReleaseTask.dependsOn(proguardTask)
-    project.tasks.assemble.dependsOn(ANDROID_PACKAGE_DEBUG_TASK_NAME)
-    androidInstallTask.dependsOn(ANDROID_PACKAGE_DEBUG_TASK_NAME)
+    proguardTask.dependsOn(project.tasks.jar)
+    androidPackageTask.dependsOn(project.tasks.jar)
+    project.tasks.assemble.dependsOn(ANDROID_PACKAGE_TASK_NAME)
+    androidInstallTask.dependsOn(project.tasks.assemble)
   }
 
   private void configureTaskLogging() {
     androidProcessResourcesTask.logging.captureStandardOutput(LogLevel.INFO)
     proguardTask.logging.captureStandardOutput(LogLevel.INFO)
-    androidPackageDebugTask.logging.captureStandardOutput(LogLevel.INFO)
-    androidPackageReleaseTask.logging.captureStandardOutput(LogLevel.INFO)
+    androidPackageTask.logging.captureStandardOutput(LogLevel.INFO)
     androidInstallTask.logging.captureStandardOutput(LogLevel.INFO)
     androidUninstallTask.logging.captureStandardOutput(LogLevel.INFO)
   }
@@ -227,29 +177,4 @@ class AndroidPlugin implements Plugin<Project> {
     project.compileJava.options.bootClasspath = project.ant.references['android.target.classpath']
   }
 
-  private void androidPackage(ant, boolean sign) {
-    logger.info("Converting compiled files and external libraries into ${androidConvention.intermediateDexFile}...")
-    ant.apply(executable: ant.dx, failonerror: true, parallel: true) {
-      arg(value: "--dex")
-      arg(value: "--output=${androidConvention.intermediateDexFile}")
-      if (verbose) arg(line: "--verbose")
-      //arg(path: project.sourceSets.main.classesDir)
-      fileset(file: proguardTask.outJar)
-    }
-
-    logger.info("Packaging resources")
-    sdkTools.aaptexec.execute(command: 'package')
-    sdkTools.apkbuilder.execute('sign': sign, 'verbose': verbose)
-  }
-
-  private void zipAlign(ant, inPackage, outPackage) {
-    logger.info("Running zip align on final apk...")
-    ant.exec(executable: ant.zipalign, failonerror: true) {
-      if (verbose) arg(line: '-v')
-      arg(value: '-f')
-      arg(value: 4)
-      arg(path: inPackage)
-      arg(path: outPackage)
-    }
-  }
 }
