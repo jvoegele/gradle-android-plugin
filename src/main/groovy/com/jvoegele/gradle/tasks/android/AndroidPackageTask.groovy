@@ -1,5 +1,7 @@
 package com.jvoegele.gradle.tasks.android
 
+import java.io.File;
+
 import com.jvoegele.gradle.plugins.android.AndroidPluginConvention 
 import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory 
 import org.gradle.api.internal.ConventionTask;
@@ -24,18 +26,22 @@ class AndroidPackageTask extends ConventionTask {
   AndroidSdkToolsFactory sdkTools
   def ant
   
+  public File getTempFile() {
+    return new File (project.libsDir, androidConvention.getApkBaseName() + "-unaligned.apk")
+  }
+  
   public AndroidPackageTask() {
     // Initialize internal data
     androidConvention = project.convention.plugins.android
     sdkTools = new AndroidSdkToolsFactory(project)
     ant = project.ant
-    
-    // Create necessary directories for this task
-    androidConvention.getApkArchivePath().getParentFile().mkdirs()
   }
   
   @TaskAction
   protected void process() {
+    
+    // Create necessary directories for this task
+    androidConvention.getApkArchivePath().getParentFile().mkdirs()
     
     if (keyStore != null && keyAlias != null) {
       // Dont' sign - it'll sign with the provided key
@@ -48,12 +54,12 @@ class AndroidPackageTask extends ConventionTask {
     }
     
     // Create temporary file for the zipaligning
-    File temp = new File (project.libsDir, androidConvention.getApkBaseName() + "-unaligned.apk")
+    File temp = getTempFile()
     ant.copy(file: androidConvention.getApkArchivePath().toString(), toFile: temp.toString())
     // Do the alignment
     zipAlign(temp, androidConvention.getApkArchivePath())
-    // Remove temp file
-    temp.delete()
+    // Touch temp file (to correctly manage tasks' inputs and outputs, as the output is the temp file itself)
+    ant.touch (file: temp.getAbsolutePath());
     
     logger.info("Final Package: " + androidConvention.getApkArchivePath())
   }
@@ -83,7 +89,6 @@ class AndroidPackageTask extends ConventionTask {
       arg(value: "--dex")
       arg(value: "--output=${androidConvention.intermediateDexFile}")
       if (verbose) arg(line: "--verbose")
-      //arg(path: project.sourceSets.main.classesDir)
       fileset(file: project.jar.archivePath)
     }
     

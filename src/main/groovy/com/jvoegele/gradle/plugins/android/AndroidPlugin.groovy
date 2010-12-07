@@ -156,8 +156,8 @@ class AndroidPlugin implements Plugin<Project> {
   private void defineTaskDependencies() {
     project.tasks.compileJava.dependsOn(androidProcessResourcesTask)
     proguardTask.dependsOn(project.tasks.jar)
-    androidPackageTask.dependsOn(project.tasks.jar)
-    project.tasks.assemble.dependsOn(ANDROID_PACKAGE_TASK_NAME)
+    androidPackageTask.dependsOn(proguardTask)
+    project.tasks.assemble.dependsOn(androidPackageTask)
     androidInstallTask.dependsOn(project.tasks.assemble)
   }
 
