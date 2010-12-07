@@ -74,8 +74,8 @@ class AndroidPackageTask extends ConventionTask {
     }
     
     logger.info("Signing final apk...")
-    ant.signjar(jar: project.jar.archivePath,
-        signedjar: project.jar.archivePath,
+    ant.signjar(jar: androidConvention.getApkArchivePath().absolutePath,
+        signedjar: androidConvention.getApkArchivePath().absolutePath,
         keystore: keyStore,
         storepass: keyStorePassword,
         alias: keyAlias,
