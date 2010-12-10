@@ -1,11 +1,16 @@
 package com.jvoegele.gradle.tasks.android
 
-import java.io.File;
+import groovy.lang.Closure;
 
-import com.jvoegele.gradle.plugins.android.AndroidPluginConvention 
-import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory 
-import org.gradle.api.internal.ConventionTask;
-import org.gradle.api.tasks.TaskAction;
+import java.io.File
+
+import org.gradle.api.Task;
+import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskInputs
+import org.gradle.api.tasks.TaskOutputs
+
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 
 /**
  * 
@@ -30,13 +35,35 @@ class AndroidPackageTask extends ConventionTask {
     return new File (project.libsDir, androidConvention.getApkBaseName() + "-unaligned.apk")
   }
   
+//  public TaskOutputs getOutputs() {
+//    TaskOutputs to = super.getOutputs()
+//    to.file (androidConvention.getApkArchivePath())
+//    return to
+//  }
+
   public AndroidPackageTask() {
     // Initialize internal data
     androidConvention = project.convention.plugins.android
     sdkTools = new AndroidSdkToolsFactory(project)
     ant = project.ant
+    
   }
-  
+
+    
+  @Override
+  public Task configure(Closure closure) {
+
+    // Do the base configuration
+    Task configuredTask = super.configure(closure)
+    
+    // Declare inputs and outputs    
+    inputs.file (project.jar.archivePath)
+    outputs.file (androidConvention.getApkArchivePath())
+    
+    return configuredTask
+  }
+
+
   @TaskAction
   protected void process() {
     
