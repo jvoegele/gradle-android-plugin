@@ -5,13 +5,27 @@ import groovy.lang.MetaClass;
 import org.gradle.api.internal.ConventionTask;
 import org.gradle.api.tasks.TaskAction;
 
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention;
+
 class ProcessAndroidResources extends ConventionTask {
   boolean verbose
 
+  AndroidPluginConvention androidConvention
+  File genDir
+
+  public ProcessAndroidResources () {
+    super()
+    
+    androidConvention = project.convention.plugins.android
+    genDir = androidConvention.genDir
+    
+    inputs.file (androidConvention.androidManifest.absolutePath)
+    inputs.dir (androidConvention.resDir.absolutePath)
+    outputs.dir (genDir.absolutePath)
+  }
+  
   @TaskAction
   protected void process() {
-    def androidConvention = project.convention.plugins.android
-    def genDir = androidConvention.genDir
     genDir.mkdirs()
     project.logger.info("Generating R.java / Manifest.java from the resources...")
     project.ant.exec(executable: ant.aapt, failonerror: "true") {
