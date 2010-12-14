@@ -19,6 +19,7 @@ class ProcessAndroidResources extends ConventionTask {
     androidConvention = project.convention.plugins.android
     genDir = androidConvention.genDir
     
+    // Set input and output files and directories for this task
     inputs.file (androidConvention.androidManifest.absolutePath)
     inputs.dir (androidConvention.resDir.absolutePath)
     outputs.dir (genDir.absolutePath)
