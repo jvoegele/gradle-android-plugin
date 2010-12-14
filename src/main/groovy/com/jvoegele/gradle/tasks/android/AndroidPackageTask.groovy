@@ -1,14 +1,15 @@
 package com.jvoegele.gradle.tasks.android
 
-import groovy.lang.Closure;
+import groovy.lang.Closure
 
 import java.io.File
 
-import org.gradle.api.Task;
+import org.gradle.api.Task
 import org.gradle.api.internal.ConventionTask
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile;
+import org.gradle.api.tasks.OutputFile;
 import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.TaskInputs
-import org.gradle.api.tasks.TaskOutputs
 
 import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 
@@ -20,55 +21,50 @@ import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 class AndroidPackageTask extends ConventionTask {
   
   // Public configuration properties
-  public String keyStore
-  public String keyAlias
-  public String keyStorePassword
-  public String keyAliasPassword
+  @Input public String keyStore
+  @Input public String keyAlias
+  @Input public String keyStorePassword
+  @Input public String keyAliasPassword
   public boolean verbose
 
+  // Inputs and outputs files and directories (to be determined dynamically)
+  @InputFile
+  public File getJarArchivePath() {
+    return project.jar.archivePath
+  }
+  @OutputFile
+  public File getApkArchivePath() {
+    return androidConvention.getApkArchivePath()
+  }
+  
   // Internal fields
   AndroidPluginConvention androidConvention
   AndroidSdkToolsFactory sdkTools
   def ant
-  
+
   public File getTempFile() {
     return new File (project.libsDir, androidConvention.getApkBaseName() + "-unaligned.apk")
   }
   
-//  public TaskOutputs getOutputs() {
-//    TaskOutputs to = super.getOutputs()
-//    to.file (androidConvention.getApkArchivePath())
-//    return to
-//  }
-
   public AndroidPackageTask() {
     // Initialize internal data
     androidConvention = project.convention.plugins.android
     sdkTools = new AndroidSdkToolsFactory(project)
     ant = project.ant
-    
+
+    // Set static inputs and outputs for this task
+    inputs.dir (androidConvention.resDir.absolutePath)
+    inputs.dir (androidConvention.assetsDir.absolutePath)
+    inputs.dir (androidConvention.nativeLibsDir.absolutePath)
+    inputs.file (androidConvention.androidManifest.absolutePath)
+    inputs.files (project.fileTree (dir: "project.sourceSets.main.classesDir", exclude: "**/*.class"))
   }
-
     
-  @Override
-  public Task configure(Closure closure) {
-
-    // Do the base configuration
-    Task configuredTask = super.configure(closure)
-    
-    // Declare inputs and outputs    
-    inputs.file (project.jar.archivePath)
-    outputs.file (androidConvention.getApkArchivePath())
-    
-    return configuredTask
-  }
-
-
   @TaskAction
   protected void process() {
     
     // Create necessary directories for this task
-    androidConvention.getApkArchivePath().getParentFile().mkdirs()
+    getApkArchivePath().getParentFile().mkdirs()
     
     if (keyStore != null && keyAlias != null) {
       // Dont' sign - it'll sign with the provided key
@@ -82,13 +78,11 @@ class AndroidPackageTask extends ConventionTask {
     
     // Create temporary file for the zipaligning
     File temp = getTempFile()
-    ant.copy(file: androidConvention.getApkArchivePath().toString(), toFile: temp.toString())
+    ant.copy(file: getApkArchivePath().toString(), toFile: temp.toString())
     // Do the alignment
-    zipAlign(temp, androidConvention.getApkArchivePath())
-    // Touch temp file (to correctly manage tasks' inputs and outputs, as the output is the temp file itself)
-    ant.touch (file: temp.getAbsolutePath());
+    zipAlign(temp, getApkArchivePath())
     
-    logger.info("Final Package: " + androidConvention.getApkArchivePath())
+    logger.info("Final Package: " + getApkArchivePath())
   }
   
   private void sign() {
@@ -101,8 +95,8 @@ class AndroidPackageTask extends ConventionTask {
     }
     
     logger.info("Signing final apk...")
-    ant.signjar(jar: androidConvention.getApkArchivePath().absolutePath,
-        signedjar: androidConvention.getApkArchivePath().absolutePath,
+    ant.signjar(jar: getApkArchivePath().absolutePath,
+        signedjar: getApkArchivePath().absolutePath,
         keystore: keyStore,
         storepass: keyStorePassword,
         alias: keyAlias,
@@ -116,7 +110,7 @@ class AndroidPackageTask extends ConventionTask {
       arg(value: "--dex")
       arg(value: "--output=${androidConvention.intermediateDexFile}")
       if (verbose) arg(line: "--verbose")
-      fileset(file: project.jar.archivePath)
+      fileset(file: getJarArchivePath())
     }
     
     logger.info("Packaging resources")

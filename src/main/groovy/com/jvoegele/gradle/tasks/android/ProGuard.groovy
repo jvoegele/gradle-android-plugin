@@ -21,7 +21,6 @@ class ProGuard extends ConventionTask {
   String artifactName = "proguard"
   String artifactVersion = "4.4"
 
-//  boolean enabled = false
   boolean warn = false
   boolean note = false
   boolean obfuscate = false
@@ -31,7 +30,6 @@ class ProGuard extends ConventionTask {
     enabled = false
   }
   
-//  final File outJar = new File(project.libsDir, "classes.min.jar")
   public File getTempFile() {
     AndroidPluginConvention androidConvention = project.convention.plugins.android
     return new File (project.libsDir, androidConvention.getApkBaseName() + "-unproguarded.jar")
@@ -39,13 +37,8 @@ class ProGuard extends ConventionTask {
 
   @TaskAction
   protected void process() {
-//    if (!enabled) {
-////      ant.copy(file: project.jar.archivePath, tofile: outJar, overwrite: true)
-//      return
-//    }
 
     defineProGuardTask()
-//    ant.delete(file: outJar)
     String tempFilePath = getTempFile().getAbsolutePath()
     
     ant.proguard('warn': warn, 'obfuscate': obfuscate,
@@ -69,8 +62,6 @@ class ProGuard extends ConventionTask {
                  
     // Update the output file of this task
     ant.copy (file: tempFilePath, toFile: project.jar.archivePath, overwrite: true)
-    // Touch temp file (to correctly manage tasks' inputs and outputs, as the output is the temp file itself)
-    ant.touch (file: tempFilePath);
   }
 
   private boolean proGuardTaskDefined = false
