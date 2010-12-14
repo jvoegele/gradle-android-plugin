@@ -119,12 +119,12 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineAndroidInstallTask() {
     androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME) << {
-      logger.info("Installing ${ant['out.debug.package']} onto default emulator or device...")
+      logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
       ant.exec(executable: ant['adb'], failonerror: true) {
         arg(line: ant['adb.device.arg'])
         arg(value: 'install')
         arg(value: '-r')
-        arg(path: ant['out.debug.package'])
+        arg(path: androidConvention.getApkArchivePath())
       }
     }
     androidInstallTask.description =
