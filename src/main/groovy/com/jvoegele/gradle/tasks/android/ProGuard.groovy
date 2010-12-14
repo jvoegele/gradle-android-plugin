@@ -21,10 +21,15 @@ class ProGuard extends ConventionTask {
   String artifactName = "proguard"
   String artifactVersion = "4.4"
 
-  boolean enabled = false
+//  boolean enabled = false
   boolean warn = false
   boolean note = false
   boolean obfuscate = false
+  
+  public ProGuard () {
+    // By default, this task is disabled - it has to be explicitly enabled by user in build.gradle
+    enabled = false
+  }
   
 //  final File outJar = new File(project.libsDir, "classes.min.jar")
   public File getTempFile() {
@@ -34,10 +39,10 @@ class ProGuard extends ConventionTask {
 
   @TaskAction
   protected void process() {
-    if (!enabled) {
-//      ant.copy(file: project.jar.archivePath, tofile: outJar, overwrite: true)
-      return
-    }
+//    if (!enabled) {
+////      ant.copy(file: project.jar.archivePath, tofile: outJar, overwrite: true)
+//      return
+//    }
 
     defineProGuardTask()
 //    ant.delete(file: outJar)
