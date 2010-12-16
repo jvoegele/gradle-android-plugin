@@ -5,8 +5,6 @@ apply plugin: 'eclipse'
 version = '1.0-SNAPSHOT'
 group = 'com.jvoegele.gradle.plugins'
 
-outputPluginDir = "../clowai/tools/gradle-plugin"
-
 configurations {
     sshDeploy
 }
