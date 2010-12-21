@@ -17,7 +17,7 @@ class AaptExecTask extends AndroidAntTask {
                  resources: androidConvention.resDir.path,
                  assets: androidConvention.assetsDir,
                  androidjar: ant['android.jar'],
-                 outfolder: project.buildDir,
+                 outfolder: project.libsDir,
                  basename: project.name)
   }
 

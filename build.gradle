@@ -5,6 +5,8 @@ apply plugin: 'eclipse'
 version = '1.0-SNAPSHOT'
 group = 'com.jvoegele.gradle.plugins'
 
+outputPluginDir = "../clowai/tools/gradle-plugin"
+
 configurations {
     sshDeploy
 }
@@ -34,3 +36,20 @@ dependencies {
 // Make sure all code is compiled, tested and checked before uploadArchives.
 uploadArchives.dependsOn ':build'
 
+// Task for building in Mousedog devel environment - to call before uploadArchives!
+task mousedogBuild << {
+	project.version = '1.0-mousedog'
+	outputPluginDir = "../clowai/tools/gradle-plugin"
+	
+	uploadArchives.repositories.mavenDeployer ({repository(url: "file:" + outputPluginDir)})
+	
+	uploadArchives.doLast {
+		// Facility to quickly clean Gradle's plugin cache (think01 devel)
+		println "Deleting Gradle's cache for updating plugin..."
+		// Home installation
+		delete ("/home/fabio/.gradle/cache/com.jvoegele.gradle.plugins")
+		// Office installation
+	//	delete ("C:/Documents and Settings/71727/.gradle/cache/com.jvoegele.gradle.plugins")
+		println "Cache deleted!"
+	}
+}

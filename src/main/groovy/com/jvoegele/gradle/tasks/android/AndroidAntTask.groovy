@@ -1,10 +1,12 @@
 package com.jvoegele.gradle.tasks.android
 
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention 
+
 abstract class AndroidAntTask {
 
   protected final project
   protected final ant
-  protected final androidConvention
+  protected final AndroidPluginConvention androidConvention
 
   protected AndroidAntTask(project) {
     this.project = project
