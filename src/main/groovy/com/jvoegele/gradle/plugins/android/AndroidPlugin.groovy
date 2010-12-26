@@ -6,7 +6,6 @@ import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin
 
 import com.jvoegele.gradle.enhancements.JavadocEnhancement 
-import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory 
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask;
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
@@ -58,7 +57,28 @@ class AndroidPlugin implements Plugin<Project> {
     def ant = project.ant
 
     PROPERTIES_FILES.each { ant.property(file: "${it}.properties") }
-    sdkDir = ant['sdk.dir']
+	
+	// Determine the sdkDir value.
+	// First, let's try the sdk.dir property in local.properties file.
+	try {
+		sdkDir = ant['sdk.dir']
+	} catch (MissingPropertyException e) {
+		sdkDir = null
+	}
+	if (sdkDir == null || sdkDir.length() == 0) {
+		// No local.properties and/or no sdk.dir property: let's try ANDROID_HOME
+		sdkDir = System.getenv("ANDROID_HOME")
+		// Propagate it to the Gradle's Ant environment
+		if (sdkDir != null) {
+			ant.setProperty ("sdk.dir", sdkDir)
+		}
+	}
+	
+	// Check for sdkDir correctly valued, and in case throw an error
+	if (sdkDir == null || sdkDir.length() == 0) {
+		throw new MissingPropertyException ("Unable to find location of Android SDK. Please read documentation.")
+	}
+		
     toolsDir = new File(sdkDir, "tools")
 
     ant.path(id: 'android.antlibs') {
