@@ -121,9 +121,10 @@ location of your Android SDK installation:
 
 sdk.dir = /path/to/android/sdk
 
-(Note that this file should not be checked in to your version control
+Note that this file should not be checked in to your version control
 system as it will likely differ across various development
-environments.)
+environments.  Alternatively, you can use the ANDROID_HOME environment
+variable instead.
 
 Once you've performed these steps you can build your Android application
 by invoking the tasks described above.
