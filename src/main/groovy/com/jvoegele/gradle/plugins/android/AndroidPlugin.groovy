@@ -28,6 +28,7 @@ class AndroidPlugin implements Plugin<Project> {
   private AndroidPluginConvention androidConvention
   private sdkDir
   private toolsDir
+  private platformToolsDir // used since SDK r8, so check if it exists before using!
 
   private Project project
   private logger
@@ -80,13 +81,18 @@ class AndroidPlugin implements Plugin<Project> {
 	}
 		
     toolsDir = new File(sdkDir, "tools")
+    platformToolsDir = new File(sdkDir, "platform-tools")
 
     ant.path(id: 'android.antlibs') {
       ANDROID_JARS.each { pathelement(path: "${sdkDir}/tools/lib/${it}.jar") }
     }
 
     ant.condition('property': "exe", value: ".exe", 'else': "") { os(family: "windows") }
-    ant.property(name: "adb", location: new File(toolsDir, "adb${ant['exe']}"))
+    if (platformToolsDir.exists()) { // since SDK r8, adb is moved from tools to platform-tools
+      ant.property(name: "adb", location: new File(platformToolsDir, "adb${ant['exe']}"))
+    } else {
+      ant.property(name: "adb", location: new File(toolsDir, "adb${ant['exe']}"))
+    }
     ant.property(name: "zipalign", location: new File(toolsDir, "zipalign${ant['exe']}"))
     ant.property(name: 'adb.device.arg', value: '')
 
