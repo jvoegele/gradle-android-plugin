@@ -98,13 +98,6 @@ class AndroidPlugin implements Plugin<Project> {
 
     def outDir = project.buildDir.absolutePath
     ant.property(name: "resource.package.file.name", value: "${project.name}.ap_")
-	/* Use Gradle standard properties instead, like archivePath.
-    ant.property(name: "out.debug.unaligned.package", location: "${outDir}/${project.name}-debug-unaligned.apk")
-    ant.property(name: "out.debug.package", location: "${outDir}/${project.name}-debug.apk")
-    ant.property(name: "out.unsigned.package", location: "${outDir}/${project.name}-unsigned.apk")
-    ant.property(name: "out.unaligned.package", location: "${outDir}/${project.name}-unaligned.apk")
-    ant.property(name: "out.release.package", location: "${outDir}/${project.name}-release.apk")
-    */
 
     ant.taskdef(name: 'setup', classname: 'com.android.ant.SetupTask', classpathref: 'android.antlibs')
 
