@@ -44,13 +44,18 @@ class AndroidSdkToolsFactory {
   public AndroidAntTask getApkbuilder() {
     if (this.androidSdkToolsRevision < 7) {
       return new ApkBuilderTask_r6(project)
-    }
-    else {
+    } else if (this.androidSdkToolsRevision < 8) {
       return new ApkBuilderTask_r7(project)
+    } else {
+      return new ApkBuilderTask_r8(project)
     }
   }
 
   public AndroidAntTask getAaptexec() {
-    return new AaptExecTask(project)
+    if (this.androidSdkToolsRevision < 8) {
+      return new AaptExecTask_r7(project)
+    } else {
+      return new AaptExecTask_r8(project)
+    }
   }
 }
