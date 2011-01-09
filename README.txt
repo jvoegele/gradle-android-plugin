@@ -82,7 +82,7 @@ buildscript {
     classpath 'com.jvoegele.gradle.plugins:android-plugin:0.9.5'
   }
 }
-apply plugin: com.jvoegele.gradle.plugins.android.AndroidPlugin
+apply plugin: 'android'
 repositories {
     mavenCentral()
 }
@@ -143,7 +143,7 @@ buildscript {
     classpath 'com.jvoegele.gradle.plugins:android-plugin:0.9.5'
   }
 }
-apply plugin: com.jvoegele.gradle.plugins.android.AndroidPlugin
+apply plugin: 'android'
 repositories {
     mavenCentral()
 }
@@ -249,9 +249,3 @@ FUTURE DIRECTIONS
 * In a future version of the Android plugin, I would like to integrate
   with the Eclipse plugin to ensure that Eclipse projects generated with
   "gradle eclipse" are optimized for Android development.
-* Make it easier to declare the plugin in the build.gradle file, ideally
-  by simply saying:
-    usePlugin 'android'
-  or
-    apply plugin: 'android'
-
