@@ -142,11 +142,8 @@ class AndroidPlugin implements Plugin<Project> {
   private void defineAndroidInstallTask() {
     androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME) << {
       logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
-      ant.exec(executable: ant['adb'], failonerror: true) {
-        arg(line: ant['adb.device.arg'])
-        arg(value: 'install')
-        arg(value: '-r')
-        arg(path: androidConvention.getApkArchivePath())
+      adbExec {
+        args 'install', '-r', androidConvention.apkArchivePath
       }
     }
     androidInstallTask.description =
@@ -164,15 +161,37 @@ class AndroidPlugin implements Plugin<Project> {
       }
       else {
         logger.info("Uninstalling ${ant['manifest.package']} from the default emulator or device...")
-        ant.exec(executable: ant['adb'], failonerror: true) {
-          arg(line: ant['adb.device.arg'])
-          arg(value: "uninstall")
-          arg(value: ant['manifest.package'])
+        adbExec { // I'm not sure here -- should uninstall fail only because the package wasn't on the device?
+          args 'uninstall', ant['manifest.package']
         }
       }
     }
     androidUninstallTask.description =
         "Uninstalls the application from a running emulator or device"
+  }
+
+  /** closure should only contain calls to args; remember that the device arg has already been set! */
+  private void adbExec(closure) {
+    def stdout = new ByteArrayOutputStream() // output is small, we can safely read it into memory
+    project.exec {
+      executable project.ant['adb']
+      if (project.ant['adb.device.arg']) {
+        args project.ant['adb.device.arg']
+      }
+
+      // the closure must run in context of this project.exec, so it must have the same delegate
+      closure.delegate = delegate
+      closure()
+
+      standardOutput = stdout
+    }
+
+    def reader = new InputStreamReader(new ByteArrayInputStream(stdout.toByteArray()))
+    reader.eachLine {
+      if (it.toLowerCase().contains("failure") || it.toLowerCase().contains("error")) {
+        throw new AdbErrorException(it.trim());
+      }
+    }
   }
 
   private void defineTaskDependencies() {
