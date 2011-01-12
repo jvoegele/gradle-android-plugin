@@ -2,13 +2,9 @@ package com.jvoegele.gradle.enhancements
 
 import org.gradle.api.Project 
 
-class JavadocEnhancement {
-  private Project project
-  private ant
-
+class JavadocEnhancement extends GradlePluginEnhancement {
   public JavadocEnhancement(Project project) {
-    this.project = project
-    this.ant = project.ant
+    super(project)
   }
 
   public void apply() {
