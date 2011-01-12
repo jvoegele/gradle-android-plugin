@@ -1,6 +1,7 @@
 package com.jvoegele.gradle.enhancements
 
 import org.gradle.api.Project 
+import org.gradle.plugins.eclipse.model.BuildCommand 
 
 class EclipseEnhancement extends GradlePluginEnhancement {
   public EclipseEnhancement(Project project) {
@@ -11,20 +12,20 @@ class EclipseEnhancement extends GradlePluginEnhancement {
     project.gradle.taskGraph.whenReady { taskGraph ->
       if (taskGraph.hasTask(':eclipse')) {
         def eclipseProject = project.tasks['eclipseProject']
-/*
         if (eclipseProject) {
-          eclipseProject.natureNames += 'com.android.ide.eclipse.adt.AndroidNature'
-          def buildCommands = ['com.android.ide.eclipse.adt.ResourceManagerBuilder',
-                               'com.android.ide.eclipse.adt.PreCompilerBuilder']
-          buildCommands.addAll(eclipseProject.buildCommandNames)
-          buildCommands += 'com.android.ide.eclipse.adt.ApkBuilder'
-          eclipseProject.buildCommandNames = new LinkedHashSet(buildCommands)
+          project.configure(eclipseProject) {
+            natures 'com.android.ide.eclipse.adt.AndroidNature'
+            def builders = new LinkedList(buildCommands)
+            builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.PreCompilerBuilder'))
+            builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.ResourceManagerBuilder'))
+            builders.addLast(new BuildCommand('com.android.ide.eclipse.adt.ApkBuilder'))
+            buildCommands = new ArrayList(builders)
+          }
         }
 
-        def eclipseClasspath = project.tasks.eclipseCp
-        eclipseClasspath.srcDirs += androidConvention.genDir
+        //def eclipseClasspath = project.tasks.eclipseCp
+        //eclipseClasspath.srcDirs += androidConvention.genDir
       }
-*/
     }
   }
 
