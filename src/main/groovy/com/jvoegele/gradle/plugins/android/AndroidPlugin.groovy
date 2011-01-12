@@ -5,6 +5,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.plugins.JavaPlugin
 
+import com.jvoegele.gradle.enhancements.EclipseEnhancement 
 import com.jvoegele.gradle.enhancements.JavadocEnhancement 
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask;
 import com.jvoegele.gradle.tasks.android.ProGuard
@@ -197,6 +198,7 @@ class AndroidPlugin implements Plugin<Project> {
    */
   private void configureEnhancements() {
     new JavadocEnhancement(project).apply()
+    new EclipseEnhancement(project).apply()
   }
 
   private void configureCompile() {
