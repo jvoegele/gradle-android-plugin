@@ -28,7 +28,7 @@ class AndroidPluginConvention {
   }
   
   /**
-   * This value has to be calculated dinamically
+   * This value has to be calculated dynamically
    * @return
    */
   public String getApkBaseName() {
@@ -46,7 +46,7 @@ class AndroidPluginConvention {
   }
   
   /**
-   * This value has to be calculated dinamically
+   * This value has to be calculated dynamically
    * @return
    */
   public File getApkArchivePath() {
