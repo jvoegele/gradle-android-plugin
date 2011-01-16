@@ -1,14 +1,9 @@
 package com.jvoegele.gradle.tasks.android
 
-import groovy.lang.Closure
-
-import java.io.File
-
-import org.gradle.api.Task
 import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile;
-import org.gradle.api.tasks.OutputFile;
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
