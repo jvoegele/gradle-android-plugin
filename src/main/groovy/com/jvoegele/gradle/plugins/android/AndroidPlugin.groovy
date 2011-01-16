@@ -125,33 +125,33 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void defineAndroidProcessResourcesTask() {
-    androidProcessResourcesTask = project.tasks.add(ANDROID_PROCESS_RESOURCES_TASK_NAME, ProcessAndroidResources.class)
-    androidProcessResourcesTask.description = "Generate R.java source file from Android resource XML files"
+    androidProcessResourcesTask = project.task(ANDROID_PROCESS_RESOURCES_TASK_NAME,
+        description: "Generate R.java source file from Android resource XML files", type: ProcessAndroidResources)
   }
 
   private void defineProguardTask() {
-    proguardTask = project.tasks.add(PROGUARD_TASK_NAME, ProGuard.class)
-    proguardTask.description = "Process classes and JARs with ProGuard"
+    proguardTask = project.task(PROGUARD_TASK_NAME,
+        description: "Process classes and JARs with ProGuard", type: ProGuard)
   }
 
   private void defineAndroidPackageTask() {
-    androidPackageTask = project.tasks.add(ANDROID_PACKAGE_TASK_NAME, AndroidPackageTask.class)
-    androidPackageTask.description = "Creates the Android application apk package, optionally signed, zipaligned"
+    androidPackageTask = project.task(ANDROID_PACKAGE_TASK_NAME,
+        description: "Creates the Android application apk package, optionally signed, zipaligned", type: AndroidPackageTask)
   }
 
   private void defineAndroidInstallTask() {
-    androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME) << {
+    androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME,
+        description: "Installs the debug package onto a running emulator or device") << {
       logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
       adbExec {
         args 'install', '-r', androidConvention.apkArchivePath
       }
     }
-    androidInstallTask.description =
-        "Installs the debug package onto a running emulator or device"
   }
 
   private void defineAndroidUninstallTask() {
-    androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME) << {
+    androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME,
+        description: "Uninstalls the application from a running emulator or device") << {
       String manifestPackage = null
       try {
         manifestPackage = ant['manifest.package']
@@ -166,8 +166,6 @@ class AndroidPlugin implements Plugin<Project> {
         }
       }
     }
-    androidUninstallTask.description =
-        "Uninstalls the application from a running emulator or device"
   }
 
   /** closure should only contain calls to args; remember that the device arg has already been set! */
