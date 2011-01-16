@@ -10,7 +10,7 @@ class AaptExecTask_r8 extends AndroidAntTask {
    * @see com.jvoegele.gradle.tasks.android.AndroidAntTask#execute(java.util.Map)
    */
   @Override
-  public void execute(Map args) {
+  public void execute(Map args = [:], Closure closure = null) {
     ant.aaptexec(executable: ant.aapt,
                  command: args.get('command', 'package'),
                  manifest: androidConvention.androidManifest.path,

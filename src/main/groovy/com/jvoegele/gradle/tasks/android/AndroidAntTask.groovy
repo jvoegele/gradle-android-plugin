@@ -14,5 +14,5 @@ abstract class AndroidAntTask {
     this.androidConvention = project.convention.plugins.android
   }
 
-  public abstract void execute(Map args);
+  public abstract void execute(Map args = [:], Closure closure = null);
 }
