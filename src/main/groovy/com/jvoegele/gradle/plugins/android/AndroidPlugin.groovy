@@ -1,11 +1,13 @@
 package com.jvoegele.gradle.plugins.android
 
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.JavaPlugin
 
 import com.jvoegele.gradle.enhancements.JavadocEnhancement
+import com.jvoegele.gradle.tasks.android.AdbExec
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
@@ -141,54 +143,29 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineAndroidInstallTask() {
     androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME,
-        description: "Installs the debug package onto a running emulator or device") << {
+        description: "Installs the debug package onto a running emulator or device", type: AdbExec).doFirst {
+
       logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
-      adbExec {
-        args 'install', '-r', androidConvention.apkArchivePath
-      }
+
+      adbArgs 'install', '-r', androidConvention.apkArchivePath
     }
   }
 
   private void defineAndroidUninstallTask() {
     androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME,
-        description: "Uninstalls the application from a running emulator or device") << {
-      String manifestPackage = null
+        description: "Uninstalls the application from a running emulator or device", type: AdbExec).doFirst {
+
+      def manifestPackage = null
       try {
         manifestPackage = ant['manifest.package']
-      } catch (Exception ignoreBecauseWeCheckForNullLaterAnywayAfterAll) {}
-      if (!manifestPackage) {
-        logger.error("Unable to uninstall, manifest.package property is not defined.")
-      }
-      else {
-        logger.info("Uninstalling ${ant['manifest.package']} from the default emulator or device...")
-        adbExec { // I'm not sure here -- should uninstall fail only because the package wasn't on the device?
-          args 'uninstall', ant['manifest.package']
-        }
-      }
-    }
-  }
-
-  /** closure should only contain calls to args; remember that the device arg has already been set! */
-  private void adbExec(closure) {
-    def stdout = new ByteArrayOutputStream() // output is small, we can safely read it into memory
-    project.exec {
-      executable project.ant['adb']
-      if (project.ant['adb.device.arg']) {
-        args project.ant['adb.device.arg']
+      } catch (Exception e) {
+        throw new GradleException("Application package is not defined in AndroidManifest.xml, unable to uninstall.", e)
       }
 
-      // the closure must run in context of this project.exec, so it must have the same delegate
-      closure.delegate = delegate
-      closure()
+      logger.info("Uninstalling ${manifestPackage} from the default emulator or device...")
 
-      standardOutput = stdout
-    }
-
-    def reader = new InputStreamReader(new ByteArrayInputStream(stdout.toByteArray()))
-    reader.eachLine {
-      if (it.toLowerCase().contains("failure") || it.toLowerCase().contains("error")) {
-        throw new AdbErrorException(it.trim());
-      }
+      // Should uninstall fail only because the package wasn't on the device? It does now...
+      adbArgs 'uninstall', manifestPackage
     }
   }
 
