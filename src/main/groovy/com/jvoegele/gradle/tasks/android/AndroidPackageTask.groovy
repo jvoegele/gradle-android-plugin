@@ -57,7 +57,7 @@ class AndroidPackageTask extends ConventionTask {
     inputs.dir (androidConvention.assetsDir.absolutePath)
     inputs.dir (androidConvention.nativeLibsDir.absolutePath)
     inputs.file (androidConvention.androidManifest.absolutePath)
-    inputs.files (project.fileTree (dir: "project.sourceSets.main.classesDir", exclude: "**/*.class"))
+    inputs.files (project.fileTree (dir: project.sourceSets.main.classesDir, exclude: "**/*.class"))
   }
     
   @TaskAction
@@ -111,6 +111,7 @@ class AndroidPackageTask extends ConventionTask {
       arg(value: "--output=${androidConvention.intermediateDexFile}")
       if (verbose) arg(line: "--verbose")
       fileset(file: getJarArchivePath())
+      fileset(dir: androidConvention.externalLibsDir, includes: '*.jar')
     }
     
     logger.info("Packaging resources")
