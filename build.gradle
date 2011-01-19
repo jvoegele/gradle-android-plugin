@@ -34,3 +34,11 @@ dependencies {
 // Make sure all code is compiled, tested and checked before uploadArchives.
 uploadArchives.dependsOn ':build'
 
+clean << {
+    //TODO: will this work on Windows? I intentionally used the file() method so as
+    // to be platform independent, but I didn't test this outside MacOS/Linux
+    def gradleCacheDir = file("${System.properties['user.home']}/.gradle/cache")
+    def pluginCacheDir = file("$gradleCacheDir/$project.group/$project.name")
+    logger.warn "Clearing Gradle artifact cache at $pluginCacheDir"
+    ant.delete dir: pluginCacheDir
+} 
