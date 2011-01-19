@@ -12,7 +12,7 @@ class ApkBuilderTask_r7 extends AndroidAntTask {
    * @param args Map of keyword arguments.  Supported keywords are sign and
    *             verbose, both of which should be boolean values if provided.
    */
-  public void execute(Map args = [:], Closure closure = null) {
+  public void execute(Map args) {
     assert ant != null
     ant.apkbuilder(outfolder: project.libsDir,
                    resourcefile: ant['resource.package.file.name'],

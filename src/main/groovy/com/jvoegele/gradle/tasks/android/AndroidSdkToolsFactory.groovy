@@ -58,8 +58,4 @@ class AndroidSdkToolsFactory {
       return new AaptExecTask_r8(project)
     }
   }
-
-  public AndroidAntTask getAdbexec() {
-    return new AdbExecTask(project)
-  }
 }
