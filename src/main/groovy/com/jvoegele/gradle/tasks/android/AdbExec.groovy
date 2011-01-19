@@ -46,22 +46,22 @@ class AdbExec extends DefaultTask {
     }
   }
 
-  def AdbExec adbArgs(Object... args) {
+  def AdbExec args(Object... args) {
     exec.args(args)
     return this
   }
 
-  def AdbExec adbArgs(Iterable<?> args) {
+  def AdbExec args(Iterable<?> args) {
     exec.args(args)
     return this
   }
 
-  def AdbExec setAdbArgs(Iterable<?> args) {
-    exec.args(args)
+  def AdbExec setArgs(Iterable<?> args) {
+    exec.setArgs(args)
     return this
   }
 
-  def List<String> getAdbArgs() {
+  def List<String> getArgs() {
     return exec.getArgs()
   }
 }

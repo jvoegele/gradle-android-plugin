@@ -147,7 +147,7 @@ class AndroidPlugin implements Plugin<Project> {
 
       logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
 
-      adbArgs 'install', '-r', androidConvention.apkArchivePath
+      args 'install', '-r', androidConvention.apkArchivePath
     }
   }
 
@@ -165,7 +165,7 @@ class AndroidPlugin implements Plugin<Project> {
       logger.info("Uninstalling ${manifestPackage} from the default emulator or device...")
 
       // Should uninstall fail only because the package wasn't on the device? It does now...
-      adbArgs 'uninstall', manifestPackage
+      args 'uninstall', manifestPackage
     }
   }
 
