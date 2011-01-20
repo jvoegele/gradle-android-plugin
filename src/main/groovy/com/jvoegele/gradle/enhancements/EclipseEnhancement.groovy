@@ -11,6 +11,7 @@ class EclipseEnhancement extends GradlePluginEnhancement {
   public void apply() {
     project.gradle.taskGraph.whenReady { taskGraph ->
       if (taskGraph.hasTask(':eclipse')) {
+
         def eclipseProject = project.tasks['eclipseProject']
         if (eclipseProject) {
           project.configure(eclipseProject) {
@@ -23,8 +24,9 @@ class EclipseEnhancement extends GradlePluginEnhancement {
           }
         }
 
-        //def eclipseClasspath = project.tasks.eclipseCp
-        //eclipseClasspath.srcDirs += androidConvention.genDir
+        project.configure(project.eclipseClasspath) {
+          containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
+        }
       }
     }
   }
