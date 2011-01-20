@@ -1,13 +1,13 @@
 package com.jvoegele.gradle.plugins.android
 
-import org.gradle.api.logging.LogLevel;
-import org.gradle.api.Plugin;
-import org.gradle.api.Project;
+import org.gradle.api.GradleException
+import org.gradle.api.Plugin
+import org.gradle.api.Project
+import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.JavaPlugin
 
 import com.jvoegele.gradle.enhancements.JavadocEnhancement
-import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory
-import com.jvoegele.gradle.tasks.android.AdbErrorException
+import com.jvoegele.gradle.tasks.android.AdbExec
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
@@ -33,7 +33,6 @@ class AndroidPlugin implements Plugin<Project> {
   private platformToolsDir // used since SDK r8, so check if it exists before using!
 
   private Project project
-  private AndroidSdkToolsFactory sdkTools
   private logger
 
   private androidProcessResourcesTask, proguardTask, androidPackageTask, 
@@ -46,7 +45,6 @@ class AndroidPlugin implements Plugin<Project> {
     project.plugins.apply(JavaPlugin.class)
 
     this.project = project
-    this.sdkTools = new AndroidSdkToolsFactory(project)
     this.logger = project.logger
 
     androidConvention = new AndroidPluginConvention(project)
@@ -62,28 +60,28 @@ class AndroidPlugin implements Plugin<Project> {
     def ant = project.ant
 
     PROPERTIES_FILES.each { ant.property(file: "${it}.properties") }
-	
-	// Determine the sdkDir value.
-	// First, let's try the sdk.dir property in local.properties file.
-	try {
-		sdkDir = ant['sdk.dir']
-	} catch (MissingPropertyException e) {
-		sdkDir = null
-	}
-	if (sdkDir == null || sdkDir.length() == 0) {
-		// No local.properties and/or no sdk.dir property: let's try ANDROID_HOME
-		sdkDir = System.getenv("ANDROID_HOME")
-		// Propagate it to the Gradle's Ant environment
-		if (sdkDir != null) {
-			ant.setProperty ("sdk.dir", sdkDir)
-		}
-	}
-	
-	// Check for sdkDir correctly valued, and in case throw an error
-	if (sdkDir == null || sdkDir.length() == 0) {
-		throw new MissingPropertyException ("Unable to find location of Android SDK. Please read documentation.")
-	}
-		
+
+    // Determine the sdkDir value.
+    // First, let's try the sdk.dir property in local.properties file.
+    try {
+      sdkDir = ant['sdk.dir']
+    } catch (MissingPropertyException e) {
+      sdkDir = null
+    }
+    if (sdkDir == null || sdkDir.length() == 0) {
+      // No local.properties and/or no sdk.dir property: let's try ANDROID_HOME
+      sdkDir = System.getenv("ANDROID_HOME")
+      // Propagate it to the Gradle's Ant environment
+      if (sdkDir != null) {
+        ant.setProperty("sdk.dir", sdkDir)
+      }
+    }
+
+    // Check for sdkDir correctly valued, and in case throw an error
+    if (sdkDir == null || sdkDir.length() == 0) {
+      throw new MissingPropertyException("Unable to find location of Android SDK. Please read documentation.")
+    }
+
     toolsDir = new File(sdkDir, "tools")
     platformToolsDir = new File(sdkDir, "platform-tools")
 
@@ -129,54 +127,46 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void defineAndroidProcessResourcesTask() {
-    androidProcessResourcesTask = project.tasks.add(ANDROID_PROCESS_RESOURCES_TASK_NAME, ProcessAndroidResources.class)
-    androidProcessResourcesTask.description = "Generate R.java source file from Android resource XML files"
+    androidProcessResourcesTask = project.task(ANDROID_PROCESS_RESOURCES_TASK_NAME,
+        description: "Generate R.java source file from Android resource XML files", type: ProcessAndroidResources)
   }
 
   private void defineProguardTask() {
-    proguardTask = project.tasks.add(PROGUARD_TASK_NAME, ProGuard.class)
-    proguardTask.description = "Process classes and JARs with ProGuard"
+    proguardTask = project.task(PROGUARD_TASK_NAME,
+        description: "Process classes and JARs with ProGuard", type: ProGuard)
   }
 
   private void defineAndroidPackageTask() {
-    androidPackageTask = project.tasks.add(ANDROID_PACKAGE_TASK_NAME, AndroidPackageTask.class)
-    androidPackageTask.description = "Creates the Android application apk package, optionally signed, zipaligned"
+    androidPackageTask = project.task(ANDROID_PACKAGE_TASK_NAME,
+        description: "Creates the Android application apk package, optionally signed, zipaligned", type: AndroidPackageTask)
   }
 
   private void defineAndroidInstallTask() {
-    androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME) << {
+    androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME,
+        description: "Installs the debug package onto a running emulator or device", type: AdbExec).doFirst {
+
       logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
-      adbExec {
-        args 'install', '-r', androidConvention.apkArchivePath
-      }
+
+      args 'install', '-r', androidConvention.apkArchivePath
     }
-    androidInstallTask.description =
-        "Installs the debug package onto a running emulator or device"
   }
 
   private void defineAndroidUninstallTask() {
-    androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME) << {
-      String manifestPackage = null
+    androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME,
+        description: "Uninstalls the application from a running emulator or device", type: AdbExec).doFirst {
+
+      def manifestPackage = null
       try {
         manifestPackage = ant['manifest.package']
-      } catch (Exception ignoreBecauseWeCheckForNullLaterAnywayAfterAll) {}
-      if (!manifestPackage) {
-        logger.error("Unable to uninstall, manifest.package property is not defined.")
+      } catch (Exception e) {
+        throw new GradleException("Application package is not defined in AndroidManifest.xml, unable to uninstall.", e)
       }
-      else {
-        logger.info("Uninstalling ${ant['manifest.package']} from the default emulator or device...")
-        adbExec { // I'm not sure here -- should uninstall fail only because the package wasn't on the device?
-          args 'uninstall', ant['manifest.package']
-        }
-      }
-    }
-    androidUninstallTask.description =
-        "Uninstalls the application from a running emulator or device"
-  }
 
-  /** closure should only contain calls to args; remember that the device arg has already been set! */
-  private void adbExec(closure) {
-    sdkTools.adbexec.execute([:], closure)
+      logger.info("Uninstalling ${manifestPackage} from the default emulator or device...")
+
+      // Should uninstall fail only because the package wasn't on the device? It does now...
+      args 'uninstall', manifestPackage
+    }
   }
 
   private void defineTaskDependencies() {
@@ -207,7 +197,7 @@ class AndroidPlugin implements Plugin<Project> {
     def mainSource = project.tasks.compileJava.source
     project.tasks.compileJava.source = [androidConvention.genDir, mainSource]
     project.sourceSets.main.compileClasspath +=
-        project.files(project.ant.references['android.target.classpath'].list())
+    project.files(project.ant.references['android.target.classpath'].list())
     project.compileJava.options.bootClasspath = project.ant.references['android.target.classpath']
   }
 
