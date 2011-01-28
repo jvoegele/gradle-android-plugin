@@ -11,6 +11,7 @@ import com.jvoegele.gradle.tasks.android.AdbExec
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
+import com.jvoegele.gradle.tasks.android.InstrumentationTestsTask
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -25,7 +26,8 @@ class AndroidPlugin implements Plugin<Project> {
   private static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
   private static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
   private static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
-
+  private static final ANDROID_INSTRUMENT_TASK_NAME = "androidInstrument"
+  
   private static final PROPERTIES_FILES = ['local', 'build', 'default']
   private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
 
@@ -38,7 +40,7 @@ class AndroidPlugin implements Plugin<Project> {
   private logger
 
   private androidProcessResourcesTask, proguardTask, androidPackageTask, 
-  androidInstallTask, androidUninstallTask
+  androidInstallTask, androidUninstallTask, androidInstrumentTask
 
   boolean verbose = false
 
@@ -124,6 +126,7 @@ class AndroidPlugin implements Plugin<Project> {
     defineAndroidPackageTask()
     defineAndroidInstallTask()
     defineAndroidUninstallTask()
+    defineAndroidInstrumentTask()
     defineTaskDependencies()
     configureTaskLogging()
   }
@@ -175,6 +178,13 @@ class AndroidPlugin implements Plugin<Project> {
     }
     androidUninstallTask.group = ANDROID_GROUP
   }
+  
+  private void defineAndroidInstrumentTask() {
+    androidInstrumentTask = project.task(
+        ANDROID_INSTRUMENT_TASK_NAME,
+        description: "Runs instrumentation tests on a running emulator or device",
+        type: InstrumentationTestsTask)
+  }
 
   private void defineTaskDependencies() {
     project.tasks.compileJava.dependsOn(androidProcessResourcesTask)
@@ -182,6 +192,7 @@ class AndroidPlugin implements Plugin<Project> {
     androidPackageTask.dependsOn(proguardTask)
     project.tasks.assemble.dependsOn(androidPackageTask)
     androidInstallTask.dependsOn(project.tasks.assemble)
+    androidInstrumentTask.dependsOn(project.tasks.androidInstall)
   }
 
   private void configureTaskLogging() {
