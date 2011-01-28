@@ -8,7 +8,6 @@ class AndroidPluginConvention {
   File genDir
   File assetsDir
   File nativeLibsDir
-  File externalLibsDir
   File androidManifest
   File intermediateDexFile
   private String apkBaseName
@@ -21,7 +20,6 @@ class AndroidPluginConvention {
     resDir = new File(project.projectDir, 'res')
     assetsDir = new File(project.projectDir, 'assets')
     nativeLibsDir = new File(project.projectDir, 'libs')
-    externalLibsDir = new File(project.projectDir, 'libs')
     androidManifest = new File(project.projectDir, 'AndroidManifest.xml')
 	
 	// Output paths
