@@ -5,6 +5,8 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.Exec
 import org.gradle.api.tasks.TaskAction
 
+import com.jvoegele.gradle.tasks.android.exceptions.AdbErrorException;
+
 class AdbExec extends DefaultTask {
   def exec = new Exec()
   def stdout = new ByteArrayOutputStream() // output is small, we can safely read it into memory
