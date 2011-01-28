@@ -13,7 +13,7 @@ class AdbExec extends DefaultTask {
   def AdbExec() {
     exec.executable project.ant['adb']
     if (project.ant['adb.device.arg']) {
-      exec.args project.ant['adb.device.arg']
+      exec.args project.ant['adb.device.arg'].split(" ")
     }
 
     // both stdout and stderr should be logged AND inspected for error messages at the same time
