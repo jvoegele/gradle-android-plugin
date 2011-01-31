@@ -185,7 +185,7 @@ class AndroidPlugin implements Plugin<Project> {
     androidPackageTask.dependsOn(proguardTask)
     project.tasks.assemble.dependsOn(androidPackageTask)
     androidInstallTask.dependsOn(project.tasks.assemble)
-    androidInstrumentTask.dependsOn(project.tasks.androidInstall)
+    androidInstrumentTask.dependsOn(androidInstallTask)
   }
 
   private void configureTaskLogging() {
