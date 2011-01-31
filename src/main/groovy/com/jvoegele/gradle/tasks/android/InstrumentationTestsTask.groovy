@@ -28,7 +28,7 @@ class InstrumentationTestsTask extends AdbExec {
   private void detectBuildFailures(def reader) {
     def success = false
     // ADB currently fails with errors on stdout, so we literally have to check
-    // for 'OK' to 
+    // for 'OK' to decide whether test failed or not
     reader.eachLine {
       if (it.matches("^OK \\(([0-9]+ tests){1}\\)")) {
         success = true
