@@ -25,9 +25,22 @@ class ProcessAndroidResources extends ConventionTask {
     outputs.dir (genDir.absolutePath)
   }
   
+  
   @TaskAction
   protected void process() {
     genDir.mkdirs()
+	project.logger.info("Generating AIDL java files")
+	project.ant.exec(executable: ant.aidl, failonerror: "true") {
+		arg(value: '-p')
+		arg(path: ant.references['android.aidl'])
+		arg(value: '-I')
+		arg(path: project.tasks.compileJava.source.absolutePath)
+		arg(value: '-o')
+		arg(path: genDir.absolutePath)
+		fileset(dir: 'src'){
+			include(name: '** /*.aidl')
+		}
+	}
     project.logger.info("Generating R.java / Manifest.java from the resources...")
     project.ant.exec(executable: ant.aapt, failonerror: "true") {
       arg(value: "package")
