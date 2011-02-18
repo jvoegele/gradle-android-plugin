@@ -41,4 +41,4 @@ clean << {
     def pluginCacheDir = file("$gradleCacheDir/$project.group/$project.name")
     logger.warn "Clearing Gradle artifact cache at $pluginCacheDir"
     ant.delete dir: pluginCacheDir
-} 
+}

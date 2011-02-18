@@ -103,7 +103,7 @@ class AndroidPackageTask extends ConventionTask {
    * Creates a classes.dex file containing all classes required at runtime, i.e.
    * all class files from the application itself, plus all its dependencies, and
    * bundles it into the final APK.
-   * 
+   *
    * @param sign whether the APK should be signed with the release key or not
    */
   private void createPackage(boolean sign) {
@@ -112,10 +112,10 @@ class AndroidPackageTask extends ConventionTask {
       arg(value: "--dex")
       arg(value: "--output=${androidConvention.intermediateDexFile}")
       if (verbose) arg(line: "--verbose")
-      
+
       // add classes from application JAR
       fileset(file: getJarArchivePath())
-      
+
       // add classes from application dependencies block
       project.configurations.runtime.each { fileset file: it }
     }
