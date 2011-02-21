@@ -10,6 +10,7 @@ class AndroidPluginConvention {
   File nativeLibsDir
   File androidManifest
   File intermediateDexFile
+  String testRunner
   private String apkBaseName
   private File apkArchivePath
   
@@ -25,6 +26,9 @@ class AndroidPluginConvention {
 	// Output paths
     genDir = new File(project.buildDir, 'gen')
     intermediateDexFile = new File(project.libsDir, "classes.dex")
+    
+    // instrumentation conventions
+    testRunner = "android.test.InstrumentationTestRunner"
   }
   
   /**
