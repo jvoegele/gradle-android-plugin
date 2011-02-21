@@ -5,15 +5,94 @@ import com.jvoegele.gradle.tasks.android.exceptions.AdbErrorException;
 
 class InstrumentationTestsTask extends AdbExec {
 
+  /**
+   * Configures the test runners used to run the instrumentation tests.
+   *  
+   * @author Matthias Kaeppler
+   */
+  private class TestRunnerConfig {
+    
+    static final String PACKAGE    = "testpackage"
+    static final String ANNOTATION = "annotation"
+    static final String RUNNER     = "with"
+    
+    def defaultTestRunner = getProject().convention.plugins.android.testRunner
+    def packageRunners    = [:]
+    def annotationRunners = [:]
+    
+    def run(args = [(RUNNER): defaultTestRunner]) {
+      def testRunner  = args[(RUNNER)]
+      def packageName = args[(PACKAGE)]
+      def annotation  = args[(ANNOTATION)] 
+     
+      if (packageName) {
+        packageRunners[expandPackageName(packageName)] = testRunner
+      } else if (annotation) {
+        annotationRunners[annotation] = testRunner
+      } else {
+        defaultTestRunner = testRunner
+      }
+    }
+    
+    boolean performDefaultRun() {
+      packageRunners.isEmpty() && annotationRunners.isEmpty()
+    }
+    
+    private String expandPackageName(String packageName) {
+      if (!packageName.startsWith(getTestPackage())) {
+        return "${getTestPackage()}.${packageName}"
+      }
+      return packageName;
+    }
+  }
+  
+  def testPackage
+  def testRunnerConfig
+  
   def InstrumentationTestsTask() {
     logger.info("Running instrumentation tests...")
     
-    //TODO: make the test runner configurable or parse it from the manifest
-    def testRunner  = 'android.test.InstrumentationTestRunner'
-    def testPackage = ant['manifest.package']
-    
-    args "shell", "am instrument", "-w", "$testPackage/$testRunner"
+    this.testPackage = ant['manifest.package']
+    this.testRunnerConfig = new TestRunnerConfig()
   } 
+  
+  /**
+   * Used to configure test runners using a closure, e.g.:
+   * <code>
+   * androidInstrument {
+   *   runners {
+   *     run testpackage: "com.my.package", with: "com.my.TestRunner"  
+   *   }
+   * }
+   * </code>
+   * @param config
+   * @return
+   */
+  def runners(Closure config) {
+    config.delegate = testRunnerConfig
+    config()
+  }
+  
+  @Override
+  def exec() {
+    String cmd = "am instrument -w "
+
+    if (testRunnerConfig.performDefaultRun()) {
+      setArgs(["shell", cmd + "$testPackage/$testRunnerConfig.defaultTestRunner"])
+      super.exec()
+    } else {
+      // execute package specific runners
+      testRunnerConfig.packageRunners.each {
+        setArgs(["shell", cmd + "-e package ${it.key}", "$testPackage/${it.value}"])
+        super.exec()
+      }
+      // execute annotation specific runners
+      testRunnerConfig.annotationRunners.each {
+        setArgs(["shell", cmd + "-e annotation ${it.key}", "$testPackage/${it.value}"])
+        super.exec()
+      }
+    }
+  }
   
   @Override
   def checkForErrors(stream) {
