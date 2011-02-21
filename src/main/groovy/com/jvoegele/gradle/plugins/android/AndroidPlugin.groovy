@@ -180,9 +180,23 @@ class AndroidPlugin implements Plugin<Project> {
   }
   
   private void defineAndroidInstrumentTask() {
+    def description = """Runs instrumentation tests on a running emulator or device.
+      Use the 'runners' closure to configure your test runners:
+          
+         androidInstrument {
+           runners {
+             run testpackage: "com.my.package", with: "com.my.TestRunner"
+             run annotation: "com.my.Annotation", with: "com.my.OtherRunner"
+           } 
+         }
+          
+      You can also use 'run with: "..."' to run all tests using the given runner, but
+      note that this only works as long as you do not bind any other more specific runners.
+    """
+
     androidInstrumentTask = project.task(
         ANDROID_INSTRUMENT_TASK_NAME,
-        description: "Runs instrumentation tests on a running emulator or device",
+        description: description,
         type: InstrumentationTestsTask)
   }
 
