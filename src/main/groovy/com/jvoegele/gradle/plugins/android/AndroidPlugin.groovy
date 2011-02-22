@@ -6,6 +6,7 @@ import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.JavaPlugin
 
+import com.jcraft.jsch.Logger;
 import com.jvoegele.gradle.enhancements.JavadocEnhancement
 import com.jvoegele.gradle.tasks.android.AdbExec
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask
@@ -116,6 +117,8 @@ class AndroidPlugin implements Plugin<Project> {
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
+    // TODO: there can be several instrumentations defined
+    ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/instrumentation/@android:targetPackage", output: "tested.manifest.package")
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/application/@android:hasCode",
               output: "manifest.hasCode", 'default': "true")
   }
