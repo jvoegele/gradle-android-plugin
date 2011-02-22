@@ -15,22 +15,35 @@ class InstrumentationTestsTask extends AdbExec {
     static final String PACKAGE    = "testpackage"
     static final String ANNOTATION = "annotation"
     static final String RUNNER     = "with"
+    static final String NAME       = "name"
+    static final String OPTIONS    = "options"
     
-    def defaultTestRunner = getProject().convention.plugins.android.testRunner
+    def defaultConfig
     def packageRunners    = [:]
     def annotationRunners = [:]
     
-    def run(args = [(RUNNER): defaultTestRunner]) {
-      def testRunner  = args[(RUNNER)]
+    def run(args = [:]) {
+      def testRunner  = args[(RUNNER)] ?: getProject().convention.plugins.android.testRunner
       def packageName = args[(PACKAGE)]
-      def annotation  = args[(ANNOTATION)] 
-     
+      def annotation  = args[(ANNOTATION)]
+      def name        = args[(NAME)] ?: "instrumentation-tests-$numRunners"
+      def options     = args[(OPTIONS)] ?: []
+
+      if (options instanceof String || options instanceof GString) {
+        options = [options]
+      }
+      
+      // always wait for tests to finish
+      options << "-w"
+      // enable support for Zutubi's JUnit report test runner
+      options << "-e reportFilePath ${name}.xml"
+           
       if (packageName) {
-        packageRunners[expandPackageName(packageName)] = testRunner
+        packageRunners[expandPackageName(packageName)] = buildRunner(testRunner, name, options)
       } else if (annotation) {
-        annotationRunners[annotation] = testRunner
+        annotationRunners[annotation] = buildRunner(testRunner, name, options)
       } else {
-        defaultTestRunner = testRunner
+        defaultConfig = buildRunner(testRunner, name, options)
       }
     }
     
@@ -38,7 +51,19 @@ class InstrumentationTestsTask extends AdbExec {
       packageRunners.isEmpty() && annotationRunners.isEmpty()
     }
     
-    private String expandPackageName(String packageName) {
+    int getNumRunners() {
+      packageRunners.size() + annotationRunners.size()
+    }
+    
+    def buildRunner(def testRunner, def name, def options) {
+      def wrapper = new Expando()
+      wrapper.runner = testRunner
+      wrapper.name = name
+      wrapper.options = options
+      wrapper
+    }
+    
+    String expandPackageName(String packageName) {
       if (!packageName.startsWith(getTestPackage())) {
         return "${getTestPackage()}.${packageName}"
       }
@@ -48,12 +73,28 @@ class InstrumentationTestsTask extends AdbExec {
   
   def testPackage
   def testRunnerConfig
+  def testReportsSourcePath
+  def testReportsTargetPath
   
   def InstrumentationTestsTask() {
     logger.info("Running instrumentation tests...")
     
     this.testPackage = ant['manifest.package']
+    this.testedPackage = ant['tested.manifest.package']
     this.testRunnerConfig = new TestRunnerConfig()
+    
+    if (testedPackage) { // this is only set for instrumentation projects
+      this.testReportsSourcePath = "/data/data/$testedPackage/files"
+      this.testReportsTargetPath = project.file('build/test-results').toString()
+    }
+    
+    onlyIf {
+      boolean isTestingOtherPackage = testedPackage != null
+      if (!isTestingOtherPackage) { 
+        logger.warn "!! Skipping androidInstrument task since no target package was specified"
+      }
+      isTestingOtherPackage
+    }
   } 
   
   /**
@@ -75,23 +116,60 @@ class InstrumentationTestsTask extends AdbExec {
   
   @Override
   def exec() {
-    String cmd = "am instrument -w "
 
     if (testRunnerConfig.performDefaultRun()) {
-      setArgs(["shell", cmd + "$testPackage/$testRunnerConfig.defaultTestRunner"])
-      super.exec()
+      performTestRun(testRunnerConfig.defaultConfig)
     } else {
       // execute package specific runners
       testRunnerConfig.packageRunners.each {
-        setArgs(["shell", cmd + "-e package ${it.key}", "$testPackage/${it.value}"])
-        super.exec()
+        def packageName = it.key
+        def runConfig   = it.value
+        performTestRun(runConfig, "-e package $packageName")
       }
       // execute annotation specific runners
       testRunnerConfig.annotationRunners.each {
-        setArgs(["shell", cmd + "-e annotation ${it.key}", "$testPackage/${it.value}"])
-        super.exec()
+        def annotation = it.key
+        def runConfig = it.value
+        performTestRun(runConfig, "-e annotation $annotation")
       }
     }
+  }
+  
+  def performTestRun(def runConfig, def filter = null) {
+    if (filter) {
+      runConfig.options << filter
+    }
+    
+    // run the tests
+    setArgs(["shell", "am instrument " + runConfig.options.join(" ") + " $testPackage/$runConfig.runner"])
+    InstrumentationTestsFailedException testFailure = null
+    try {
+      super.exec()
+    } catch (InstrumentationTestsFailedException itfex) {
+      testFailure = itfex
+    } finally {
+      // publish test results, if any (requires a runner that supports this)
+      def reportFile = "${testReportsSourcePath}/${runConfig.name}.xml"
+      try {
+        publishTestReport(runConfig, reportFile)
+      } catch (Exception e) {
+        logger.warn "!! Failed to publish test reports"
+      }
+    }
+    
+    logger.info "Test run complete."
+    
+    if (testFailure) {
+      throw testFailure
+    }
+  }
+  
+  private void publishTestReport(def runConfig, def reportFile) {
+    logger.info("Publishing test results from $reportFile to $testReportsTargetPath")
+
+    def pullTask = project.task('publishTestReport', type: AdbExec, overwrite: true)
+    pullTask.args "pull", "$reportFile", "$testReportsTargetPath"
+    pullTask.exec()
   }
   
   @Override
