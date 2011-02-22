@@ -23,6 +23,10 @@ class InstrumentationTestsTask extends AdbExec {
     def annotationRunners = [:]
     
     def run(args = [:]) {
+      createRunConfig(args)
+    }
+    
+    def createRunConfig(args = [:]) {
       def testRunner  = args[(RUNNER)] ?: getProject().convention.plugins.android.testRunner
       def packageName = args[(PACKAGE)]
       def annotation  = args[(ANNOTATION)]
@@ -75,12 +79,14 @@ class InstrumentationTestsTask extends AdbExec {
   def testRunnerConfig
   def testReportsSourcePath
   def testReportsTargetPath
+  def defaultAdbArgs
   
   def InstrumentationTestsTask() {
     logger.info("Running instrumentation tests...")
     
     this.testPackage = ant['manifest.package']
     this.testedPackage = ant['tested.manifest.package']
+    this.defaultAdbArgs = super.getArgs()
     this.testRunnerConfig = new TestRunnerConfig()
     
     if (testedPackage) { // this is only set for instrumentation projects
@@ -118,7 +124,12 @@ class InstrumentationTestsTask extends AdbExec {
   def exec() {
 
     if (testRunnerConfig.performDefaultRun()) {
-      performTestRun(testRunnerConfig.defaultConfig)
+      def runConfig = testRunnerConfig.defaultConfig 
+      if (!runConfig) {
+        // this will happen if there was no runners block provided at all
+        runConfig = testRunnerConfig.createRunConfig()
+      }
+      performTestRun(runConfig)
     } else {
       // execute package specific runners
       testRunnerConfig.packageRunners.each {
@@ -141,7 +152,8 @@ class InstrumentationTestsTask extends AdbExec {
     }
     
     // run the tests
-    setArgs(["shell", "am instrument " + runConfig.options.join(" ") + " $testPackage/$runConfig.runner"])
+    setArgs(defaultAdbArgs)
+    args "shell", "am instrument " + runConfig.options.join(" ") + " $testPackage/$runConfig.runner"
     InstrumentationTestsFailedException testFailure = null
     try {
       super.exec()
