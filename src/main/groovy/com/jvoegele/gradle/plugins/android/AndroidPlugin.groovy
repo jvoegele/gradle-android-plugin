@@ -18,6 +18,8 @@ import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
  * @author Jason Voegele (jason@jvoegele.com)
  */
 class AndroidPlugin implements Plugin<Project> {
+  private static final ANDROID_GROUP = "Android";
+
   private static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
   private static final PROGUARD_TASK_NAME = "proguard"
   private static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
@@ -129,16 +131,19 @@ class AndroidPlugin implements Plugin<Project> {
   private void defineAndroidProcessResourcesTask() {
     androidProcessResourcesTask = project.task(ANDROID_PROCESS_RESOURCES_TASK_NAME,
         description: "Generate R.java source file from Android resource XML files", type: ProcessAndroidResources)
+    androidProcessResourcesTask.group = ANDROID_GROUP
   }
 
   private void defineProguardTask() {
     proguardTask = project.task(PROGUARD_TASK_NAME,
         description: "Process classes and JARs with ProGuard", type: ProGuard)
+    proguardTask.group = ANDROID_GROUP
   }
 
   private void defineAndroidPackageTask() {
     androidPackageTask = project.task(ANDROID_PACKAGE_TASK_NAME,
         description: "Creates the Android application apk package, optionally signed, zipaligned", type: AndroidPackageTask)
+    androidPackageTask.group = ANDROID_GROUP
   }
 
   private void defineAndroidInstallTask() {
@@ -149,6 +154,7 @@ class AndroidPlugin implements Plugin<Project> {
 
       args 'install', '-r', androidConvention.apkArchivePath
     }
+    androidInstallTask.group = ANDROID_GROUP
   }
 
   private void defineAndroidUninstallTask() {
@@ -167,6 +173,7 @@ class AndroidPlugin implements Plugin<Project> {
       // Should uninstall fail only because the package wasn't on the device? It does now...
       args 'uninstall', manifestPackage
     }
+    androidUninstallTask.group = ANDROID_GROUP
   }
 
   private void defineTaskDependencies() {
