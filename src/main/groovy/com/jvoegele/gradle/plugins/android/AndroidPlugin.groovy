@@ -200,6 +200,7 @@ class AndroidPlugin implements Plugin<Project> {
         ANDROID_INSTRUMENT_TASK_NAME,
         description: description,
         type: InstrumentationTestsTask)
+    androidInstrumentTask.group = ANDROID_GROUP
   }
 
   private void defineTaskDependencies() {
