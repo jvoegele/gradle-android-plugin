@@ -97,7 +97,7 @@ class InstrumentationTestsTask extends AdbExec {
     onlyIf {
       boolean isTestingOtherPackage = testedPackage != null
       if (!isTestingOtherPackage) { 
-        logger.warn "!! Skipping androidInstrumentationTests task since no target package was specified"
+        logger.warn "!! Skipping androidInstrumentationTests task since no target package was specified in the manifest"
       }
       isTestingOtherPackage
     }
