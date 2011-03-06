@@ -26,7 +26,7 @@ class AndroidPlugin implements Plugin<Project> {
   private static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
   private static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
   private static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
-  private static final ANDROID_INSTRUMENT_TASK_NAME = "androidInstrument"
+  private static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
   
   private static final PROPERTIES_FILES = ['local', 'build', 'default']
   private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
@@ -40,7 +40,7 @@ class AndroidPlugin implements Plugin<Project> {
   private logger
 
   private androidProcessResourcesTask, proguardTask, androidPackageTask, 
-  androidInstallTask, androidUninstallTask, androidInstrumentTask
+  androidInstallTask, androidUninstallTask, androidInstrumentationTestsTask
 
   boolean verbose = false
 
@@ -128,7 +128,7 @@ class AndroidPlugin implements Plugin<Project> {
     defineAndroidPackageTask()
     defineAndroidInstallTask()
     defineAndroidUninstallTask()
-    defineAndroidInstrumentTask()
+    defineAndroidInstrumentationTestsTask()
     defineTaskDependencies()
     configureTaskLogging()
   }
@@ -181,11 +181,11 @@ class AndroidPlugin implements Plugin<Project> {
     androidUninstallTask.group = ANDROID_GROUP
   }
   
-  private void defineAndroidInstrumentTask() {
+  private void defineAndroidInstrumentationTestsTask() {
     def description = """Runs instrumentation tests on a running emulator or device.
       Use the 'runners' closure to configure your test runners:
           
-         androidInstrument {
+         androidInstrumentationTests {
            runners {
              run testpackage: "com.my.package", with: "com.my.TestRunner"
              run annotation: "com.my.Annotation", with: "com.my.OtherRunner"
@@ -196,11 +196,11 @@ class AndroidPlugin implements Plugin<Project> {
       note that this only works as long as you do not bind any other more specific runners.
     """
 
-    androidInstrumentTask = project.task(
-        ANDROID_INSTRUMENT_TASK_NAME,
+    androidInstrumentationTestsTask = project.task(
+        ANDROID_INSTRUMENTATION_TESTS_TASK_NAME,
         description: description,
         type: InstrumentationTestsTask)
-    androidInstrumentTask.group = ANDROID_GROUP
+    androidInstrumentationTestsTask.group = ANDROID_GROUP
   }
 
   private void defineTaskDependencies() {
@@ -209,7 +209,7 @@ class AndroidPlugin implements Plugin<Project> {
     androidPackageTask.dependsOn(proguardTask)
     project.tasks.assemble.dependsOn(androidPackageTask)
     androidInstallTask.dependsOn(project.tasks.assemble)
-    androidInstrumentTask.dependsOn(androidInstallTask)
+    androidInstrumentationTestsTask.dependsOn(androidInstallTask)
   }
 
   private void configureTaskLogging() {
