@@ -14,10 +14,10 @@ class InstrumentationTestsTask extends AdbExec {
     logger.info("Running instrumentation tests...")
     
     this.testPackage = ant['manifest.package']
-    this.testedPackage = ant['tested.manifest.package']
     this.defaultAdbArgs = super.getArgs()
     this.testRunnersConfig = new TestRunnersConfig(project, testPackage)
     
+    def testedPackage = ant['tested.manifest.package']
     if (testedPackage) { // this is only set for instrumentation projects
       this.testReportsSourcePath = "/data/data/$testedPackage/files"
       this.testReportsTargetPath = project.file('build/test-results').toString()
