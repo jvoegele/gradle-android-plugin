@@ -120,6 +120,11 @@ class AndroidPlugin implements Plugin<Project> {
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/instrumentation/@android:targetPackage", output: "tested.manifest.package")
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/application/@android:hasCode",
               output: "manifest.hasCode", 'default': "true")
+
+    ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/instrumentation/@android:name", output: "android.instrumentation")
+    if (ant['android.instrumentation']) {
+      androidConvention.instrumentationTestsRunner = ant['android.instrumentation']
+    }
   }
 
   private void defineTasks() {
