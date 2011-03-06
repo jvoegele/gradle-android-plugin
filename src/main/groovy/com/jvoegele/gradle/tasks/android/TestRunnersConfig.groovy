@@ -35,14 +35,14 @@ class TestRunnersConfig {
     def name        = args[(NAME)] ?: "instrumentation-tests-$numRunners"
     def options     = args[(OPTIONS)] ?: []
 
-    if (options instanceof String || options instanceof GString) {
+    if (!options instanceof List) {
       options = [options]
     }
 
     // always wait for tests to finish
     options << "-w"
     // enable support for Zutubi's JUnit report test runner
-    options << "-e reportFilePath ${name}.xml"
+    options += ["-e" << "reportFilePath" << "${name}.xml"]
 
     testRunner = expandFullyQualifiedName(testRunner)
 

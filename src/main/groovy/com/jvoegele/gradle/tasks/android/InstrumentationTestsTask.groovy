@@ -64,25 +64,27 @@ class InstrumentationTestsTask extends AdbExec {
       testRunnersConfig.packageRunners.each {
         def packageName = it.key
         def runConfig   = it.value
-        performTestRun(runConfig, "-e package $packageName")
+        performTestRun(runConfig, ["-e", "package", "$packageName"])
       }
       // execute annotation specific runners
       testRunnersConfig.annotationRunners.each {
         def annotation = it.key
         def runConfig = it.value
-        performTestRun(runConfig, "-e annotation $annotation")
+        performTestRun(runConfig, ["-e", "annotation", "$annotation"])
       }
     }
   }
   
   def performTestRun(def runConfig, def filter = null) {
-    if (filter) {
-      runConfig.options << filter
-    }
-    
     // run the tests
     setArgs(defaultAdbArgs)
-    args "shell", "am instrument " + runConfig.options.join(" ") + " $testPackage/$runConfig.runner"
+    args "shell", "am", "instrument"
+    args runConfig.options // it's a List!
+    if (filter) {
+      args filter          // this too
+    }
+    args "$testPackage/$runConfig.runner"
+
     InstrumentationTestsFailedException testFailure = null
     try {
       super.exec()
