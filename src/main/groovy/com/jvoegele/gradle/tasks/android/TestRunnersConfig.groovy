@@ -44,8 +44,10 @@ class TestRunnersConfig {
     // enable support for Zutubi's JUnit report test runner
     options << "-e reportFilePath ${name}.xml"
 
+    testRunner = expandFullyQualifiedName(testRunner)
+
     if (packageName) {
-      packageRunners[expandPackageName(packageName)] = buildRunner(testRunner, name, options)
+      packageRunners[expandFullyQualifiedName(packageName)] = buildRunner(testRunner, name, options)
     } else if (annotation) {
       annotationRunners[annotation] = buildRunner(testRunner, name, options)
     } else {
@@ -69,10 +71,14 @@ class TestRunnersConfig {
     wrapper
   }
 
-  String expandPackageName(String packageName) {
-    if (!packageName.startsWith(testPackage)) {
-      return "${testPackage}.${packageName}"
+  /**
+   * Expand name according to Android convention: if it starts with a period ("."), it will be prepended
+   * with package name from the manifest, otherwise it will be returned as is.
+   */
+  String expandFullyQualifiedName(String name) {
+    if (name.startsWith(".")) {
+      return "${testPackage}${name}"
     }
-    return packageName;
+    return name;
   }
 }
