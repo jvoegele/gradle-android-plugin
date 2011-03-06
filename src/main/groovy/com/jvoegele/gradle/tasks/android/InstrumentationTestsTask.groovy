@@ -97,7 +97,7 @@ class InstrumentationTestsTask extends AdbExec {
     onlyIf {
       boolean isTestingOtherPackage = testedPackage != null
       if (!isTestingOtherPackage) { 
-        logger.warn "!! Skipping androidInstrument task since no target package was specified"
+        logger.warn "!! Skipping androidInstrumentationTests task since no target package was specified"
       }
       isTestingOtherPackage
     }
@@ -106,7 +106,7 @@ class InstrumentationTestsTask extends AdbExec {
   /**
    * Used to configure test runners using a closure, e.g.:
    * <code>
-   * androidInstrument {
+   * androidInstrumentationTests {
    *   runners {
    *     run testpackage: "com.my.package", with: "com.my.TestRunner"  
    *   }

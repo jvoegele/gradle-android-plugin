@@ -10,7 +10,7 @@ class AndroidPluginConvention {
   File nativeLibsDir
   File androidManifest
   File intermediateDexFile
-  String testRunner
+  String instrumentationTestsRunner
   private String apkBaseName
   private File apkArchivePath
   
@@ -28,7 +28,7 @@ class AndroidPluginConvention {
     intermediateDexFile = new File(project.libsDir, "classes.dex")
     
     // instrumentation conventions
-    testRunner = "android.test.InstrumentationTestRunner"
+    instrumentationTestsRunner = "android.test.InstrumentationTestRunner"
   }
   
   /**
