@@ -81,7 +81,7 @@ buildscript {
     mavenRepo(urls: 'http://jvoegele.com/maven2/')
   }
   dependencies {
-    classpath 'com.jvoegele.gradle.plugins:android-plugin:0.9.8'
+    classpath 'com.jvoegele.gradle.plugins:android-plugin:0.9.9'
   }
 }
 apply plugin: 'android'
