@@ -6,12 +6,14 @@ import org.gradle.api.Project
 import org.gradle.api.logging.LogLevel
 import org.gradle.api.plugins.JavaPlugin
 
+import com.jcraft.jsch.Logger;
 import com.jvoegele.gradle.enhancements.JavadocEnhancement
 import com.jvoegele.gradle.tasks.android.AdbExec
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask
 import com.jvoegele.gradle.enhancements.EclipseEnhancement
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
+import com.jvoegele.gradle.tasks.android.InstrumentationTestsTask
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -26,7 +28,8 @@ class AndroidPlugin implements Plugin<Project> {
   private static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
   private static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
   private static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
-
+  private static final ANDROID_INSTRUMENT_TASK_NAME = "androidInstrument"
+  
   private static final PROPERTIES_FILES = ['local', 'build', 'default']
   private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
 
@@ -39,7 +42,7 @@ class AndroidPlugin implements Plugin<Project> {
   private logger
 
   private androidProcessResourcesTask, proguardTask, androidPackageTask, 
-  androidInstallTask, androidUninstallTask
+  androidInstallTask, androidUninstallTask, androidInstrumentTask
 
   boolean verbose = false
 
@@ -115,6 +118,8 @@ class AndroidPlugin implements Plugin<Project> {
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
+    // TODO: there can be several instrumentations defined
+    ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/instrumentation/@android:targetPackage", output: "tested.manifest.package")
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/application/@android:hasCode",
               output: "manifest.hasCode", 'default': "true")
   }
@@ -125,6 +130,7 @@ class AndroidPlugin implements Plugin<Project> {
     defineAndroidPackageTask()
     defineAndroidInstallTask()
     defineAndroidUninstallTask()
+    defineAndroidInstrumentTask()
     defineTaskDependencies()
     configureTaskLogging()
   }
@@ -176,6 +182,27 @@ class AndroidPlugin implements Plugin<Project> {
     }
     androidUninstallTask.group = ANDROID_GROUP
   }
+  
+  private void defineAndroidInstrumentTask() {
+    def description = """Runs instrumentation tests on a running emulator or device.
+      Use the 'runners' closure to configure your test runners:
+          
+         androidInstrument {
+           runners {
+             run testpackage: "com.my.package", with: "com.my.TestRunner"
+             run annotation: "com.my.Annotation", with: "com.my.OtherRunner"
+           } 
+         }
+          
+      You can also use 'run with: "..."' to run all tests using the given runner, but
+      note that this only works as long as you do not bind any other more specific runners.
+    """
+
+    androidInstrumentTask = project.task(
+        ANDROID_INSTRUMENT_TASK_NAME,
+        description: description,
+        type: InstrumentationTestsTask)
+  }
 
   private void defineTaskDependencies() {
     project.tasks.compileJava.dependsOn(androidProcessResourcesTask)
@@ -183,6 +210,7 @@ class AndroidPlugin implements Plugin<Project> {
     androidPackageTask.dependsOn(proguardTask)
     project.tasks.assemble.dependsOn(androidPackageTask)
     androidInstallTask.dependsOn(project.tasks.assemble)
+    androidInstrumentTask.dependsOn(androidInstallTask)
   }
 
   private void configureTaskLogging() {

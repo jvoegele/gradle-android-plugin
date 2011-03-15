@@ -1,4 +1,4 @@
-package com.jvoegele.gradle.tasks.android
+package com.jvoegele.gradle.tasks.android.exceptions
 
 import org.gradle.api.GradleException
 
