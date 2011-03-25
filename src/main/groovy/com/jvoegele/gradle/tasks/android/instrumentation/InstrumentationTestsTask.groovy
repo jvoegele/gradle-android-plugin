@@ -1,11 +1,16 @@
 package com.jvoegele.gradle.tasks.android.instrumentation
 
-
 import com.jvoegele.gradle.plugins.android.AndroidPlugin;
 import com.jvoegele.gradle.tasks.android.AdbExec;
 import com.jvoegele.gradle.tasks.android.exceptions.InstrumentationTestsFailedException;
 import com.jvoegele.gradle.tasks.android.exceptions.AdbErrorException;
 
+/**
+ * Runs instrumentation tests on a connected device or emulator.
+ *
+ * @author Matthias Kaeppler
+ * @author Ladislav Thon
+ */
 class InstrumentationTestsTask extends AdbExec {
   def testPackage
   def testRunnersConfig
