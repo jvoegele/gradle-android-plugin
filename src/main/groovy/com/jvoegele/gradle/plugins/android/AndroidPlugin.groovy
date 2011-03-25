@@ -11,7 +11,7 @@ import com.jvoegele.gradle.tasks.android.AdbExec
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
-import com.jvoegele.gradle.tasks.android.InstrumentationTestsTask
+import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask;
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
