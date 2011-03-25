@@ -1,4 +1,5 @@
-package com.jvoegele.gradle.tasks.android
+package com.jvoegele.gradle.tasks.android.instrumentation
+
 
 /**
  * Configures the test runners used to run the instrumentation tests.
