@@ -29,7 +29,7 @@ class TestRunnersConfig {
   }
 
   def createRunConfig(args = [:]) {
-    def testRunner  = args[(RUNNER)] ?: project.convention.plugins.android.testRunner
+    def testRunner  = args[(RUNNER)] ?: project.convention.plugins.android.instrumentationTestsRunner
     def packageName = args[(PACKAGE)]
     def annotation  = args[(ANNOTATION)]
     def name        = args[(NAME)] ?: "instrumentation-tests-$numRunners"
@@ -42,7 +42,7 @@ class TestRunnersConfig {
     // always wait for tests to finish
     options << "-w"
     // enable support for Zutubi's JUnit report test runner
-    options += ["-e" << "reportFilePath" << "${name}.xml"]
+    options += ["-e", "reportFilePath", "${name}.xml"]
 
     testRunner = expandFullyQualifiedName(testRunner)
 
