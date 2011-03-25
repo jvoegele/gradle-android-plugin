@@ -7,13 +7,16 @@ import org.gradle.api.Project
 class TestProject {
   /*@Delegate*/ Project project
 
-  def runTasks(String... tasks) {
-    runTasks(tasks.flatten())
+  def runTasks(Map<String, Object> args, String... tasks) {
+    runTasks(args, tasks as List<String>)
   }
 
-  def runTasks(List<String> tasks) {
+  def runTasks(Map<String, Object> args, List<String> tasks) {
     def startParameter = project.gradle.startParameter.newBuild()
     startParameter.projectDir = project.projectDir
+    if (args.buildScript) {
+      startParameter.buildFile = new File(project.projectDir, args.buildScript)
+    }
     startParameter.taskNames = tasks
     def launcher = GradleLauncher.newInstance(startParameter)
     def result = launcher.run()
