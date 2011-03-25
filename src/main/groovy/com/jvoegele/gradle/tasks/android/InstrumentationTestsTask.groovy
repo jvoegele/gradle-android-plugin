@@ -130,7 +130,7 @@ class InstrumentationTestsTask extends AdbExec {
     // ADB currently fails with errors on stdout, so we literally have to check
     // for 'OK' to decide whether test failed or not
     reader.eachLine {
-      if (it.matches("^OK \\(([0-9]+ tests){1}\\)")) {
+      if (it.matches("^OK \\(([0-9]+ test[s]?){1}\\)")) {
         success = true
         return
       }
