@@ -19,14 +19,15 @@ import com.jvoegele.gradle.tasks.android.InstrumentationTestsTask
  * @author Jason Voegele (jason@jvoegele.com)
  */
 class AndroidPlugin implements Plugin<Project> {
-  private static final ANDROID_GROUP = "Android";
 
-  private static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
-  private static final PROGUARD_TASK_NAME = "proguard"
-  private static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
-  private static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
-  private static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
-  private static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
+  public static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
+  public static final PROGUARD_TASK_NAME = "proguard"
+  public static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
+  public static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
+  public static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
+  public static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
+  
+  private static final ANDROID_GROUP = "Android";
   
   private static final PROPERTIES_FILES = ['local', 'build', 'default']
   private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
