@@ -1,10 +1,11 @@
 package com.jvoegele.gradle.tasks.android.instrumentation
 
-
 /**
- * Configures the test runners used to run the instrumentation tests.
+ * Configures the test runners used to run the instrumentation tests. This class basically
+ * represents the 'runners' configure closure used in the build script.
  *
  * @author Matthias Kaeppler
+ * @author Ladislav Thon
  */
 class TestRunnersConfig {
   static final String PACKAGE    = "testpackage"
