@@ -1,5 +1,6 @@
 package com.jvoegele.gradle.tasks.android
 
+import com.jvoegele.gradle.plugins.android.AndroidPlugin;
 import com.jvoegele.gradle.tasks.android.exceptions.InstrumentationTestsFailedException;
 import com.jvoegele.gradle.tasks.android.exceptions.AdbErrorException;
 
@@ -24,9 +25,10 @@ class InstrumentationTestsTask extends AdbExec {
     }
     
     onlyIf {
-      boolean isTestingOtherPackage = testedPackage != null
+      boolean isTestingOtherPackage = testedPackage || false
       if (!isTestingOtherPackage) { 
-        logger.warn "!! Skipping androidInstrumentationTests task since no target package was specified in the manifest"
+        logger.warn("!! Skipping $AndroidPlugin.ANDROID_INSTRUMENTATION_TESTS_TASK_NAME task "
+          + "for project $project.name since no target package was specified in the manifest")
       }
       isTestingOtherPackage
     }
