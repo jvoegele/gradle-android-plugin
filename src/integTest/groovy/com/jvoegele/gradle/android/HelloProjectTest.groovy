@@ -27,7 +27,8 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.fileDoesntExist 'build/libs/hello-1.0-unproguarded.jar'
     p.fileDoesntExist 'build/distributions/hello-1.0.apk'
 
-    // TODO check that hello-1.0-debug.apk is signed by key with CN=Android Debug, O=Android, C=US
+    new SignVerifier(archive: p.file('build/distributions/hello-1.0-debug.apk')).verify(
+            'CN=Android Debug, O=Android, C=US')
   }
 
   @Test
@@ -44,6 +45,7 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.fileDoesntExist 'build/libs/hello-1.0-debug.jar'
     p.fileDoesntExist 'build/distributions/hello-1.0-debug.apk'
 
-    // TODO check that hello-1.0.apk is signed by key with CN=Gradle Android Plugin integration tests, O=Gradle Android Plugin, C=US
+    new SignVerifier(archive: p.file('build/distributions/hello-1.0.apk')).verify(
+            'CN=Gradle Android Plugin integration testsa, O=Gradle Android Plugin, C=US')
   }
 }
