@@ -1,6 +1,5 @@
 package com.jvoegele.gradle.android
 
-import org.gradle.api.PathValidation
 import org.junit.Test
 
 class HelloProjectTest extends AbstractIntegrationTest {
@@ -10,50 +9,40 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
     p.runTasks 'clean', 'build', buildScript: 'simple.gradle'
 
-    p.file 'build/libs/hello-1.0.jar', PathValidation.FILE
-    p.file 'build/libs/hello-1.0-unaligned.apk', PathValidation.FILE
-    p.file 'build/distributions/hello-1.0.apk', PathValidation.NONE
+    p.fileExists 'build/libs/hello-1.0.jar'
+    p.fileExists 'build/libs/hello-1.0-unaligned.apk'
+    p.fileExists 'build/distributions/hello-1.0.apk'
   }
 
   @Test
-  void assemble() {
+  void debugBuild() {
     def p = project('hello')
 
-    p.runTasks 'clean', 'assemble', buildScript: 'simple.gradle'
+    p.runTasks 'clean', 'configureDebug', 'build', buildScript: 'debug-release.gradle'
 
-    p.file 'build/libs/hello-1.0.jar', PathValidation.FILE
-    p.file 'build/libs/hello-1.0-unaligned.apk', PathValidation.FILE
-    p.file 'build/distributions/hello-1.0.apk', PathValidation.FILE
-  }
-
-  @Test
-  void debugAssemble() {
-    def p = project('hello')
-
-    p.runTasks 'clean', 'configureDebug', 'assemble', buildScript: 'debug-release.gradle'
-
-    p.file 'build/libs/hello-1.0.jar', PathValidation.NONE
-    p.file 'build/libs/hello-1.0-debug.jar', PathValidation.FILE
-    p.file 'build/libs/hello-1.0-unproguarded.jar', PathValidation.NONE
-    p.file 'build/libs/hello-1.0-debug-unaligned.apk', PathValidation.FILE
-    p.file 'build/distributions/hello-1.0.apk', PathValidation.NONE
-    p.file 'build/distributions/hello-1.0-debug.apk', PathValidation.FILE
+    p.fileExists 'build/libs/hello-1.0-debug.jar'
+    p.fileExists 'build/libs/hello-1.0-debug-unaligned.apk'
+    p.fileExists 'build/distributions/hello-1.0-debug.apk'
+    p.fileDoesntExist 'build/libs/hello-1.0.jar'
+    p.fileDoesntExist 'build/libs/hello-1.0-unproguarded.jar'
+    p.fileDoesntExist 'build/distributions/hello-1.0.apk'
 
     // TODO check that hello-1.0-debug.apk is signed by key with CN=Android Debug, O=Android, C=US
   }
 
   @Test
-  void releaseAssemble() {
+  void releaseBuild() {
     def p = project('hello')
 
-    p.runTasks 'clean', 'configureRelease', 'assemble', buildScript: 'debug-release.gradle'
+    p.runTasks 'clean', 'configureRelease', 'build', buildScript: 'debug-release.gradle'
 
-    p.file 'build/libs/hello-1.0.jar', PathValidation.FILE
-    p.file 'build/libs/hello-1.0-debug.jar', PathValidation.NONE
-    p.file 'build/libs/hello-1.0-unproguarded.jar', PathValidation.FILE
-    p.file 'build/libs/hello-1.0-unaligned.apk', PathValidation.FILE
-    p.file 'build/distributions/hello-1.0.apk', PathValidation.FILE
-    p.file 'build/distributions/hello-1.0-debug.apk', PathValidation.NONE
+    p.fileExists 'build/libs/hello-1.0.jar'
+    p.fileExists 'build/libs/hello-1.0-unproguarded.jar'
+    p.fileExists 'build/libs/hello-1.0-unaligned.apk'
+    p.fileExists 'build/distributions/hello-1.0.apk'
+
+    p.fileDoesntExist 'build/libs/hello-1.0-debug.jar'
+    p.fileDoesntExist 'build/distributions/hello-1.0-debug.apk'
 
     // TODO check that hello-1.0.apk is signed by key with CN=Gradle Android Plugin integration tests, O=Gradle Android Plugin, C=US
   }

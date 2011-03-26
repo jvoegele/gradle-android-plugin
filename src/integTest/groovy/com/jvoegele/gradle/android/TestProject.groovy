@@ -1,8 +1,8 @@
 package com.jvoegele.gradle.android
 
 import org.gradle.GradleLauncher
-import org.gradle.api.PathValidation
 import org.gradle.api.Project
+import org.junit.Assert
 
 class TestProject {
   /*@Delegate*/ Project project
@@ -25,11 +25,17 @@ class TestProject {
 
   // delegation (sadly, Groovy's @Delegate doesn't seem to work)
 
-  def file(Object path) {
-    return project.file(path)
+  def file(path) {
+    project.file(path)
   }
 
-  def file(Object path, PathValidation validation) {
-    return project.file(path, validation)
+  // asserts
+
+  def fileExists(path) {
+    Assert.assertTrue("File ${path} must exist", file(path).isFile())
+  }
+
+  def fileDoesntExist(path) {
+    Assert.assertFalse("File ${path} must not exist", file(path).exists())
   }
 }
