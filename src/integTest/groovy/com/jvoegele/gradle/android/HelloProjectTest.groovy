@@ -46,6 +46,6 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.fileDoesntExist 'build/distributions/hello-1.0-debug.apk'
 
     new SignVerifier(archive: p.file('build/distributions/hello-1.0.apk')).verify(
-            'CN=Gradle Android Plugin integration testsa, O=Gradle Android Plugin, C=US')
+            'CN=Gradle Android Plugin integration tests, O=Gradle Android Plugin, C=US')
   }
 }
