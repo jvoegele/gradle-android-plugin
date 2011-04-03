@@ -1,22 +1,22 @@
 apply plugin: 'android'
 
 repositories {
-  mavenCentral()
+    mavenCentral()
 }
 
 version = '1.0'
 
 task configureDebug << {
-  jar.classifier = 'debug'
+    jar.classifier = 'debug'
 }
 
 task configureRelease << {
-  androidPackage {
-    keyStore = file('test.keystore')
-    keyStorePassword = "testpass"
-    keyAlias = "testkey"
-    keyAliasPassword = "testpass"
-  }
+    androidPackage {
+        keyStore = file('test.keystore')
+        keyStorePassword = "testpass"
+        keyAlias = "testkey"
+        keyAliasPassword = "testpass"
+    }
 
-  proguard.enabled = true
+    proguard.enabled = true
 }

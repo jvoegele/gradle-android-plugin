@@ -56,9 +56,9 @@ task integrationTest(type: Test, dependsOn: jar) {
     systemProperties['integTest.androidProjects'] = new File(testClassesDir, 'androidProjects').absolutePath
 
     doFirst {
-      if (!System.getenv('ANDROID_HOME')) {
-          throw new GradleException('ANDROID_HOME environment variable must be defined to run integration tests')
-      }
+        if (!System.getenv('ANDROID_HOME')) {
+            throw new GradleException('ANDROID_HOME environment variable must be defined to run integration tests')
+        }
     }
 }
 
