@@ -35,28 +35,33 @@ class ProGuard extends ConventionTask {
     return new File (project.libsDir, androidConvention.getApkBaseName() + "-proguard-temp.jar")
   }
 
+  public File getProguardConfig() {
+    return new File(project.rootDir, "proguard.cfg")
+  }
+
   @TaskAction
   protected void process() {
 
     defineProGuardTask()
     String tempFilePath = getTempFile().getAbsolutePath()
-    
-    ant.proguard('warn': warn, 'obfuscate': obfuscate,
-                 'allowaccessmodification': true, 'overloadaggressively': true) {
+
+    Map proguardOptions = [
+      'warn': warn,
+      'obfuscate': obfuscate
+    ]
+    if (proguardConfig.exists()) {
+      proguardOptions['configuration'] = proguardConfig
+    }
+
+    ant.proguard(proguardOptions) {
       injar(path: project.jar.archivePath)
 
       // Add each dependency into the ProGuard-processed JAR
       project.configurations.compile.files.each { dependency ->
         injar(file: dependency)
       }
-
       outjar(file: tempFilePath)
       libraryjar(file: ant['android.jar'])
-      optimizations(filter: "!code/simplification/arithmetic")
-      keep(access: 'public', 'extends': 'android.app.Activity')
-      keep(access: 'public', 'extends': 'android.app.Service')
-      keep(access: 'public', 'extends': 'android.content.BroadcastReceiver')
-      keep(access: 'public', 'extends': 'android.content.ContentProvider')
       keep(access: 'public', 'name': '**.R')
       keep('name': '**.R$*')
     }
