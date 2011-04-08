@@ -116,8 +116,12 @@ class AndroidPackageTask extends ConventionTask {
       // add classes from application JAR
       fileset(file: getJarArchivePath())
 
-      // add classes from application dependencies block
-      project.configurations.runtime.each { fileset file: it }
+      // Add classes from application dependencies block, unless ProGuard is
+      // enabled, in which case dependencies have already been packaged into
+      // the application JAR.
+      if (!project.proguard.enabled) {
+        project.configurations.runtime.each { fileset file: it }
+      }
     }
     
     logger.info("Packaging resources")

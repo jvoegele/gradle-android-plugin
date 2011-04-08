@@ -32,7 +32,7 @@ class ProGuard extends ConventionTask {
   
   public File getTempFile() {
     AndroidPluginConvention androidConvention = project.convention.plugins.android
-    return new File (project.libsDir, androidConvention.getApkBaseName() + "-unproguarded.jar")
+    return new File (project.libsDir, androidConvention.getApkBaseName() + "-proguard-temp.jar")
   }
 
   @TaskAction
@@ -43,12 +43,13 @@ class ProGuard extends ConventionTask {
     
     ant.proguard('warn': warn, 'obfuscate': obfuscate,
                  'allowaccessmodification': true, 'overloadaggressively': true) {
-      //injar(file: project.sourceSets.main.classesDir)
       injar(path: project.jar.archivePath)
-      // Is this truly necessary? Aren't they already in the jar archive above?
-//      project.configurations.compile.files.each { dependency ->
-//        injar(file: dependency)
-//      }
+
+      // Add each dependency into the ProGuard-processed JAR
+      project.configurations.compile.files.each { dependency ->
+        injar(file: dependency)
+      }
+
       outjar(file: tempFilePath)
       libraryjar(file: ant['android.jar'])
       optimizations(filter: "!code/simplification/arithmetic")
@@ -61,7 +62,7 @@ class ProGuard extends ConventionTask {
     }
                  
     // Update the output file of this task
-    ant.copy (file: tempFilePath, toFile: project.jar.archivePath, overwrite: true)
+    ant.move(file: tempFilePath, toFile: project.jar.archivePath, overwrite: true)
   }
 
   private boolean proGuardTaskDefined = false
