@@ -2,9 +2,15 @@ package com.jvoegele.gradle.android
 
 import org.gradle.GradleLauncher
 import org.gradle.api.Project
+import org.gradle.util.OperatingSystem
 
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
+
+// Note that on Windows, we don't test proper cleaning of the project. If we did,
+// we would get spurious test failures because somehow, there are file handles
+// leaking and the 'clean' task isn't able to finish successfully. See runTasks
+// and fileDoesntExist methods.
 
 class TestProject {
   /*@Delegate*/ Project project
@@ -14,6 +20,10 @@ class TestProject {
   }
 
   def runTasks(Map<String, Object> args, List<String> tasks) {
+    if (OperatingSystem.current().isWindows()) {
+      tasks.remove 'clean'
+    }
+
     def startParameter = project.gradle.startParameter.newBuild()
     startParameter.projectDir = project.projectDir
     if (args.buildScript) {
@@ -42,6 +52,10 @@ class TestProject {
   }
 
   def fileDoesntExist(path) {
+    if (OperatingSystem.current().isWindows()) {
+      return
+    }
+
     assertFalse("File ${path} must not exist", file(path).exists())
   }
 }
