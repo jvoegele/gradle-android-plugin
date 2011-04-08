@@ -2,7 +2,9 @@ package com.jvoegele.gradle.android
 
 import org.gradle.GradleLauncher
 import org.gradle.api.Project
-import org.junit.Assert
+
+import static org.junit.Assert.assertFalse
+import static org.junit.Assert.assertTrue
 
 class TestProject {
   /*@Delegate*/ Project project
@@ -29,13 +31,17 @@ class TestProject {
     project.file(path)
   }
 
+  def exec(closure) {
+    project.exec(closure)
+  }
+
   // asserts
 
   def fileExists(path) {
-    Assert.assertTrue("File ${path} must exist", file(path).isFile())
+    assertTrue("File ${path} must exist", file(path).isFile())
   }
 
   def fileDoesntExist(path) {
-    Assert.assertFalse("File ${path} must not exist", file(path).exists())
+    assertFalse("File ${path} must not exist", file(path).exists())
   }
 }

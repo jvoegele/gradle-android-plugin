@@ -3,7 +3,8 @@ package com.jvoegele.gradle.android
 import java.security.cert.X509Certificate
 import java.util.jar.JarFile
 import javax.security.auth.x500.X500Principal
-import org.junit.Assert
+
+import static org.junit.Assert.fail
 
 class SignVerifier {
   def archive
@@ -29,13 +30,12 @@ class SignVerifier {
     }
 
     if (!ok) {
-      Assert.fail "The jar ${archive} is not signed by ${distinguishedNameStr}"
+      fail "The jar ${archive} is not signed by ${distinguishedNameStr}"
     }
   }
 
   def readStreamAndDiscard(stream) {
-    int c
-    while ((c = stream.read()) != -1) {
+    while (stream.read() != -1) {
       // empty on purpose
     }
   }

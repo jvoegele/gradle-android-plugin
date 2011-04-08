@@ -12,6 +12,9 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.fileExists 'build/libs/hello-1.0.jar'
     p.fileExists 'build/libs/hello-1.0-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0.apk'
+
+    new ZipAlignVerifier(project: p).verifyAligned p.file('build/distributions/hello-1.0.apk')
+    new ZipAlignVerifier(project: p).verifyNotAligned p.file('build/libs/hello-1.0-unaligned.apk')
   }
 
   @Test
@@ -26,6 +29,9 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.fileDoesntExist 'build/libs/hello-1.0.jar'
     p.fileDoesntExist 'build/libs/hello-1.0-unproguarded.jar'
     p.fileDoesntExist 'build/distributions/hello-1.0.apk'
+
+    new ZipAlignVerifier(project: p).verifyAligned p.file('build/distributions/hello-1.0-debug.apk')
+    new ZipAlignVerifier(project: p).verifyNotAligned p.file('build/libs/hello-1.0-debug-unaligned.apk')
 
     new SignVerifier(archive: p.file('build/distributions/hello-1.0-debug.apk')).verify(
             'CN=Android Debug, O=Android, C=US')
@@ -44,6 +50,9 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
     p.fileDoesntExist 'build/libs/hello-1.0-debug.jar'
     p.fileDoesntExist 'build/distributions/hello-1.0-debug.apk'
+
+    new ZipAlignVerifier(project: p).verifyAligned p.file('build/distributions/hello-1.0.apk')
+    new ZipAlignVerifier(project: p).verifyNotAligned p.file('build/libs/hello-1.0-unaligned.apk')
 
     new SignVerifier(archive: p.file('build/distributions/hello-1.0.apk')).verify(
             'CN=Gradle Android Plugin integration tests, O=Gradle Android Plugin, C=US')
