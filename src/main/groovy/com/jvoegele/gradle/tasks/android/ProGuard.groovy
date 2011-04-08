@@ -23,7 +23,7 @@ class ProGuard extends ConventionTask {
 
   boolean warn = false
   boolean note = false
-  boolean obfuscate = false
+  boolean obfuscate = true
   
   public ProGuard () {
     // By default, this task is disabled - it has to be explicitly enabled by user in build.gradle
