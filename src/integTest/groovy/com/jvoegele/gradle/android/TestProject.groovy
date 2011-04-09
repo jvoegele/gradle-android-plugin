@@ -15,6 +15,10 @@ import static org.junit.Assert.assertTrue
 class TestProject {
   /*@Delegate*/ Project project
 
+  def runTasks(String... tasks) {
+    runTasks([:], tasks as List<String>)
+  }
+
   def runTasks(Map<String, Object> args, String... tasks) {
     runTasks(args, tasks as List<String>)
   }

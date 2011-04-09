@@ -27,7 +27,6 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.fileExists 'build/libs/hello-1.0-debug-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0-debug.apk'
     p.fileDoesntExist 'build/libs/hello-1.0.jar'
-    p.fileDoesntExist 'build/libs/hello-1.0-unproguarded.jar'
     p.fileDoesntExist 'build/distributions/hello-1.0.apk'
 
     new ZipAlignVerifier(project: p).verifyAligned p.file('build/distributions/hello-1.0-debug.apk')
@@ -44,7 +43,6 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.runTasks 'clean', 'configureRelease', 'build', buildScript: 'debug-release.gradle'
 
     p.fileExists 'build/libs/hello-1.0.jar'
-    p.fileExists 'build/libs/hello-1.0-unproguarded.jar'
     p.fileExists 'build/libs/hello-1.0-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0.apk'
 
