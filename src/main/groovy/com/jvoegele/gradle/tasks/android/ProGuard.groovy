@@ -62,6 +62,15 @@ class ProGuard extends ConventionTask {
       }
       outjar(file: tempFilePath)
       libraryjar(file: ant['android.jar'])
+      if (!proguardConfig.exists()) {
+        // use some minimal configuration if proguard.cfg doesn't exist
+        optimizations(filter: "!code/simplification/arithmetic")
+        keep(access: 'public', 'extends': 'android.app.Activity')
+        keep(access: 'public', 'extends': 'android.app.Application')
+        keep(access: 'public', 'extends': 'android.app.Service')
+        keep(access: 'public', 'extends': 'android.content.BroadcastReceiver')
+        keep(access: 'public', 'extends': 'android.content.ContentProvider')
+      }
       keep(access: 'public', 'name': '**.R')
       keep('name': '**.R$*')
     }
