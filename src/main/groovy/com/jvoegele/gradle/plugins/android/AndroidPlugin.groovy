@@ -165,11 +165,13 @@ class AndroidPlugin implements Plugin<Project> {
     androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Installs the debug package onto a running emulator or device",
-        type: AdbExec).doFirst {
-
-      logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
+        type: AdbExec) {
 
       args 'install', '-r', androidConvention.apkArchivePath
+
+      doFirst {
+        logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
+      }
     }
   }
 
@@ -177,7 +179,7 @@ class AndroidPlugin implements Plugin<Project> {
     androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Uninstalls the application from a running emulator or device",
-        type: AdbExec).doFirst {
+        type: AdbExec) {
 
       def manifestPackage = null
       try {
@@ -186,10 +188,12 @@ class AndroidPlugin implements Plugin<Project> {
         throw new GradleException("Application package is not defined in AndroidManifest.xml, unable to uninstall.", e)
       }
 
-      logger.info("Uninstalling ${manifestPackage} from the default emulator or device...")
-
       // Should uninstall fail only because the package wasn't on the device? It does now...
       args 'uninstall', manifestPackage
+
+      doFirst {
+        logger.info("Uninstalling ${manifestPackage} from the default emulator or device...")
+      }
     }
   }
   
