@@ -1,4 +1,4 @@
-package com.jvoegele.gradle.android
+package com.jvoegele.gradle.android.support
 
 import org.gradle.GradleLauncher
 import org.gradle.api.Project
@@ -37,6 +37,10 @@ class TestProject {
     def launcher = GradleLauncher.newInstance(startParameter)
     def result = launcher.run()
     result.rethrowFailure()
+  }
+
+  def archive(path) {
+    new TestArchive(project: project, archive: file(path))
   }
 
   // delegation (sadly, Groovy's @Delegate doesn't seem to work)

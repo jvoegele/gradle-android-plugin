@@ -12,5 +12,7 @@ class RandomProjectTest extends AbstractIntegrationTest {
     p.fileExists 'build/libs/random-1.0.jar'
     p.fileExists 'build/libs/random-1.0-unaligned.apk'
     p.fileExists 'build/distributions/random-1.0.apk'
+
+    p.archive('build/libs/random-1.0.jar').assertContains 'com/jvoegele/gradle/android/random/RandomActivity.class'
   }
 }

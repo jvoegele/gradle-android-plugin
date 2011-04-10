@@ -1,4 +1,4 @@
-package com.jvoegele.gradle.android
+package com.jvoegele.gradle.android.support
 
 import java.security.cert.X509Certificate
 import java.util.jar.JarFile

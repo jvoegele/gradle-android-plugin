@@ -1,4 +1,4 @@
-package com.jvoegele.gradle.android
+package com.jvoegele.gradle.android.support
 
 import org.gradle.util.OperatingSystem
 
