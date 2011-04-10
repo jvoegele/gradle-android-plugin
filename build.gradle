@@ -7,6 +7,13 @@ group = 'com.jvoegele.gradle.plugins'
 
 configurations {
     sshDeploy
+
+    integrationTestCompile {
+        extendsFrom testCompile
+    }
+    integrationTestRuntime {
+        extendsFrom integrationTestCompile, testRuntime
+    }
 }
 
 repositories {
@@ -33,6 +40,31 @@ dependencies {
 
 // Make sure all code is compiled, tested and checked before uploadArchives.
 uploadArchives.dependsOn ':build'
+
+sourceSets {
+    integrationTest {
+        groovy.srcDir file('src/integTest/groovy')
+        resources.srcDir file('src/integTest/resources')
+        compileClasspath = sourceSets.main.classes + sourceSets.test.classes + configurations.integrationTestCompile
+        runtimeClasspath = classes + compileClasspath + configurations.integrationTestRuntime
+    }
+}
+
+task integrationTest(type: Test, dependsOn: jar) {
+    testClassesDir = sourceSets.integrationTest.classesDir
+    classpath = sourceSets.integrationTest.runtimeClasspath
+    systemProperties['integTest.androidProjects'] = new File(testClassesDir, 'androidProjects').absolutePath
+
+    doFirst {
+        if (!System.getenv('ANDROID_HOME')) {
+            throw new GradleException('ANDROID_HOME environment variable must be defined to run integration tests')
+        }
+    }
+}
+
+task developerBuild {
+    dependsOn build, integrationTest
+}
 
 clean << {
     //TODO: will this work on Windows? I intentionally used the file() method so as
