@@ -12,7 +12,8 @@ import com.jvoegele.gradle.tasks.android.AndroidPackageTask
 import com.jvoegele.gradle.enhancements.EclipseEnhancement
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
-import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask;
+import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask
+import com.jvoegele.gradle.enhancements.ScalaEnhancement
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -234,6 +235,7 @@ class AndroidPlugin implements Plugin<Project> {
   private void configureEnhancements() {
     new JavadocEnhancement(project).apply()
     new EclipseEnhancement(project).apply()
+    new ScalaEnhancement(project).apply()
   }
 
   private void configureCompile() {

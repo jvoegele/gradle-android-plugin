@@ -12,5 +12,3 @@ dependencies {
 }
 
 version = '1.0'
-
-proguard.enabled = true
