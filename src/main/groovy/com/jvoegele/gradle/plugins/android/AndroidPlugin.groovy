@@ -142,36 +142,42 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineAndroidProcessResourcesTask() {
     androidProcessResourcesTask = project.task(ANDROID_PROCESS_RESOURCES_TASK_NAME,
-        description: "Generate R.java source file from Android resource XML files", type: ProcessAndroidResources)
-    androidProcessResourcesTask.group = ANDROID_GROUP
+        group: ANDROID_GROUP,
+        description: "Generate R.java source file from Android resource XML files",
+        type: ProcessAndroidResources)
   }
 
   private void defineProguardTask() {
     proguardTask = project.task(PROGUARD_TASK_NAME,
-        description: "Process classes and JARs with ProGuard", type: ProGuard)
-    proguardTask.group = ANDROID_GROUP
+        group: ANDROID_GROUP,
+        description: "Process classes and JARs with ProGuard",
+        type: ProGuard)
   }
 
   private void defineAndroidPackageTask() {
     androidPackageTask = project.task(ANDROID_PACKAGE_TASK_NAME,
-        description: "Creates the Android application apk package, optionally signed, zipaligned", type: AndroidPackageTask)
-    androidPackageTask.group = ANDROID_GROUP
+        group: ANDROID_GROUP,
+        description: "Creates the Android application apk package, optionally signed, zipaligned",
+        type: AndroidPackageTask)
   }
 
   private void defineAndroidInstallTask() {
     androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME,
-        description: "Installs the debug package onto a running emulator or device", type: AdbExec).doFirst {
+        group: ANDROID_GROUP,
+        description: "Installs the debug package onto a running emulator or device",
+        type: AdbExec).doFirst {
 
       logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
 
       args 'install', '-r', androidConvention.apkArchivePath
     }
-    androidInstallTask.group = ANDROID_GROUP
   }
 
   private void defineAndroidUninstallTask() {
     androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME,
-        description: "Uninstalls the application from a running emulator or device", type: AdbExec).doFirst {
+        group: ANDROID_GROUP,
+        description: "Uninstalls the application from a running emulator or device",
+        type: AdbExec).doFirst {
 
       def manifestPackage = null
       try {
@@ -185,7 +191,6 @@ class AndroidPlugin implements Plugin<Project> {
       // Should uninstall fail only because the package wasn't on the device? It does now...
       args 'uninstall', manifestPackage
     }
-    androidUninstallTask.group = ANDROID_GROUP
   }
   
   private void defineAndroidInstrumentationTestsTask() {
@@ -205,9 +210,9 @@ class AndroidPlugin implements Plugin<Project> {
 
     androidInstrumentationTestsTask = project.task(
         ANDROID_INSTRUMENTATION_TESTS_TASK_NAME,
+        group: ANDROID_GROUP,
         description: description,
         type: InstrumentationTestsTask)
-    androidInstrumentationTestsTask.group = ANDROID_GROUP
   }
 
   private void defineTaskDependencies() {
