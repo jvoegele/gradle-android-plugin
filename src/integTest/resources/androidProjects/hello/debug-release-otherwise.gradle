@@ -6,11 +6,13 @@ repositories {
 
 version = '1.0'
 
-task configureDebug << {
+task release(dependsOn: build)
+
+def configureDebug() {
     jar.classifier = 'debug'
 }
 
-task configureRelease << {
+def configureRelease() {
     androidPackage {
         keyStore = file('test.keystore')
         keyStorePassword = 'testpass'
@@ -19,4 +21,12 @@ task configureRelease << {
     }
 
     proguard.enabled = true
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(':release')) {
+        configureRelease()
+    } else {
+        configureDebug()
+    }
 }

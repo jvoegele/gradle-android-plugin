@@ -25,6 +25,19 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
     p.runTasks 'clean', 'configureDebug', 'build', buildScript: 'debug-release.gradle'
 
+    assertDebugBuild(p)
+  }
+
+  @Test
+  void debugBuildOtherwise() {
+    def p = project('hello')
+
+    p.runTasks 'clean', 'build', buildScript: 'debug-release-otherwise.gradle'
+
+    assertDebugBuild(p)
+  }
+
+  void assertDebugBuild(p) {
     p.fileExists 'build/libs/hello-1.0-debug.jar'
     p.fileExists 'build/libs/hello-1.0-debug-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0-debug.apk'
@@ -45,6 +58,19 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
     p.runTasks 'clean', 'configureRelease', 'build', buildScript: 'debug-release.gradle'
 
+    assertReleaseBuild(p)
+  }
+
+  @Test
+  void releaseBuildOtherwise() {
+    def p = project('hello')
+
+    p.runTasks 'clean', 'release', buildScript: 'debug-release-otherwise.gradle'
+
+    assertReleaseBuild(p)
+  }
+
+  void assertReleaseBuild(p) {
     p.fileExists 'build/libs/hello-1.0.jar'
     p.fileExists 'build/libs/hello-1.0-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0.apk'
