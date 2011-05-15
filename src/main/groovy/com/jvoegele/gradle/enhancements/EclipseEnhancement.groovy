@@ -1,7 +1,7 @@
 package com.jvoegele.gradle.enhancements
 
 import org.gradle.api.Project 
-import org.gradle.plugins.eclipse.model.BuildCommand 
+import org.gradle.plugins.ide.eclipse.model.BuildCommand 
 
 class EclipseEnhancement extends GradlePluginEnhancement {
   public EclipseEnhancement(Project project) {
