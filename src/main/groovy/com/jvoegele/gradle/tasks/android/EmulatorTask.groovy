@@ -5,7 +5,7 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.internal.ConventionTask
 
-class EmulatorTask extends ConventionTask {
+class EmulatorTask extends DefaultTask {
 	
 	@Input public String avdName
 	private sdkDir
