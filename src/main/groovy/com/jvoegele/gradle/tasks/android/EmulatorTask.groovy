@@ -12,6 +12,16 @@ class EmulatorTask extends DefaultTask {
 
 	@TaskAction
 	def start() {
+		if (avdName == null) {
+			throw new IllegalStateException("""
+Please specify avdName in your build.gradle:
+
+	androidEmulatorStart {
+		avdName = "YourAvdName"
+	}
+""")
+		}
+
 		project.logger.info("Starting emulator...")
 		def command = project.ant['sdk.dir'] + "/tools/emulator -avd " +avdName
 		def proc = command.execute()
