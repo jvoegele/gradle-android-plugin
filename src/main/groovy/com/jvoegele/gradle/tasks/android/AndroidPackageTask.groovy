@@ -21,6 +21,7 @@ class AndroidPackageTask extends ConventionTask {
   @Input public String keyStorePassword
   @Input public String keyAliasPassword
   public boolean verbose
+  public List<String> dexParams
 
   // Inputs and outputs files and directories (to be determined dynamically)
   @InputFile
@@ -53,6 +54,7 @@ class AndroidPackageTask extends ConventionTask {
     inputs.dir (androidConvention.nativeLibsDir.absolutePath)
     inputs.file (androidConvention.androidManifest.absolutePath)
     inputs.files (project.fileTree (dir: project.sourceSets.main.classesDir, exclude: "**/*.class"))
+    dexParams = ['dex', "output=${androidConvention.intermediateDexFile}"]
   }
     
   @TaskAction
@@ -109,8 +111,7 @@ class AndroidPackageTask extends ConventionTask {
   private void createPackage(boolean sign) {
     logger.info("Converting compiled files and external libraries into ${androidConvention.intermediateDexFile}...")
     ant.apply(executable: ant.dx, failonerror: true, parallel: true, logError: true) {
-      arg(value: "--dex")
-      arg(value: "--output=${androidConvention.intermediateDexFile}")
+      dexParams.each { arg(value: "--$it") }
       if (verbose) arg(line: "--verbose")
 
       // add classes from application JAR
