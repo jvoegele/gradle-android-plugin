@@ -10,20 +10,19 @@ class EclipseEnhancement extends GradlePluginEnhancement {
 
   public void apply() {
     project.gradle.taskGraph.whenReady { taskGraph ->
-      if (taskGraph.hasTask(':eclipse')) {
-
-        def eclipseProject = project.tasks['eclipseProject']
-        if (eclipseProject) {
-          project.configure(eclipseProject) {
-            natures 'com.android.ide.eclipse.adt.AndroidNature'
-            def builders = new LinkedList(buildCommands)
-            builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.PreCompilerBuilder'))
-            builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.ResourceManagerBuilder'))
-            builders.addLast(new BuildCommand('com.android.ide.eclipse.adt.ApkBuilder'))
-            buildCommands = new ArrayList(builders)
-          }
+      def eclipseProject = taskGraph.allTasks.find { it.name == "eclipseProject" }
+      if (eclipseProject) {
+        project.configure(eclipseProject) {
+          natures 'com.android.ide.eclipse.adt.AndroidNature'
+          def builders = new LinkedList(buildCommands)
+          builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.PreCompilerBuilder'))
+          builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.ResourceManagerBuilder'))
+          builders.addLast(new BuildCommand('com.android.ide.eclipse.adt.ApkBuilder'))
+          buildCommands = new ArrayList(builders)
         }
-
+      }
+      def eclipseClasspath = taskGraph.allTasks.find { it.name == "eclipseClasspath" }
+      if (eclipseClasspath) {
         project.configure(project.eclipseClasspath) {
           containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
         }
