@@ -1,7 +1,7 @@
 package com.jvoegele.gradle.tasks.android
 
 import org.gradle.api.internal.ConventionTask
-import org.gradle.api.tasks.Input
+
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -15,11 +15,6 @@ import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
  */
 class AndroidPackageTask extends ConventionTask {
   
-  // Public configuration properties
-  @Input public String keyStore
-  @Input public String keyAlias
-  @Input public String keyStorePassword
-  @Input public String keyAliasPassword
   public boolean verbose
   public List<String> dexParams
 
@@ -29,8 +24,8 @@ class AndroidPackageTask extends ConventionTask {
     return project.jar.archivePath
   }
   @OutputFile
-  public File getApkArchivePath() {
-    return androidConvention.getApkArchivePath()
+  public File getUnsignedArchivePath() {
+    return androidConvention.unsignedArchivePath
   }
   
   // Internal fields
@@ -38,10 +33,6 @@ class AndroidPackageTask extends ConventionTask {
   AndroidSdkToolsFactory sdkTools
   def ant
 
-  public File getTempFile() {
-    return new File (project.libsDir, androidConvention.getApkBaseName() + "-unaligned.apk")
-  }
-  
   public AndroidPackageTask() {
     // Initialize internal data
     androidConvention = project.convention.plugins.android
@@ -61,54 +52,18 @@ class AndroidPackageTask extends ConventionTask {
   protected void process() {
     
     // Create necessary directories for this task
-    getApkArchivePath().getParentFile().mkdirs()
+    getUnsignedArchivePath().getParentFile().mkdirs()
     
-    if (keyStore != null && keyAlias != null) {
-      // Dont' sign - it'll sign with the provided key
-      createPackage(false)
-      // Sign with provided key
-      sign ()
-    } else {
-      // Sign with debug key
-      createPackage(true)
-    }
-    
-    // Create temporary file for the zipaligning
-    File temp = getTempFile()
-    ant.copy(file: getApkArchivePath().toString(), toFile: temp.toString())
-    // Do the alignment
-    zipAlign(temp, getApkArchivePath())
-    
-    logger.info("Final Package: " + getApkArchivePath())
+    createPackage()
   }
-  
-  private void sign() {
-    if (keyStorePassword == null || keyAliasPassword == null) {
-      def console = System.console()
-      keyStorePassword = new String(console.readPassword(
-          "Please enter keystore password (store:${keyStore}): "))
-      keyAliasPassword = new String(console.readPassword(
-          "Please enter password for alias '${keyAlias}': "))
-    }
-    
-    logger.info("Signing final apk...")
-    ant.signjar(jar: getApkArchivePath().absolutePath,
-        signedjar: getApkArchivePath().absolutePath,
-        keystore: keyStore,
-        storepass: keyStorePassword,
-        alias: keyAlias,
-        keypass: keyAliasPassword,
-        verbose: verbose)
-  }
-  
+
   /**
    * Creates a classes.dex file containing all classes required at runtime, i.e.
    * all class files from the application itself, plus all its dependencies, and
    * bundles it into the final APK.
    *
-   * @param sign whether the APK should be signed with the release key or not
    */
-  private void createPackage(boolean sign) {
+  private void createPackage() {
     logger.info("Converting compiled files and external libraries into ${androidConvention.intermediateDexFile}...")
     ant.apply(executable: ant.dx, failonerror: true, parallel: true, logError: true) {
       dexParams.each { arg(value: "--$it") }
@@ -127,15 +82,6 @@ class AndroidPackageTask extends ConventionTask {
     
     logger.info("Packaging resources")
     sdkTools.aaptexec.execute(command: 'package')
-    sdkTools.apkbuilder.execute('sign': sign, 'verbose': verbose)
-  }
-  
-  private void zipAlign(inPackage, outPackage) {
-    logger.info("Running zip align on final apk...")
-    project.exec {
-      executable ant.zipalign
-      if (verbose) args '-v'
-      args '-f', 4, inPackage, outPackage
-    }
+    sdkTools.apkbuilder.execute('sign': false, 'verbose': verbose)
   }
 }

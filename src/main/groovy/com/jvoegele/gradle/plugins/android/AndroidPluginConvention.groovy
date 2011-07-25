@@ -62,4 +62,12 @@ class AndroidPluginConvention {
     apkArchivePath = new File (project.distsDir, getApkBaseName() + ".apk")
     return apkArchivePath
   }
+
+  public File getUnsignedArchivePath() {
+    return new File(project.distsDir, "${getApkBaseName()}-unsigned.apk")
+  }
+
+  public File getUnalignedArchivePath() {
+    return new File(project.distsDir, "${getApkBaseName()}-unaligned.apk")
+  }
 }
