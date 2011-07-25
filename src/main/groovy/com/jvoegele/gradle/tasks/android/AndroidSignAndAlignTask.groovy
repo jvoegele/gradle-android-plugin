@@ -18,7 +18,9 @@ class AndroidSignAndAlignTask extends DefaultTask {
   private AndroidPluginConvention androidConvention = project.convention.plugins.android
 
   @InputFile
-  File unsignedArchivePath = androidConvention.unsignedArchivePath
+  File getUnsignedArchivePath() {
+      return androidConvention.unsignedArchivePath
+  }
 
   @OutputFile
   File getApkArchivePath() {
@@ -58,7 +60,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
     logger.info("Signing final apk...")
     project.ant.signjar(
         jar: unsignedArchivePath.absolutePath,
-        signedjar: apkArchivePath.absolutePath,
+        signedjar: androidConvention.unalignedArchivePath.absolutePath,
         keystore: keyStore,
         storepass: keyStorePassword,
         alias: keyAlias,

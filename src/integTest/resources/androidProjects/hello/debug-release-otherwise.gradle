@@ -13,7 +13,7 @@ def configureDebug() {
 }
 
 def configureRelease() {
-    androidPackage {
+    androidSignAndAlign {
         keyStore = file('test.keystore')
         keyStorePassword = 'testpass'
         keyAlias = 'testkey'

@@ -11,7 +11,7 @@ task configureDebug << {
 }
 
 task configureRelease << {
-    androidPackage {
+    androidSignAndAlign {
         keyStore = file('test.keystore')
         keyStorePassword = 'testpass'
         keyAlias = 'testkey'
