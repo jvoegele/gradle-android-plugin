@@ -63,8 +63,4 @@ class AndroidPluginConvention {
   public File getUnsignedArchivePath() {
     return new File(project.libsDir, "${apkBaseName}-unsigned.apk")
   }
-
-  public File getUnalignedArchivePath() {
-    return new File(project.libsDir, "${apkBaseName}-unaligned.apk")
-  }
 }

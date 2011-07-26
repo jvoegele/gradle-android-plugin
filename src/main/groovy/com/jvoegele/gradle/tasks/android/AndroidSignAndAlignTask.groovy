@@ -17,9 +17,13 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
   private AndroidPluginConvention androidConvention = project.convention.plugins.android
 
+  private File buildUnalignedArchivePath() {
+    return new File(project.libsDir, "${androidConvention.apkBaseName}-unaligned.apk")
+  }
+
   @InputFile
   File getUnsignedArchivePath() {
-      return androidConvention.unsignedArchivePath
+    return androidConvention.unsignedArchivePath
   }
 
   @OutputFile
@@ -37,7 +41,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
   private void createDirs() {
     apkArchivePath.parentFile.mkdirs()
     unsignedArchivePath.parentFile.mkdirs()
-    androidConvention.unalignedArchivePath.parentFile.mkdirs()
+    buildUnalignedArchivePath().parentFile.mkdirs()
   }
 
   private void sign() {
@@ -60,7 +64,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
     logger.info("Signing final apk...")
     project.ant.signjar(
         jar: unsignedArchivePath.absolutePath,
-        signedjar: androidConvention.unalignedArchivePath.absolutePath,
+        signedjar: buildUnalignedArchivePath().absolutePath,
         keystore: keyStore,
         storepass: keyStorePassword,
         alias: keyAlias,
@@ -91,7 +95,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
     project.ant.signjar(
         jar: unsignedArchivePath.absolutePath,
-        signedjar: androidConvention.unalignedArchivePath.absolutePath,
+        signedjar: buildUnalignedArchivePath().absolutePath,
         keystore: retrieveDebugKeystore(),
         storepass: 'android',
         alias: 'androiddebugkey',
@@ -102,7 +106,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
   private void zipAlign() {
     logger.info("Running zip align on final apk...")
-    String inPath = androidConvention.unalignedArchivePath.absolutePath
+    String inPath = buildUnalignedArchivePath().absolutePath
     String outPath = apkArchivePath.absolutePath
     project.exec {
       executable ant.zipalign
