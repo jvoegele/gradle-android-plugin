@@ -10,8 +10,8 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.runTasks 'clean', 'build', buildScript: 'simple.gradle'
 
     p.fileExists 'build/libs/hello-1.0.jar'
-    p.fileExists 'build/distributions/hello-1.0-unsigned.apk'
-    p.fileExists 'build/distributions/hello-1.0-unaligned.apk'
+    p.fileExists 'build/libs/hello-1.0-unsigned.apk'
+    p.fileExists 'build/libs/hello-1.0-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0.apk'
 
     p.archive('build/libs/hello-1.0.jar').assertContains 'com/jvoegele/gradle/android/hello/HelloActivity.class'
@@ -39,8 +39,8 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
   void assertDebugBuild(p) {
     p.fileExists 'build/libs/hello-1.0-debug.jar'
-    p.fileExists 'build/distributions/hello-1.0-debug-unsigned.apk'
-    p.fileExists 'build/distributions/hello-1.0-debug-unaligned.apk'
+    p.fileExists 'build/libs/hello-1.0-debug-unsigned.apk'
+    p.fileExists 'build/libs/hello-1.0-debug-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0-debug.apk'
     p.fileDoesntExist 'build/libs/hello-1.0.jar'
     p.fileDoesntExist 'build/distributions/hello-1.0.apk'
@@ -72,8 +72,8 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
   void assertReleaseBuild(p) {
     p.fileExists 'build/libs/hello-1.0.jar'
-    p.fileExists 'build/distributions/hello-1.0-unsigned.apk'
-    p.fileExists 'build/distributions/hello-1.0-unaligned.apk'
+    p.fileExists 'build/libs/hello-1.0-unsigned.apk'
+    p.fileExists 'build/libs/hello-1.0-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0.apk'
 
     p.fileDoesntExist 'build/libs/hello-1.0-debug.jar'
@@ -82,6 +82,7 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.archive('build/libs/hello-1.0.jar').assertContains 'com/jvoegele/gradle/android/hello/HelloActivity.class'
 
     p.archive('build/distributions/hello-1.0.apk').assertAligned()
+    p.archive('build/libs/hello-1.0-unsigned.apk').assertNotAligned()
 
     p.archive('build/distributions/hello-1.0.apk').assertSigned('CN=Gradle Android Plugin integration tests, O=Gradle Android Plugin, C=US')
   }
