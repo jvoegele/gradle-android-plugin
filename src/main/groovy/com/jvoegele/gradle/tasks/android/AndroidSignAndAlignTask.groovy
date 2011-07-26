@@ -15,7 +15,9 @@ class AndroidSignAndAlignTask extends DefaultTask {
   @Optional @Input String keyAliasPassword
   boolean verbose
 
+  private File customUnsingedArchivePath
   private AndroidPluginConvention androidConvention = project.convention.plugins.android
+
 
   private File buildUnalignedArchivePath() {
     return new File(project.libsDir, "${androidConvention.apkBaseName}-unaligned.apk")
@@ -23,7 +25,11 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
   @InputFile
   File getUnsignedArchivePath() {
-    return androidConvention.unsignedArchivePath
+    customUnsingedArchivePath ?: androidConvention.unsignedArchivePath
+  }
+
+  void setUnsignedArchivePath(File unsignedArchivePath) {
+    customUnsingedArchivePath = unsignedArchivePath
   }
 
   @OutputFile
