@@ -11,9 +11,7 @@ class AndroidPluginConvention {
   File androidManifest
   File intermediateDexFile
   String instrumentationTestsRunner
-  private String apkBaseName
-  private File apkArchivePath
-  
+
   AndroidPluginConvention(Project project) {
     this.project = project
 	
@@ -41,17 +39,17 @@ class AndroidPluginConvention {
    * @return
    */
   public String getApkBaseName() {
-    apkBaseName = project.jar.baseName 
-    if (project.jar.appendix != null && project.jar.appendix.length() > 0) {
-      apkBaseName += "-"+project.jar.appendix
+    def nameParts = [project.jar.baseName]
+    if (project.jar.appendix) {
+      nameParts << project.jar.appendix
     }
-    if (project.version != null && project.version.length() > 0) {
-      apkBaseName += "-"+project.version
+    if (project.version) {
+      nameParts << project.version
     }
-    if (project.jar.classifier != null && project.jar.classifier.length() > 0) {
-      apkBaseName += "-"+project.jar.classifier
+    if (project.jar.classifier) {
+      nameParts << project.jar.classifier
     }
-    return apkBaseName 
+    return nameParts.join('-')
   }
   
   /**
@@ -59,15 +57,14 @@ class AndroidPluginConvention {
    * @return
    */
   public File getApkArchivePath() {
-    apkArchivePath = new File (project.distsDir, getApkBaseName() + ".apk")
-    return apkArchivePath
+    return new File (project.distsDir, "${apkBaseName}.apk")
   }
 
   public File getUnsignedArchivePath() {
-    return new File(project.libsDir, "${getApkBaseName()}-unsigned.apk")
+    return new File(project.libsDir, "${apkBaseName}-unsigned.apk")
   }
 
   public File getUnalignedArchivePath() {
-    return new File(project.libsDir, "${getApkBaseName()}-unaligned.apk")
+    return new File(project.libsDir, "${apkBaseName}-unaligned.apk")
   }
 }
