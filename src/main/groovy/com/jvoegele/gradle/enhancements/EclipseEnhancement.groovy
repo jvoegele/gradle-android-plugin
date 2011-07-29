@@ -27,6 +27,7 @@ class EclipseEnhancement extends GradlePluginEnhancement {
 
       project.configure(project.eclipseClasspath) {
         beforeConfigured {
+          containers.removeAll { it == 'org.eclipse.jdt.launching.JRE_CONTAINER' }
           containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
           sourceSets = project.sourceSets
           sourceSets.main.java.srcDir 'gen'
