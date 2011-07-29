@@ -10,9 +10,12 @@ class EclipseEnhancement extends GradlePluginEnhancement {
 
   public void apply() {
     project.gradle.taskGraph.whenReady { taskGraph ->
-      def eclipseProject = taskGraph.allTasks.find { it.name == "eclipseProject" }
-      if (eclipseProject) {
-        project.configure(eclipseProject) {
+
+      if (!project.plugins.hasPlugin('eclipse'))
+        return;
+
+      project.configure(project.eclipseProject) {
+        beforeConfigured {
           natures 'com.android.ide.eclipse.adt.AndroidNature'
           def builders = new LinkedList(buildCommands)
           builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.PreCompilerBuilder'))
@@ -21,9 +24,9 @@ class EclipseEnhancement extends GradlePluginEnhancement {
           buildCommands = new ArrayList(builders)
         }
       }
-      def eclipseClasspath = taskGraph.allTasks.find { it.name == "eclipseClasspath" }
-      if (eclipseClasspath) {
-        project.configure(project.eclipseClasspath) {
+
+      project.configure(project.eclipseClasspath) {
+        beforeConfigured {
           containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
         }
       }
