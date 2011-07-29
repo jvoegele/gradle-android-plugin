@@ -51,8 +51,10 @@ class ProGuard extends ConventionTask {
     ]
 
     if (proguardConfig.exists()) {
+      project.logger.info("File ${proguardConfig} found. Using it.")
       proguardOptions['configuration'] = proguardConfig
     } else {
+      project.logger.info("File ${proguardConfig} not found. Using default configuration.")
       // use some minimal configuration if proguard.cfg doesn't exist
       // this is basically the same as what "android create project" generates
       proguardOptions['optimizationpasses'] = 5
@@ -70,8 +72,10 @@ class ProGuard extends ConventionTask {
         injar(file: dependency)
       }
       outjar(file: tempFilePath)
-      libraryjar(file: ant['android.jar'])
-
+      ant.references['android.target.classpath'].each { targetjar ->
+        libraryjar(file: targetjar)
+      }
+      
       if (!proguardConfig.exists()) {
         // use some minimal configuration if proguard.cfg doesn't exist
         // this is basically the same as what "android create project" generates
