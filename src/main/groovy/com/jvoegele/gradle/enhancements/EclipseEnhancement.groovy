@@ -28,6 +28,8 @@ class EclipseEnhancement extends GradlePluginEnhancement {
       project.configure(project.eclipseClasspath) {
         beforeConfigured {
           containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
+          sourceSets = project.sourceSets
+          sourceSets.main.java.srcDir 'gen'
         }
       }
     }
