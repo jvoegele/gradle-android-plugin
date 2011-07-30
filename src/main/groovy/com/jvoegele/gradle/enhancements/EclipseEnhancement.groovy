@@ -2,6 +2,7 @@ package com.jvoegele.gradle.enhancements
 
 import org.gradle.api.Project 
 import org.gradle.plugins.ide.eclipse.model.BuildCommand
+import org.gradle.plugins.ide.eclipse.model.SourceFolder;
 
 class EclipseEnhancement extends GradlePluginEnhancement {
   public EclipseEnhancement(Project project) {
@@ -14,6 +15,8 @@ class EclipseEnhancement extends GradlePluginEnhancement {
       if (!project.plugins.hasPlugin('eclipse'))
         return;
 
+      def androidLibraryProjects = detectAndroidLibraryProjects()
+
       project.eclipse.project {
         natures 'com.android.ide.eclipse.adt.AndroidNature'
         def builders = new LinkedList(buildCommands)
@@ -21,6 +24,11 @@ class EclipseEnhancement extends GradlePluginEnhancement {
         builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.ResourceManagerBuilder'))
         builders.addLast(new BuildCommand('com.android.ide.eclipse.adt.ApkBuilder'))
         buildCommands = new ArrayList(builders)
+
+        // add an Eclipse link to every library project's src folder (= type 2)
+        androidLibraryProjects.each {
+          linkedResource name: it.sourceName, type: "2", location: it.sourcePath
+        }
       }
 
       project.eclipse.classpath {
@@ -28,8 +36,49 @@ class EclipseEnhancement extends GradlePluginEnhancement {
         containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
         sourceSets = project.sourceSets
         sourceSets.main.java.srcDir 'gen'
+
+        // apparently the sourceSets method refuses to add a src dir whose folder does
+        // not physically exist, so it will fail for our Eclipse link; hence, we add
+        // it manually to the .classpath file
+        file {
+          whenMerged { classpath ->
+            androidLibraryProjects.each {
+              SourceFolder srcFolder = new SourceFolder(it.sourceName, null)
+              classpath.entries.add srcFolder
+
+              // now remove the artifact JAR from the classpath, or it would clash
+              // with the classes compiled from src
+              classpath.entries.removeAll { entry -> entry.path == it.artifact.file.absolutePath }
+            }
+          }
+        }
       }
     }
   }
 
+  // TODO: this currently only works if a Gradle dependency's artifact name equals the folder
+  // name of the library project referenced in default.properties
+  private def detectAndroidLibraryProjects() {
+    // Android's SetupTask sets this for use based on library references in default.properties
+    def librarySrcPaths = project.ant.references['project.libraries.src']?.list()
+    if (!librarySrcPaths?.any()) {
+      return []
+    }
+
+    def libraryProjects = []
+
+    // try to match the project's resolved dependencies against the libraries in default.properties
+    project.configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
+      def matchingSrcPath = librarySrcPaths.find { it ==~ /.*\/${artifact.name}\/src$/ }
+      if (matchingSrcPath) {
+        def libraryProject = new Expando()
+        libraryProject.artifact = artifact
+        libraryProject.sourcePath = matchingSrcPath
+        libraryProject.sourceName = "${artifact.name}_src"
+        libraryProjects << libraryProject
+      }
+    }
+
+    return libraryProjects
+  }
 }
