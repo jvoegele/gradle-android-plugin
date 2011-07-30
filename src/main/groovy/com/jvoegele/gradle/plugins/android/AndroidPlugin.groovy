@@ -9,10 +9,12 @@ import org.gradle.api.plugins.JavaPlugin
 import com.jvoegele.gradle.enhancements.JavadocEnhancement
 import com.jvoegele.gradle.tasks.android.AdbExec
 import com.jvoegele.gradle.tasks.android.AndroidPackageTask
+import com.jvoegele.gradle.tasks.android.EmulatorTask
 import com.jvoegele.gradle.enhancements.EclipseEnhancement
 import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
-import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask;
+import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask
+import com.jvoegele.gradle.enhancements.ScalaEnhancement
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -27,6 +29,7 @@ class AndroidPlugin implements Plugin<Project> {
   public static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
   public static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
   public static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
+  public static final ANDROID_START_EMULATOR_TASK_NAME = "androidEmulatorStart"
   
   private static final ANDROID_GROUP = "Android";
   
@@ -42,7 +45,7 @@ class AndroidPlugin implements Plugin<Project> {
   private logger
 
   private androidProcessResourcesTask, proguardTask, androidPackageTask, 
-  androidInstallTask, androidUninstallTask, androidInstrumentationTestsTask
+  androidInstallTask, androidUninstallTask, androidInstrumentationTestsTask, androidEmulatorStartTask
 
   boolean verbose = false
 
@@ -135,6 +138,7 @@ class AndroidPlugin implements Plugin<Project> {
     defineAndroidPackageTask()
     defineAndroidInstallTask()
     defineAndroidUninstallTask()
+    defineAndroidEmulatorStartTask()
     defineAndroidInstrumentationTestsTask()
     defineTaskDependencies()
     configureTaskLogging()
@@ -197,6 +201,12 @@ class AndroidPlugin implements Plugin<Project> {
     }
   }
   
+  private void defineAndroidEmulatorStartTask() {
+    androidEmulatorStartTask = project.task(ANDROID_START_EMULATOR_TASK_NAME,
+        description: "Starts the android emulator", type:EmulatorTask)
+    androidEmulatorStartTask.group = ANDROID_GROUP
+  }
+  
   private void defineAndroidInstrumentationTestsTask() {
     def description = """Runs instrumentation tests on a running emulator or device.
       Use the 'runners' closure to configure your test runners:
@@ -243,6 +253,7 @@ class AndroidPlugin implements Plugin<Project> {
   private void configureEnhancements() {
     new JavadocEnhancement(project).apply()
     new EclipseEnhancement(project).apply()
+    new ScalaEnhancement(project).apply()
   }
 
   private void configureCompile() {

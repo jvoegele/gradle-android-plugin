@@ -1,0 +1,32 @@
+apply plugin: 'android'
+
+repositories {
+    mavenCentral() // for Proguard
+}
+
+version = '1.0'
+
+task release(dependsOn: build)
+
+def configureDebug() {
+    jar.classifier = 'debug'
+}
+
+def configureRelease() {
+    androidPackage {
+        keyStore = file('test.keystore')
+        keyStorePassword = 'testpass'
+        keyAlias = 'testkey'
+        keyAliasPassword = 'testpass'
+    }
+
+    proguard.enabled = true
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(':release')) {
+        configureRelease()
+    } else {
+        configureDebug()
+    }
+}

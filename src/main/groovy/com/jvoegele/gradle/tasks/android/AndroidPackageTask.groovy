@@ -131,12 +131,10 @@ class AndroidPackageTask extends ConventionTask {
   
   private void zipAlign(inPackage, outPackage) {
     logger.info("Running zip align on final apk...")
-    ant.exec(executable: ant.zipalign, failonerror: true) {
-      if (verbose) arg(line: '-v')
-      arg(value: '-f')
-      arg(value: 4)
-      arg(path: inPackage)
-      arg(path: outPackage)
+    project.exec {
+      executable ant.zipalign
+      if (verbose) args '-v'
+      args '-f', 4, inPackage, outPackage
     }
   }
 }

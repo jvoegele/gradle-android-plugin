@@ -1,0 +1,22 @@
+apply plugin: 'android'
+
+repositories {
+    mavenCentral() // for Proguard
+}
+
+version = '1.0'
+
+task configureDebug << {
+    jar.classifier = 'debug'
+}
+
+task configureRelease << {
+    androidPackage {
+        keyStore = file('test.keystore')
+        keyStorePassword = 'testpass'
+        keyAlias = 'testkey'
+        keyAliasPassword = 'testpass'
+    }
+
+    proguard.enabled = true
+}

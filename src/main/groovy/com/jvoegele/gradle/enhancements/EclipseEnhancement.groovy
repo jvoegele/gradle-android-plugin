@@ -10,22 +10,27 @@ class EclipseEnhancement extends GradlePluginEnhancement {
 
   public void apply() {
     project.gradle.taskGraph.whenReady { taskGraph ->
-      if (taskGraph.hasTask(':eclipse')) {
 
-        def eclipseProject = project.tasks['eclipseProject']
-        if (eclipseProject) {
-          project.configure(eclipseProject) {
-            natures 'com.android.ide.eclipse.adt.AndroidNature'
-            def builders = new LinkedList(buildCommands)
-            builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.PreCompilerBuilder'))
-            builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.ResourceManagerBuilder'))
-            builders.addLast(new BuildCommand('com.android.ide.eclipse.adt.ApkBuilder'))
-            buildCommands = new ArrayList(builders)
-          }
+      if (!project.plugins.hasPlugin('eclipse'))
+        return;
+
+      project.configure(project.eclipseProject) {
+        beforeConfigured {
+          natures 'com.android.ide.eclipse.adt.AndroidNature'
+          def builders = new LinkedList(buildCommands)
+          builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.PreCompilerBuilder'))
+          builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.ResourceManagerBuilder'))
+          builders.addLast(new BuildCommand('com.android.ide.eclipse.adt.ApkBuilder'))
+          buildCommands = new ArrayList(builders)
         }
+      }
 
-        project.configure(project.eclipseClasspath) {
+      project.configure(project.eclipseClasspath) {
+        beforeConfigured {
+          containers.removeAll { it == 'org.eclipse.jdt.launching.JRE_CONTAINER' }
           containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
+          sourceSets = project.sourceSets
+          sourceSets.main.java.srcDir 'gen'
         }
       }
     }

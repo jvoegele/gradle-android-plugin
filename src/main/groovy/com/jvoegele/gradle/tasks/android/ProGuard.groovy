@@ -49,8 +49,17 @@ class ProGuard extends ConventionTask {
       'warn': warn,
       'obfuscate': obfuscate
     ]
+
     if (proguardConfig.exists()) {
       proguardOptions['configuration'] = proguardConfig
+    } else {
+      // use some minimal configuration if proguard.cfg doesn't exist
+      // this is basically the same as what "android create project" generates
+      proguardOptions['optimizationpasses'] = 5
+      proguardOptions['usemixedcaseclassnames'] = false
+      proguardOptions['skipnonpubliclibraryclasses'] = false
+      proguardOptions['preverify'] = false
+      proguardOptions['verbose'] = true
     }
 
     ant.proguard(proguardOptions) {
@@ -62,6 +71,34 @@ class ProGuard extends ConventionTask {
       }
       outjar(file: tempFilePath)
       libraryjar(file: ant['android.jar'])
+
+      if (!proguardConfig.exists()) {
+        // use some minimal configuration if proguard.cfg doesn't exist
+        // this is basically the same as what "android create project" generates
+        optimizations(filter: "!code/simplification/arithmetic,!field/*,!class/merging/*")
+
+        keep(access: 'public', 'extends': 'android.app.Activity')
+        keep(access: 'public', 'extends': 'android.app.Application')
+        keep(access: 'public', 'extends': 'android.app.Service')
+        keep(access: 'public', 'extends': 'android.content.BroadcastReceiver')
+        keep(access: 'public', 'extends': 'android.content.ContentProvider')
+        keep(access: 'public', 'extends': 'android.app.backup.BackupAgentHelper')
+        keep(access: 'public', 'extends': 'android.preference.Preference')
+        keep(access: 'public', name: 'com.android.vending.licensing.ILicensingService')
+        keepclasseswithmembernames {
+          method(access: 'native')
+          constructor(access: 'public', parameters: 'android.content.Context,android.util.AttributeSet')
+          constructor(access: 'public', parameters: 'android.content.Context,android.util.AttributeSet,int')
+        }
+        keepclassmembers('extends': 'java.lang.Enum') {
+          method(access: 'public static', type: '**[]', name: 'values', parameters: '')
+          method(access: 'public static', type: '**', name: 'valueOf', parameters: 'java.lang.String')
+        }
+        keep('implements': 'android.os.Parcelable') {
+          field(access: 'public static final', type: 'android.os.Parcelable$Creator')
+        }
+      }
+
       keep(access: 'public', 'name': '**.R')
       keep('name': '**.R$*')
     }
