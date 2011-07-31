@@ -34,17 +34,14 @@ class EclipseEnhancement extends GradlePluginEnhancement {
       project.eclipse.classpath {
         containers.removeAll { it == 'org.eclipse.jdt.launching.JRE_CONTAINER' }
         containers 'com.android.ide.eclipse.adt.ANDROID_FRAMEWORK'
-        sourceSets = project.sourceSets
-        sourceSets.main.java.srcDir 'gen'
 
-        // apparently the sourceSets method refuses to add a src dir whose folder does
-        // not physically exist, so it will fail for our Eclipse link; hence, we add
-        // it manually to the .classpath file
         file {
           whenMerged { classpath ->
+            // add the 'gen' folder that includes R.java
+            classpath.entries.add(new SourceFolder('gen', null))
+
             androidLibraryProjects.each {
-              SourceFolder srcFolder = new SourceFolder(it.sourceName, null)
-              classpath.entries.add srcFolder
+              classpath.entries.add(new SourceFolder(it.sourceName, null))
 
               // now remove the artifact JAR from the classpath, or it would clash
               // with the classes compiled from src
