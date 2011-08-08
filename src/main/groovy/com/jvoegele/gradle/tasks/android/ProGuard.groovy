@@ -36,7 +36,7 @@ class ProGuard extends ConventionTask {
   }
 
   public File getProguardConfig() {
-    return new File(project.rootDir, "proguard.cfg")
+    return new File(project.projectDir, "proguard.cfg")
   }
 
   @TaskAction
