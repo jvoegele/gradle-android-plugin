@@ -81,7 +81,7 @@ include the Android plugin as follows:
         mavenRepo(urls: 'http://jvoegele.com/maven2/')
       }
       dependencies {
-        classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0.0-SNAPSHOT'
+        classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0.0'
       }
     }
     apply plugin: 'android'
@@ -141,7 +141,7 @@ build.gradle
         mavenRepo(urls: 'http://jvoegele.com/maven2/')
       }
       dependencies {
-        classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0.0-SNAPSHOT'
+        classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0.0'
       }
     }
     apply plugin: 'android'
