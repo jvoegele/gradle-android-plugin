@@ -1,0 +1,15 @@
+2011-08-11  Gradle Android Plugin Developers  <gradle-android-plugin-developers@googlegroups.com>
+
+    * Version 1.0.0 released!
+
+    * Generate Eclipse projects with "gradle eclipse"
+
+    * Use proguard.cfg for ProGuard configuration
+
+    * ProGuard is automatically enabled in Scala projects
+
+    * Ability to start Android emulator with Gradle
+
+    * Instrumentation tests support; also contains support for Zutubi test runner
+
+    * The plugin got some tests of itself; they can also serve as complete Gradle + Android project examples
