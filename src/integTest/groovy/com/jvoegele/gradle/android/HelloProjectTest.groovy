@@ -17,7 +17,6 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.archive('build/libs/hello-1.0.jar').assertContains 'com/jvoegele/gradle/android/hello/HelloActivity.class'
 
     p.archive('build/distributions/hello-1.0.apk').assertAligned()
-    p.archive('build/libs/hello-1.0-unsigned.apk').assertNotAligned()
   }
 
   @Test
@@ -49,7 +48,6 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.archive('build/libs/hello-1.0-debug.jar').assertContains 'com/jvoegele/gradle/android/hello/HelloActivity.class'
 
     p.archive('build/distributions/hello-1.0-debug.apk').assertAligned()
-    p.archive('build/libs/hello-1.0-debug-unsigned.apk').assertNotAligned()
 
     p.archive('build/distributions/hello-1.0-debug.apk').assertSigned('CN=Android Debug, O=Android, C=US')
   }
@@ -84,7 +82,6 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.archive('build/libs/hello-1.0.jar').assertContains 'com/jvoegele/gradle/android/hello/HelloActivity.class'
 
     p.archive('build/distributions/hello-1.0.apk').assertAligned()
-    p.archive('build/libs/hello-1.0-unsigned.apk').assertNotAligned()
 
     p.archive('build/distributions/hello-1.0.apk').assertSigned('CN=Gradle Android Plugin integration tests, O=Gradle Android Plugin, C=US')
   }
