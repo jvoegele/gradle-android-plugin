@@ -17,10 +17,6 @@ class TestArchive {
     new ZipAlignVerifier(project: project).verifyAligned archive
   }
 
-  def assertNotAligned() {
-    new ZipAlignVerifier(project: project).verifyNotAligned archive
-  }
-
   def assertSigned(distinguishedName) {
     new SignVerifier(archive: archive).verify(distinguishedName)
   }

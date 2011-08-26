@@ -12,6 +12,10 @@ import static org.junit.Assert.assertTrue
 // leaking and the 'clean' task isn't able to finish successfully. See runTasks
 // and fileDoesntExist methods.
 
+// We still use GradleLauncher here to launch a Gradle build, even if it is
+// deprecated, because Tooling API doesn't yet support specifying custom
+// buildscript file (which we heavily use). It will be supported in the future.
+
 class TestProject {
   /*@Delegate*/ Project project
 
@@ -35,6 +39,7 @@ class TestProject {
     }
     startParameter.taskNames = tasks
     def launcher = GradleLauncher.newInstance(startParameter)
+    launcher.addListener(new MyBuildListener())
     def result = launcher.run()
     result.rethrowFailure()
   }
