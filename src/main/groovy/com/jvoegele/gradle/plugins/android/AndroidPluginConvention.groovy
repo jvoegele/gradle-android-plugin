@@ -24,7 +24,12 @@ class AndroidPluginConvention {
     androidManifest = new File(project.projectDir, 'AndroidManifest.xml')
 	
 	// Output paths
+    // FIXME (Matthias): I find this misleading, this is NOT conventional; the gen/ folder
+    // typically sits at the project root, not inside the build/ folder, that's a Gradle thing.
+    // In fact, for the EclipseEnhancement to work, I had to hack around this by removing this
+    // entry and replacing it with $projectDir/gen, which is the actual convention.
     genDir = new File(project.buildDir, 'gen')
+
     intermediateDexFile = new File(project.libsDir, "classes.dex")
     
     // instrumentation conventions
