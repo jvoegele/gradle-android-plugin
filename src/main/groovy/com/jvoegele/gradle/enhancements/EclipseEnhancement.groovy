@@ -5,6 +5,9 @@ import org.gradle.plugins.ide.eclipse.model.BuildCommand
 import org.gradle.plugins.ide.eclipse.model.SourceFolder;
 
 class EclipseEnhancement extends GradlePluginEnhancement {
+
+  def androidConvention = project.convention.plugins.android
+
   public EclipseEnhancement(Project project) {
     super(project)
   }
@@ -37,7 +40,8 @@ class EclipseEnhancement extends GradlePluginEnhancement {
 
         file {
           whenMerged { classpath ->
-            // add the 'gen' folder that includes R.java
+            // the ADT use a top-level gen/ folder, whereas the plugin uses build/gen, so swap them
+            classpath.entries.removeAll { it instanceof SourceFolder && it.dir?.path == androidConvention.genDir.path }
             classpath.entries.add(new SourceFolder('gen', null))
 
             androidLibraryProjects.each {
