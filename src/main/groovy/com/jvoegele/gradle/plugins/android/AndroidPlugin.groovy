@@ -171,10 +171,9 @@ class AndroidPlugin implements Plugin<Project> {
         description: "Installs the debug package onto a running emulator or device",
         type: AdbExec) {
 
-      args 'install', '-r', androidConvention.apkArchivePath
-
       doFirst {
         logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
+        args 'install', '-r', androidConvention.apkArchivePath
       }
     }
   }
