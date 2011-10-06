@@ -15,6 +15,7 @@ import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
 import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask
 import com.jvoegele.gradle.enhancements.ScalaEnhancement
+import com.jvoegele.gradle.tasks.android.AndroidSignAndAlignTask
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
