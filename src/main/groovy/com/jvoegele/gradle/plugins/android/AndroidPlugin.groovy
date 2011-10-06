@@ -173,6 +173,10 @@ class AndroidPlugin implements Plugin<Project> {
         group: ANDROID_GROUP,
         description: "Signs and zipaligns the application apk package",
         type: AndroidSignAndAlignTask)
+
+    ['keyStore', 'keyAlias', 'keyStorePassword', 'keyAliasPassword'].each { String propertyName ->
+      androidSignAndAlignTask.conventionMapping[propertyName] = { androidPackageTask[propertyName] }
+    }
   }
 
   private void defineAndroidInstallTask() {

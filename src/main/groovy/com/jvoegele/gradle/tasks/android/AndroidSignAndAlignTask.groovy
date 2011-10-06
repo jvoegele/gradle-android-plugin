@@ -1,14 +1,14 @@
 package com.jvoegele.gradle.tasks.android
 
-import org.gradle.api.DefaultTask
 import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
+import org.gradle.api.internal.ConventionTask
 
-class AndroidSignAndAlignTask extends DefaultTask {
+class AndroidSignAndAlignTask extends ConventionTask {
   @Optional @Input String keyStore
   @Optional @Input String keyAlias
   @Optional @Input String keyStorePassword
@@ -51,7 +51,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
   }
 
   private void sign() {
-    if (keyStore || keyAlias) {
+    if (getKeyStore() || getKeyAlias()) {
       signWithProvidedKey()
     } else {
       signWithDebugKey()
@@ -59,7 +59,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
   }
 
   private void signWithProvidedKey() {
-    if (!keyStorePassword || !keyAliasPassword) {
+    if (!getKeyStorePassword() || !getKeyAliasPassword()) {
       def console = System.console()
       keyStorePassword = new String(console.readPassword(
           "Please enter keystore password (store:${keyStore}): "))
@@ -71,10 +71,10 @@ class AndroidSignAndAlignTask extends DefaultTask {
     project.ant.signjar(
         jar: unsignedArchivePath.absolutePath,
         signedjar: buildUnalignedArchivePath().absolutePath,
-        keystore: keyStore,
-        storepass: keyStorePassword,
-        alias: keyAlias,
-        keypass: keyAliasPassword,
+        keystore: getKeyStore(),
+        storepass: getKeyStorePassword(),
+        alias: getKeyAlias(),
+        keypass: getKeyAliasPassword(),
         verbose: verbose
     )
   }

@@ -62,6 +62,15 @@ class HelloProjectTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void releaseBuildDeprecated() {
+    def p = project('hello')
+
+    p.runTasks 'clean', 'configureReleaseDeprecated', 'build', buildScript: 'debug-release.gradle'
+
+    assertReleaseBuild(p)
+  }
+
+  @Test
   void releaseBuildOtherwise() {
     def p = project('hello')
 

@@ -20,3 +20,14 @@ task configureRelease << {
 
     proguard.enabled = true
 }
+
+task configureReleaseDeprecated << {
+    androidPackage {
+        keyStore = file('test.keystore')
+        keyStorePassword = 'testpass'
+        keyAlias = 'testkey'
+        keyAliasPassword = 'testpass'
+    }
+
+    proguard.enabled = true
+}

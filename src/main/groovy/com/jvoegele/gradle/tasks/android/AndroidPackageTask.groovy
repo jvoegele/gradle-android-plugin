@@ -14,7 +14,11 @@ import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
  *
  */
 class AndroidPackageTask extends ConventionTask {
-  
+  String keyStore
+  String keyAlias
+  String keyStorePassword
+  String keyAliasPassword
+
   public boolean verbose
   public List<String> dexParams
 
@@ -31,7 +35,35 @@ class AndroidPackageTask extends ConventionTask {
   // Internal fields
   AndroidPluginConvention androidConvention
   AndroidSdkToolsFactory sdkTools
+  private boolean keyStoreConfigurationDeprecationShown = false
   def ant
+
+  private void logKeyStoreConfigurationDeprecation() {
+      if (!keyStoreConfigurationDeprecationShown) {
+        logger.warn('Configuring signing on androidPackage task is deprecated. You should now configure it on androidSignAndAlign task.')
+        keyStoreConfigurationDeprecationShown = true
+      }
+  }
+
+  void setKeyStore(String keyStore) {
+      this.keyStore = keyStore
+      logKeyStoreConfigurationDeprecation()
+  }
+
+  void setKeyAlias(String keyAlias) {
+      this.keyAlias = keyAlias
+      logKeyStoreConfigurationDeprecation()
+  }
+
+  void setKeyStorePassword(String keyStorePassword) {
+      this.keyStorePassword = keyStorePassword
+      logKeyStoreConfigurationDeprecation()
+  }
+
+  void setKeyAliasPassword(String keyAliasPassword) {
+      this.keyAliasPassword = keyAliasPassword
+      logKeyStoreConfigurationDeprecation()
+  }
 
   public AndroidPackageTask() {
     // Initialize internal data
