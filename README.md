@@ -43,8 +43,12 @@ build:
        -> :jar
 
     :androidPackage
-       Creates the Android application apk package, signed with debug key or provided key (more on this below)
+       Creates the Android application apk package
        -> :proguard
+
+    :androidSignAndAlign
+       Signs (with a debug or provided key; more on this below) and zipaligns the application apk package
+       -> :androidPackage
        (:assemble lifecycle task depends on this task)
 
     :androidInstall
@@ -53,6 +57,9 @@ build:
 
     :androidUninstall
        Uninstalls the application from a running emulator or device
+
+    :androidEmulatorStart
+       Starts the android emulator
 
     :androidInstrumentationTests
        Runs an instrumentation test suite on a running emulator or device
@@ -153,11 +160,11 @@ build.gradle
     version = "x.y.z"
 
     // Signing configuration, valid for all builds (1)
-    androidPackage {
-      keyStore = "path/to/my/keystore"
-      keyAlias = "my-key-alias"
-      keyStorePassword = "mystorepass"
-      keyAliasPassword = "myaliaspass"
+    androidSignAndAlign {
+    	keyStore = "path/to/my/keystore"
+    	keyAlias = "my-key-alias"
+    	keyStorePassword = "mystorepass"
+    	keyAliasPassword = "myaliaspass"
     }
 
     // Configure the filtering of resources with properties from the Gradle's project scope (2)
@@ -174,6 +181,8 @@ build.gradle
     task configureRelease << {
       proguard.enabled = true
     }
+
+============
 
 
 This build script configures the build to sign with a provided keystore. This
