@@ -14,7 +14,7 @@ class ApkBuilderTask_r8 extends AndroidAntTask {
     assert ant != null
     ant.apkbuilder(outfolder: project.libsDir,
                    resourcefile: ant['resource.package.file.name'],
-                   apkfilepath: androidConvention.getApkArchivePath(),
+                   apkfilepath: androidConvention.unsignedArchivePath,
                    debugsigning: args.get('sign', false),
                    abifilter: '',
                    hascode: ant['manifest.hasCode'],

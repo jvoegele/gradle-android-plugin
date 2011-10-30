@@ -15,6 +15,7 @@ import com.jvoegele.gradle.tasks.android.ProGuard
 import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
 import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask
 import com.jvoegele.gradle.enhancements.ScalaEnhancement
+import com.jvoegele.gradle.tasks.android.AndroidSignAndAlignTask
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
@@ -26,6 +27,7 @@ class AndroidPlugin implements Plugin<Project> {
   public static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
   public static final PROGUARD_TASK_NAME = "proguard"
   public static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
+  public static final ANDROID_SIGN_AND_ALIGN_TASK_NAME = "androidSignAndAlign"
   public static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
   public static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
   public static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
@@ -44,7 +46,7 @@ class AndroidPlugin implements Plugin<Project> {
   private Project project
   private logger
 
-  private androidProcessResourcesTask, proguardTask, androidPackageTask, 
+  private androidProcessResourcesTask, proguardTask, androidPackageTask, androidSignAndAlignTask,
   androidInstallTask, androidUninstallTask, androidInstrumentationTestsTask, androidEmulatorStartTask
 
   boolean verbose = false
@@ -136,6 +138,7 @@ class AndroidPlugin implements Plugin<Project> {
     defineAndroidProcessResourcesTask()
     defineProguardTask()
     defineAndroidPackageTask()
+    defineAndroidSignAndAlignTask()
     defineAndroidInstallTask()
     defineAndroidUninstallTask()
     defineAndroidEmulatorStartTask()
@@ -161,8 +164,19 @@ class AndroidPlugin implements Plugin<Project> {
   private void defineAndroidPackageTask() {
     androidPackageTask = project.task(ANDROID_PACKAGE_TASK_NAME,
         group: ANDROID_GROUP,
-        description: "Creates the Android application apk package, optionally signed, zipaligned",
+        description: "Creates the Android application apk package",
         type: AndroidPackageTask)
+  }
+
+  private void defineAndroidSignAndAlignTask() {
+    androidSignAndAlignTask = project.task(ANDROID_SIGN_AND_ALIGN_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Signs and zipaligns the application apk package",
+        type: AndroidSignAndAlignTask)
+
+    ['keyStore', 'keyAlias', 'keyStorePassword', 'keyAliasPassword'].each { String propertyName ->
+      androidSignAndAlignTask.conventionMapping[propertyName] = { androidPackageTask[propertyName] }
+    }
   }
 
   private void defineAndroidInstallTask() {
@@ -232,7 +246,8 @@ class AndroidPlugin implements Plugin<Project> {
     project.tasks.compileJava.dependsOn(androidProcessResourcesTask)
     proguardTask.dependsOn(project.tasks.jar)
     androidPackageTask.dependsOn(proguardTask)
-    project.tasks.assemble.dependsOn(androidPackageTask)
+    androidSignAndAlignTask.dependsOn(androidPackageTask)
+    project.tasks.assemble.dependsOn(androidSignAndAlignTask)
     androidInstallTask.dependsOn(project.tasks.assemble)
     androidInstrumentationTestsTask.dependsOn(androidInstallTask)
   }
@@ -241,6 +256,7 @@ class AndroidPlugin implements Plugin<Project> {
     androidProcessResourcesTask.logging.captureStandardOutput(LogLevel.INFO)
     proguardTask.logging.captureStandardOutput(LogLevel.INFO)
     androidPackageTask.logging.captureStandardOutput(LogLevel.INFO)
+    androidSignAndAlignTask.logging.captureStandardOutput(LogLevel.INFO)
     androidInstallTask.logging.captureStandardOutput(LogLevel.INFO)
     androidUninstallTask.logging.captureStandardOutput(LogLevel.INFO)
   }
