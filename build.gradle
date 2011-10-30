@@ -67,6 +67,16 @@ task developerBuild {
     dependsOn build, integrationTest
 }
 
+idea {
+    module {
+        downloadSources = true
+        downloadJavadocs = true
+
+        testSourceDirs += file('src/integTest/groovy')
+        testSourceDirs += file('src/integTest/resources')
+    }
+}
+
 clean << {
     //TODO: will this work on Windows? I intentionally used the file() method so as
     // to be platform independent, but I didn't test this outside MacOS/Linux
