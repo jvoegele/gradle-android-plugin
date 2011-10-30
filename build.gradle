@@ -75,6 +75,10 @@ idea {
         testSourceDirs += file('src/integTest/groovy')
         testSourceDirs += file('src/integTest/resources')
     }
+    project {
+        jdkName = '1.6'
+        languageLevel = '1.6'
+    }
 }
 
 clean << {
