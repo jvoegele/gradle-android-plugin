@@ -1,6 +1,6 @@
 package com.jvoegele.gradle.android.support
 
-import org.gradle.util.OperatingSystem
+import org.gradle.os.OperatingSystem
 
 import static org.junit.Assert.assertTrue
 
