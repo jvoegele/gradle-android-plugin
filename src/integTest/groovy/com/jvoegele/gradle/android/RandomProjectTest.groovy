@@ -10,9 +10,12 @@ class RandomProjectTest extends AbstractIntegrationTest {
     p.runTasks 'clean', 'build'
 
     p.fileExists 'build/libs/random-1.0.jar'
+    p.fileExists 'build/libs/random-1.0-unsigned.apk'
     p.fileExists 'build/libs/random-1.0-unaligned.apk'
     p.fileExists 'build/distributions/random-1.0.apk'
 
     p.archive('build/libs/random-1.0.jar').assertContains 'com/jvoegele/gradle/android/random/RandomActivity.class'
+
+    p.archive('build/distributions/random-1.0.apk').assertSigned('CN=Android Debug, O=Android, C=US')
   }
 }

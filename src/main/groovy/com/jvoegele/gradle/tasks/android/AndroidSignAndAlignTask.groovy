@@ -1,0 +1,123 @@
+package com.jvoegele.gradle.tasks.android
+
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.InputFile
+import org.gradle.api.tasks.Optional
+import org.gradle.api.internal.ConventionTask
+
+class AndroidSignAndAlignTask extends ConventionTask {
+  @Optional @Input String keyStore
+  @Optional @Input String keyAlias
+  @Optional @Input String keyStorePassword
+  @Optional @Input String keyAliasPassword
+  boolean verbose
+
+  private File customUnsingedArchivePath
+  private AndroidPluginConvention androidConvention = project.convention.plugins.android
+
+
+  private File buildUnalignedArchivePath() {
+    return new File(project.libsDir, "${androidConvention.apkBaseName}-unaligned.apk")
+  }
+
+  @InputFile
+  File getUnsignedArchivePath() {
+    customUnsingedArchivePath ?: androidConvention.unsignedArchivePath
+  }
+
+  void setUnsignedArchivePath(File unsignedArchivePath) {
+    customUnsingedArchivePath = unsignedArchivePath
+  }
+
+  @OutputFile
+  File getApkArchivePath() {
+    return androidConvention.apkArchivePath
+  }
+
+  @TaskAction
+  void process() {
+    createDirs()
+    sign()
+    zipAlign()
+  }
+
+  private void createDirs() {
+    apkArchivePath.parentFile.mkdirs()
+    unsignedArchivePath.parentFile.mkdirs()
+    buildUnalignedArchivePath().parentFile.mkdirs()
+  }
+
+  private void sign() {
+    if (getKeyStore() || getKeyAlias()) {
+      signWithProvidedKey()
+    } else {
+      signWithDebugKey()
+    }
+  }
+
+  private void signWithProvidedKey() {
+    if (!getKeyStorePassword() || !getKeyAliasPassword()) {
+      def console = System.console()
+      keyStorePassword = new String(console.readPassword(
+          "Please enter keystore password (store:${keyStore}): "))
+      keyAliasPassword = new String(console.readPassword(
+          "Please enter password for alias '${keyAlias}': "))
+    }
+
+    logger.info("Signing final apk...")
+    project.ant.signjar(
+        jar: unsignedArchivePath.absolutePath,
+        signedjar: buildUnalignedArchivePath().absolutePath,
+        keystore: getKeyStore(),
+        storepass: getKeyStorePassword(),
+        alias: getKeyAlias(),
+        keypass: getKeyAliasPassword(),
+        verbose: verbose
+    )
+  }
+
+  private String retrieveDebugKeystore() {
+      File debugKeystore = new File(System.getProperty('user.home'), '.android/debug.keystore')
+      if (!debugKeystore.exists()) {
+          logger.info('Creating a new debug key...')
+          project.ant.genkey(
+                  alias: 'androiddebugkey',
+                  storepass: 'android',
+                  keystore: debugKeystore.absolutePath,
+                  keypass: 'android',
+                  validity: 10 * 365,
+                  storetype: 'JKS',
+                  dname: 'CN=Android Debug,O=Android,C=US'
+          )
+      }
+      return debugKeystore.absolutePath
+  }
+
+  private void signWithDebugKey() {
+    logger.info("Signing final apk with debug key...")
+
+    project.ant.signjar(
+        jar: unsignedArchivePath.absolutePath,
+        signedjar: buildUnalignedArchivePath().absolutePath,
+        keystore: retrieveDebugKeystore(),
+        storepass: 'android',
+        alias: 'androiddebugkey',
+        keypass: 'android',
+        verbose: verbose
+    )
+  }
+
+  private void zipAlign() {
+    logger.info("Running zip align on final apk...")
+    String inPath = buildUnalignedArchivePath().absolutePath
+    String outPath = apkArchivePath.absolutePath
+    project.exec {
+      executable ant.zipalign
+      if (verbose) args '-v'
+      args '-f', 4, inPath, outPath
+    }
+  }
+}

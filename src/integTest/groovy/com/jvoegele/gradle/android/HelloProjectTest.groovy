@@ -10,6 +10,7 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.runTasks 'clean', 'build', buildScript: 'simple.gradle'
 
     p.fileExists 'build/libs/hello-1.0.jar'
+    p.fileExists 'build/libs/hello-1.0-unsigned.apk'
     p.fileExists 'build/libs/hello-1.0-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0.apk'
 
@@ -38,6 +39,7 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
   void assertDebugBuild(p) {
     p.fileExists 'build/libs/hello-1.0-debug.jar'
+    p.fileExists 'build/libs/hello-1.0-debug-unsigned.apk'
     p.fileExists 'build/libs/hello-1.0-debug-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0-debug.apk'
     p.fileDoesntExist 'build/libs/hello-1.0.jar'
@@ -60,6 +62,15 @@ class HelloProjectTest extends AbstractIntegrationTest {
   }
 
   @Test
+  void releaseBuildDeprecated() {
+    def p = project('hello')
+
+    p.runTasks 'clean', 'configureReleaseDeprecated', 'build', buildScript: 'debug-release.gradle'
+
+    assertReleaseBuild(p)
+  }
+
+  @Test
   void releaseBuildOtherwise() {
     def p = project('hello')
 
@@ -70,6 +81,7 @@ class HelloProjectTest extends AbstractIntegrationTest {
 
   void assertReleaseBuild(p) {
     p.fileExists 'build/libs/hello-1.0.jar'
+    p.fileExists 'build/libs/hello-1.0-unsigned.apk'
     p.fileExists 'build/libs/hello-1.0-unaligned.apk'
     p.fileExists 'build/distributions/hello-1.0.apk'
 
