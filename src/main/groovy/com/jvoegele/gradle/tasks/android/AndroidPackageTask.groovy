@@ -76,7 +76,7 @@ class AndroidPackageTask extends ConventionTask {
     inputs.dir (androidConvention.assetsDir.absolutePath)
     inputs.dir (androidConvention.nativeLibsDir.absolutePath)
     inputs.file (androidConvention.androidManifest.absolutePath)
-    inputs.files (project.fileTree (dir: project.sourceSets.main.classesDir, exclude: "**/*.class"))
+    inputs.files (project.fileTree (dir: project.sourceSets.main.output.classesDir, exclude: "**/*.class"))
     dexParams = ['dex', "output=${androidConvention.intermediateDexFile}"]
   }
     

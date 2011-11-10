@@ -23,7 +23,7 @@ class ApkBuilderTask_r7 extends AndroidAntTask {
                    verbose: args.get('verbose', false)) {
       dex(path: androidConvention.intermediateDexFile)
       // Takes resource files from the source folder - classes are processed by the dx command
-      sourcefolder(path: project.sourceSets.main.classesDir)
+      sourcefolder(path: project.sourceSets.main.output.classesDir)
       nativefolder(path: androidConvention.nativeLibsDir)
     }
 /*
