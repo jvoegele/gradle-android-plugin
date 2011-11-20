@@ -112,7 +112,7 @@ class AndroidPlugin implements Plugin<Project> {
     def outDir = project.buildDir.absolutePath
     ant.property(name: "resource.package.file.name", value: "${project.name}.ap_")
 
-    ant.taskdef(name: 'setup', classname: 'com.android.ant.SetupTask', classpathref: 'android.antlibs')
+    ant.taskdef(name: 'setup', classname: 'com.android.ant.NewSetupTask', classpathref: 'android.antlibs')
 
     // The following properties are put in place by the setup task:
     // android.jar, android.aidl, aapt, aidl, and dx
