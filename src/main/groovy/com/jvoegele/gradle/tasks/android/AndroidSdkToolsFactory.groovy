@@ -46,8 +46,10 @@ class AndroidSdkToolsFactory {
       return new ApkBuilderTask_r6(project)
     } else if (this.androidSdkToolsRevision < 8) {
       return new ApkBuilderTask_r7(project)
-    } else {
+    } else if (this.androidSdkToolsRevision < 14) {
       return new ApkBuilderTask_r8(project)
+    } else {
+      return new ApkBuilderTask_r14(project)
     }
   }
 
