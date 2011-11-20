@@ -116,7 +116,18 @@ class AndroidPlugin implements Plugin<Project> {
 
     // The following properties are put in place by the setup task:
     // android.jar, android.aidl, aapt, aidl, and dx
-    ant.setup()
+    ant.setup(projectTypeOut: "android.project.type",
+              androidJarFileOut: "android.jar",
+              androidAidlFileOut: "android.aidl",
+              renderScriptExeOut: "renderscript",
+              renderScriptIncludeDirOut: "android.rs",
+              bootclasspathrefOut: "android.target.classpath",
+              projectLibrariesRootOut: "project.libraries",
+              projectLibrariesJarsOut: "project.libraries.jars",
+              projectLibrariesResOut: "project.libraries.res",
+              projectLibrariesPackageOut: "project.libraries.package",
+              projectLibrariesLibsOut: "project.libraries.libs",
+              targetApiOut: "target.api")
 
     ant.taskdef(name: "xpath", classname: "com.android.ant.XPathTask", classpathref: "android.antlibs")
     ant.taskdef(name: "aaptexec", classname: "com.android.ant.AaptExecLoopTask", classpathref: "android.antlibs")
