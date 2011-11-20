@@ -75,3 +75,7 @@ clean << {
     logger.warn "Clearing Gradle artifact cache at $pluginCacheDir"
     ant.delete dir: pluginCacheDir
 }
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.0-milestone-6'
+}
