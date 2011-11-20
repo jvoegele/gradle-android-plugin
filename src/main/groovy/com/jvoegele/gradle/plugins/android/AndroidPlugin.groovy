@@ -133,6 +133,8 @@ class AndroidPlugin implements Plugin<Project> {
     ant.taskdef(name: "aaptexec", classname: "com.android.ant.AaptExecTask", classpathref: "android.antlibs")
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
 
+    ant.property(name: "aapt", location: new File(platformToolsDir, "aapt${ant['exe']}"))
+
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
     // TODO: there can be several instrumentations defined
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/instrumentation/@android:targetPackage", output: "tested.manifest.package")
