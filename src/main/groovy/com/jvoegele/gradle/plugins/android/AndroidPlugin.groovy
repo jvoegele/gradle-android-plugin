@@ -130,7 +130,7 @@ class AndroidPlugin implements Plugin<Project> {
               targetApiOut: "target.api")
 
     ant.taskdef(name: "xpath", classname: "com.android.ant.XPathTask", classpathref: "android.antlibs")
-    ant.taskdef(name: "aaptexec", classname: "com.android.ant.AaptExecLoopTask", classpathref: "android.antlibs")
+    ant.taskdef(name: "aaptexec", classname: "com.android.ant.AaptExecTask", classpathref: "android.antlibs")
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
