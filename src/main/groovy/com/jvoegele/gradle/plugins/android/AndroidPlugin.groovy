@@ -101,6 +101,7 @@ class AndroidPlugin implements Plugin<Project> {
     }
 
     ant.condition('property': "exe", value: ".exe", 'else': "") { os(family: "windows") }
+    ant.condition('property': "bat", value: ".bat", 'else': "") { os(family: "windows") }
     if (platformToolsDir.exists()) { // since SDK r8, adb is moved from tools to platform-tools
       ant.property(name: "adb", location: new File(platformToolsDir, "adb${ant['exe']}"))
     } else {
@@ -134,6 +135,7 @@ class AndroidPlugin implements Plugin<Project> {
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
 
     ant.property(name: "aapt", location: new File(platformToolsDir, "aapt${ant['exe']}"))
+    ant.property(name: "dx", location: new File(platformToolsDir, "dx${ant['bat']}"))
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
     // TODO: there can be several instrumentations defined
