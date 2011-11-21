@@ -35,7 +35,7 @@ class AndroidPlugin implements Plugin<Project> {
   
   private static final ANDROID_GROUP = "Android";
   
-  private static final PROPERTIES_FILES = ['local', 'build', 'default']
+  private static final PROPERTIES_FILES = ['local', 'build', 'default', 'project']
   private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
 
   private AndroidPluginConvention androidConvention
