@@ -101,6 +101,7 @@ class AndroidPlugin implements Plugin<Project> {
     }
 
     ant.condition('property': "exe", value: ".exe", 'else': "") { os(family: "windows") }
+    ant.condition('property': "bat", value: ".bat", 'else': "") { os(family: "windows") }
     if (platformToolsDir.exists()) { // since SDK r8, adb is moved from tools to platform-tools
       ant.property(name: "adb", location: new File(platformToolsDir, "adb${ant['exe']}"))
     } else {
@@ -112,15 +113,29 @@ class AndroidPlugin implements Plugin<Project> {
     def outDir = project.buildDir.absolutePath
     ant.property(name: "resource.package.file.name", value: "${project.name}.ap_")
 
-    ant.taskdef(name: 'setup', classname: 'com.android.ant.SetupTask', classpathref: 'android.antlibs')
+    ant.taskdef(name: 'setup', classname: 'com.android.ant.NewSetupTask', classpathref: 'android.antlibs')
 
     // The following properties are put in place by the setup task:
     // android.jar, android.aidl, aapt, aidl, and dx
-    ant.setup('import': false)
+    ant.setup(projectTypeOut: "android.project.type",
+              androidJarFileOut: "android.jar",
+              androidAidlFileOut: "android.aidl",
+              renderScriptExeOut: "renderscript",
+              renderScriptIncludeDirOut: "android.rs",
+              bootclasspathrefOut: "android.target.classpath",
+              projectLibrariesRootOut: "project.libraries",
+              projectLibrariesJarsOut: "project.libraries.jars",
+              projectLibrariesResOut: "project.libraries.res",
+              projectLibrariesPackageOut: "project.libraries.package",
+              projectLibrariesLibsOut: "project.libraries.libs",
+              targetApiOut: "target.api")
 
     ant.taskdef(name: "xpath", classname: "com.android.ant.XPathTask", classpathref: "android.antlibs")
-    ant.taskdef(name: "aaptexec", classname: "com.android.ant.AaptExecLoopTask", classpathref: "android.antlibs")
+    ant.taskdef(name: "aaptexec", classname: "com.android.ant.AaptExecTask", classpathref: "android.antlibs")
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
+
+    ant.property(name: "aapt", location: new File(platformToolsDir, "aapt${ant['exe']}"))
+    ant.property(name: "dx", location: new File(platformToolsDir, "dx${ant['bat']}"))
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
     // TODO: there can be several instrumentations defined
