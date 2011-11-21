@@ -14,13 +14,13 @@ class ApkBuilderTask_r14 extends AndroidAntTask {
     assert ant != null
     ant.apkbuilder(outfolder: project.libsDir,
                    resourcefile: ant['resource.package.file.name'],
-                   apkfilepath: androidConvention.getApkArchivePath(),
+                   apkfilepath: androidConvention.unsignedArchivePath,
                    debugsigning: args.get('sign', false),
                    hascode: ant['manifest.hasCode'],
                    verbose: args.get('verbose', false)) {
       dex(path: androidConvention.intermediateDexFile)
       // Takes resource files from the source folder - classes are processed by the dx command
-      sourcefolder(path: project.sourceSets.main.classesDir)
+      sourcefolder(path: project.sourceSets.main.output.classesDir)
       nativefolder(path: androidConvention.nativeLibsDir)
     }
 /*
