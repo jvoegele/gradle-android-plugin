@@ -68,9 +68,9 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void androidSetup() {
+	registerPropertyFiles()
+	
     def ant = project.ant
-
-    PROPERTIES_FILES.each { ant.property(file: "${it}.properties") }
 
     // Determine the sdkDir value.
     // First, let's try the sdk.dir property in local.properties file.
@@ -147,6 +147,12 @@ class AndroidPlugin implements Plugin<Project> {
     if (ant['android.instrumentation']) {
       androidConvention.instrumentationTestsRunner = ant['android.instrumentation']
     }
+  }
+
+  private void registerPropertyFiles() {
+    def ant = project.ant
+
+    PROPERTIES_FILES.each { ant.property(file: "${it}.properties") }
   }
 
   private void defineTasks() {
