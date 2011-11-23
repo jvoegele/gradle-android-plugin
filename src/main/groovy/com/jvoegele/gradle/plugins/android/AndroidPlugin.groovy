@@ -70,12 +70,9 @@ class AndroidPlugin implements Plugin<Project> {
   private void androidSetup() {
 	registerPropertyFiles()
 	determineAndroidDirs()
+	registerAndroidJars()
 	
     def ant = project.ant
-
-    ant.path(id: 'android.antlibs') {
-      ANDROID_JARS.each { pathelement(path: "${sdkDir}/tools/lib/${it}.jar") }
-    }
 
     ant.condition('property': "exe", value: ".exe", 'else': "") { os(family: "windows") }
     ant.condition('property': "bat", value: ".bat", 'else': "") { os(family: "windows") }
@@ -159,6 +156,14 @@ class AndroidPlugin implements Plugin<Project> {
 
     toolsDir = new File(sdkDir, "tools")
     platformToolsDir = new File(sdkDir, "platform-tools")
+  }
+
+  private void registerAndroidJars() {
+    def ant = project.ant
+
+    ant.path(id: 'android.antlibs') {
+      ANDROID_JARS.each { pathelement(path: "${sdkDir}/tools/lib/${it}.jar") }
+    }	
   }
 
   private void defineTasks() {
