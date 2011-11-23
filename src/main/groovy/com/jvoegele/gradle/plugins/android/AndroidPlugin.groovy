@@ -69,32 +69,9 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void androidSetup() {
 	registerPropertyFiles()
+	determineAndroidDirs()
 	
     def ant = project.ant
-
-    // Determine the sdkDir value.
-    // First, let's try the sdk.dir property in local.properties file.
-    try {
-      sdkDir = ant['sdk.dir']
-    } catch (MissingPropertyException e) {
-      sdkDir = null
-    }
-    if (sdkDir == null || sdkDir.length() == 0) {
-      // No local.properties and/or no sdk.dir property: let's try ANDROID_HOME
-      sdkDir = System.getenv("ANDROID_HOME")
-      // Propagate it to the Gradle's Ant environment
-      if (sdkDir != null) {
-        ant.setProperty("sdk.dir", sdkDir)
-      }
-    }
-
-    // Check for sdkDir correctly valued, and in case throw an error
-    if (sdkDir == null || sdkDir.length() == 0) {
-      throw new MissingPropertyException("Unable to find location of Android SDK. Please read documentation.")
-    }
-
-    toolsDir = new File(sdkDir, "tools")
-    platformToolsDir = new File(sdkDir, "platform-tools")
 
     ant.path(id: 'android.antlibs') {
       ANDROID_JARS.each { pathelement(path: "${sdkDir}/tools/lib/${it}.jar") }
@@ -153,6 +130,35 @@ class AndroidPlugin implements Plugin<Project> {
     def ant = project.ant
 
     PROPERTIES_FILES.each { ant.property(file: "${it}.properties") }
+  }
+
+  private void determineAndroidDirs() {
+	def ant = project.ant
+
+	// Determine the sdkDir value.
+    // First, let's try the sdk.dir property in local.properties file.
+    try {
+      sdkDir = ant['sdk.dir']
+    } catch (MissingPropertyException e) {
+      sdkDir = null
+    }
+
+    if (sdkDir == null || sdkDir.length() == 0) {
+      // No local.properties and/or no sdk.dir property: let's try ANDROID_HOME
+      sdkDir = System.getenv("ANDROID_HOME")
+      // Propagate it to the Gradle's Ant environment
+      if (sdkDir != null) {
+        ant.setProperty("sdk.dir", sdkDir)
+      }
+    }
+
+    // Check for sdkDir correctly valued, and in case throw an error
+    if (sdkDir == null || sdkDir.length() == 0) {
+      throw new MissingPropertyException("Unable to find location of Android SDK. Please read documentation.")
+    }
+
+    toolsDir = new File(sdkDir, "tools")
+    platformToolsDir = new File(sdkDir, "platform-tools")
   }
 
   private void defineTasks() {
