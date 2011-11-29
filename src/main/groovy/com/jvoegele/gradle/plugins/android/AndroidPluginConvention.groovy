@@ -10,6 +10,7 @@ class AndroidPluginConvention {
   File nativeLibsDir
   File androidManifest
   File intermediateDexFile
+  String resourceFileName
   String instrumentationTestsRunner
 
   AndroidPluginConvention(Project project) {
@@ -29,6 +30,8 @@ class AndroidPluginConvention {
     genDir = new File(project.buildDir, 'gen')
 
     intermediateDexFile = new File(project.libsDir, "classes.dex")
+	
+	resourceFileName = project.name + ".ap_"
     
     // instrumentation conventions
     instrumentationTestsRunner = "android.test.InstrumentationTestRunner"
