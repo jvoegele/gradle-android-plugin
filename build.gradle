@@ -30,6 +30,7 @@ uploadArchives {
         //configuration = configurations.sshDeploy
         //repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
         repository(url: "file:///tmp/maven2")
+        pom.artifactId = 'gradle-android-plugin'
     }
 }
 
@@ -115,7 +116,7 @@ task generatePom << {
     pom {
         project {
             groupId project.name
-            artifactId 'android-plugin'
+            artifactId 'gradle-android-plugin'
             version project.version
             packaging 'jar'
             name 'Gradle Android Plugin'
