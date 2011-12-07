@@ -165,7 +165,7 @@ task generatePom << {
                 }
                 developer {
                     id 'ealden'
-                    name 'Ealden Esto E. Escañan'
+                    name 'Ealden Esto E. Escanan'
                     email 'ealden@gmail.com'
                 }
                 developer {
