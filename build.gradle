@@ -123,7 +123,7 @@ task generatePom << {
 
     pom {
         project {
-            groupId project.name
+            groupId project.group
             artifactId artifact
             version project.version
             packaging 'jar'
