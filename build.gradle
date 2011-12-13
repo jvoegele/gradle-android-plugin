@@ -7,6 +7,7 @@ version = '1.1.0-SNAPSHOT'
 group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
+project.artifact = artifact
 
 configurations {
     sshDeploy
@@ -32,7 +33,7 @@ uploadArchives {
         //configuration = configurations.sshDeploy
         //repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
         repository(url: "file:///tmp/maven2")
-        pom.artifactId = artifact
+        pom.project(pomConfiguration)
     }
 }
 
@@ -122,58 +123,62 @@ task generatePom << {
     def generatedPomFileName = 'pom.xml'
 
     pom {
-        project {
-            groupId project.group
-            artifactId artifact
-            version project.version
-            packaging 'jar'
-            name 'Gradle Android Plugin'
-            description 'Android plugin for the Gradle build system.'
-            url 'https://github.com/jvoegele/gradle-android-plugin'
-            licenses {
-                license {
-                    name 'The Apache Software License, Version 2.0'
-                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-                    distribution 'repo'
-                }
-            }
-            scm {
-                url 'https://github.com/jvoegele/gradle-android-plugin'
-                connection 'scm:git://github.com/jvoegele/gradle-android-plugin.git'
-                developerConnection 'scm:git@github.com:jvoegele/gradle-android-plugin.git'
-            }
-            developers {
-                developer {
-                    id 'jvoegele'
-                    name 'Jason Voegele'
-                    email 'jason.voegele@gmail.com'
-                }
-                developer {
-                    id 'kaeppler'
-                    name 'Matthias Käppler'
-                    email 'm.kaeppler@googlemail.com'
-                }
-                developer {
-                    id 'think01'
-                    name 'Fabio Da Soghe'
-                    email 'fabiodasoghe@gmail.com'
-                }
-                developer {
-                    id 'Ladicek'
-                    name 'Ladislav Thon'
-                    email 'ladicek@gmail.com'
-                }
-                developer {
-                    id 'ealden'
-                    name 'Ealden Esto E. Escanan'
-                    email 'ealden@gmail.com'
-                }
-                developer {
-                    id 'erdi'
-                    name 'Marcin Erdmann'
-                    email 'erdi84@gmail.com'
-                }
+        project(pomConfiguration)
+    }.writeTo("$buildDir/pom.xml")
+}
+
+def getPomConfiguration() {
+    return {
+        groupId project.group
+        artifactId project.artifact
+        version project.version
+        packaging 'jar'
+        name 'Gradle Android Plugin'
+        description 'Android plugin for the Gradle build system.'
+        url 'https://github.com/jvoegele/gradle-android-plugin'
+        licenses {
+            license {
+                name 'The Apache Software License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
             }
         }
-    }.writeTo("$buildDir/pom.xml")
+        scm {
+            url 'https://github.com/jvoegele/gradle-android-plugin'
+            connection 'scm:git://github.com/jvoegele/gradle-android-plugin.git'
+            developerConnection 'scm:git@github.com:jvoegele/gradle-android-plugin.git'
+        }
+        developers {
+            developer {
+                id 'jvoegele'
+                name 'Jason Voegele'
+                email 'jason.voegele@gmail.com'
+            }
+            developer {
+                id 'kaeppler'
+                name 'Matthias Käppler'
+                email 'm.kaeppler@googlemail.com'
+            }
+            developer {
+                id 'think01'
+                name 'Fabio Da Soghe'
+                email 'fabiodasoghe@gmail.com'
+            }
+            developer {
+                id 'Ladicek'
+                name 'Ladislav Thon'
+                email 'ladicek@gmail.com'
+            }
+            developer {
+                id 'ealden'
+                name 'Ealden Esto E. Escanan'
+                email 'ealden@gmail.com'
+            }
+            developer {
+                id 'erdi'
+                name 'Marcin Erdmann'
+                email 'erdi84@gmail.com'
+            }
+        }
+    }
 }
