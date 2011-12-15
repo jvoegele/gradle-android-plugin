@@ -2,12 +2,15 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
+apply plugin: 'signing'
 
 version = '1.1.0-SNAPSHOT'
 group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
 project.artifact = artifact
+
+def isReleaseVersion = !version.endsWith('SNAPSHOT')
 
 configurations {
     sshDeploy
@@ -29,11 +32,31 @@ dependencies {
 }
 
 uploadArchives {
-    repositories.mavenDeployer {
-        //configuration = configurations.sshDeploy
-        //repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
-        repository(url: "file:///tmp/maven2")
-        pom.project(pomConfiguration)
+    repositories {
+        mavenDeployer {
+            beforeDeployment { deployment ->
+                signPom(deployment)
+            }
+
+            //configuration = configurations.sshDeploy
+            //repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
+            //repository(url: "file:///tmp/maven2")
+
+            def repositoryUsername = project.hasProperty('sonatypeUsername') ? sonatypeUsername : ''
+            def repositoryPassword = project.hasProperty('sonatypePassword') ? sonatypePassword : ''
+
+            if (isReleaseVersion) {
+                repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+                    authentication(userName: repositoryUsername, password: repositoryPassword)
+                }
+            } else {
+                repository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
+                    authentication(userName: repositoryUsername, password: repositoryPassword)
+                }
+            }
+
+            pom.project(pomConfiguration)
+        }
     }
 }
 
@@ -111,8 +134,15 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
 }
 
 artifacts {
+    archives jar
     archives sourcesJar
     archives javadocJar
+}
+
+signing {
+    if (isReleaseVersion) {
+        sign configurations.archives
+    }
 }
 
 task wrapper(type: Wrapper) {
@@ -124,7 +154,7 @@ task generatePom << {
 
     pom {
         project(pomConfiguration)
-    }.writeTo("$buildDir/pom.xml")
+    }.writeTo("$buildDir/$generatedPomFileName")
 }
 
 def getPomConfiguration() {
