@@ -86,11 +86,12 @@ Gradle to use the src directory of your project directly.
 include the Android plugin as follows:
 
     buildscript {
-      repositories {
-        mavenRepo(urls: 'http://jvoegele.com/maven2/')
-      }
+	  repositories {
+	    mavenCentral()
+	  }
+
       dependencies {
-        classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0.0'
+        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.1.0'
       }
     }
     apply plugin: 'android'
@@ -146,14 +147,17 @@ build.gradle
 ------------
 
     buildscript {
-      repositories {
-        mavenRepo(urls: 'http://jvoegele.com/maven2/')
-      }
+	  repositories {
+	    mavenCentral()
+	  }
+
       dependencies {
-        classpath 'com.jvoegele.gradle.plugins:android-plugin:1.0.0'
+        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.1.0'
       }
     }
+
     apply plugin: 'android'
+
     repositories {
         mavenCentral()
     }
