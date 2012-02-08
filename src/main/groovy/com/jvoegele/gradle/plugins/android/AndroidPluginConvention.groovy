@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-opackage com.jvoegele.gradle.plugins.android;
+package com.jvoegele.gradle.plugins.android;
 
 import org.gradle.api.Project 
 import org.gradle.api.file.FileCollection
