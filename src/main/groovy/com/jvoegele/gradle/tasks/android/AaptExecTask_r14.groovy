@@ -36,7 +36,9 @@ class AaptExecTask_r14 extends AndroidAntTask {
                  resourcefilename: androidConvention.resourceFileName,
                  projectLibrariesResName: 'project.libraries.res',
                  projectLibrariesPackageName: 'project.libraries.package') {
-      res(path: androidConvention.resDir.path)
+    	androidConvention.resourceDirs.each { File file ->
+    		res(path: file.path)
+    	}
     }
   }
 
