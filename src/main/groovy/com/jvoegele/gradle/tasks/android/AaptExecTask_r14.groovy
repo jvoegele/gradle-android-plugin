@@ -27,6 +27,8 @@ class AaptExecTask_r14 extends AndroidAntTask {
    */
   @Override
   public void execute(Map args) {
+	project.logger.info("Package: " + args.get('manifestPackage', null))
+
     ant.aaptexec(executable: ant.aapt,
                  command: args.get('command', 'package'),
                  manifest: androidConvention.androidManifest.path,
@@ -36,7 +38,7 @@ class AaptExecTask_r14 extends AndroidAntTask {
                  resourcefilename: androidConvention.resourceFileName,
                  projectLibrariesResName: 'project.libraries.res',
                  projectLibrariesPackageName: 'project.libraries.package',
-                 manifestPackage: args.get('manifestpackage', null)) {
+                 manifestPackage: args.get('manifestPackage', null)) {
     	androidConvention.resDirs.each { File file ->
     		res(path: file.path)
     	}
