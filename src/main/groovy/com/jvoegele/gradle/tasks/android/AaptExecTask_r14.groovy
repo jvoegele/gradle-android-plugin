@@ -34,6 +34,8 @@ class AaptExecTask_r14 extends AndroidAntTask {
                  androidjar: ant['android.jar'],
                  apkfolder: project.libsDir,
                  resourcefilename: androidConvention.resourceFileName,
+                 versionName: args.get('versionName'),
+                 versionCode: args.get('versionCode'),
                  projectLibrariesResName: 'project.libraries.res',
                  projectLibrariesPackageName: 'project.libraries.package') {
       res(path: androidConvention.resDir.path)

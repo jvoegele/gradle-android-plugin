@@ -129,7 +129,7 @@ class AndroidPackageTask extends ConventionTask {
     }
     
     logger.info("Packaging resources")
-    sdkTools.aaptexec.execute(command: 'package')
+    sdkTools.aaptexec.execute(command: 'package', versionName: versionName, versionCode: versionCode)
     sdkTools.apkbuilder.execute('sign': false, 'verbose': verbose)
   }
 }
