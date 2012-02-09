@@ -136,7 +136,7 @@ class AndroidPackageTask extends ConventionTask {
     logger.info("Packaging resources")
 
     if (manifestPackage != null) { 
-      sdkTools.aaptexec.execute(command: 'package', manifestPackage: manifestPackage)
+      sdkTools.aaptexec.execute(command: 'package', manifestPackage: manifestPackage, versionName: versionName, versionCode: versionCode)
     } else {
       sdkTools.aaptexec.execute(command: 'package')
     }
