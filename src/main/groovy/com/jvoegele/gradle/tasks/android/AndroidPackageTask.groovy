@@ -34,6 +34,7 @@ class AndroidPackageTask extends ConventionTask {
   String keyAlias
   String keyStorePassword
   String keyAliasPassword
+  String manifestPackage
 
   public boolean verbose
   public List<String> dexParams
@@ -79,6 +80,10 @@ class AndroidPackageTask extends ConventionTask {
   void setKeyAliasPassword(String keyAliasPassword) {
       this.keyAliasPassword = keyAliasPassword
       logKeyStoreConfigurationDeprecation()
+  }
+
+  void setManifestPackage(String manifestPackage) {
+      this.manifestPackage = manifestPackage
   }
 
   public AndroidPackageTask() {
@@ -129,7 +134,7 @@ class AndroidPackageTask extends ConventionTask {
     }
     
     logger.info("Packaging resources")
-    sdkTools.aaptexec.execute(command: 'package')
+    sdkTools.aaptexec.execute(command: 'package', manifestPackage: manifestPackage)
     sdkTools.apkbuilder.execute('sign': false, 'verbose': verbose)
   }
 }

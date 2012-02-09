@@ -35,7 +35,8 @@ class AaptExecTask_r14 extends AndroidAntTask {
                  apkfolder: project.libsDir,
                  resourcefilename: androidConvention.resourceFileName,
                  projectLibrariesResName: 'project.libraries.res',
-                 projectLibrariesPackageName: 'project.libraries.package') {
+                 projectLibrariesPackageName: 'project.libraries.package',
+                 manifestPackage: args.get('manifestpackage', null)) {
     	androidConvention.resourceDirs.each { File file ->
     		res(path: file.path)
     	}
