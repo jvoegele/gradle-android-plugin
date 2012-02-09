@@ -320,15 +320,3 @@ LIMITATIONS
   no properties expansion (so, for example, you don't get the version set in the version tag,
   you have to align them manually).
 
-BUILDING THE PLUGIN
-=====================
-
-Use gradle to build the plugin: `gradle assemble`.
-Or to build it with the tests: `gradle developerBuild`.
-
-A groovy compile failure can be impossible to debug because groovyc is forked (you'll get
-something like "groovyc failed with error code 1". You can disable
-forking by adding the following line to build.gradle, which will then give you an appropriate
-error message:
-
-    compileGroovy.groovyOptions.fork = false
