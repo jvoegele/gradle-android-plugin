@@ -319,4 +319,3 @@ LIMITATIONS
 * The androidManifest.xml file is not processed as a normal resource, i.e. there is
   no properties expansion (so, for example, you don't get the version set in the version tag,
   you have to align them manually).
-
