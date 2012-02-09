@@ -82,7 +82,7 @@ class ProcessAndroidResources extends ConventionTask {
       arg(path: genDir.absolutePath)
       arg(value: "-M")
       arg(path: androidConvention.androidManifest.absolutePath)
-      androidConvention.resourceDirs.each { File file ->      	
+      androidConvention.resDirs.each { File file ->      	
         arg(value: "-S")
         arg(path: file.absolutePath)
       }
