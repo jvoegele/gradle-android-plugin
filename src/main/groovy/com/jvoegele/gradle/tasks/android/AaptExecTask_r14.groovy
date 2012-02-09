@@ -27,9 +27,8 @@ class AaptExecTask_r14 extends AndroidAntTask {
    */
   @Override
   public void execute(Map args) {
-	project.logger.info("Package: " + args.get('manifestPackage', null))
-
-    ant.aaptexec(executable: ant.aapt,
+    if (args.get('manifestPackage', null) != null) {
+      ant.aaptexec(executable: ant.aapt,
                  command: args.get('command', 'package'),
                  manifest: androidConvention.androidManifest.path,
                  assets: androidConvention.assetsDir,
@@ -39,9 +38,20 @@ class AaptExecTask_r14 extends AndroidAntTask {
                  projectLibrariesResName: 'project.libraries.res',
                  projectLibrariesPackageName: 'project.libraries.package',
                  manifestPackage: args.get('manifestPackage', null)) {
-    	androidConvention.resDirs.each { File file ->
-    		res(path: file.path)
-    	}
+        res(path: androidConvention.resDir.path)
+      }
+    } else {
+      ant.aaptexec(executable: ant.aapt,
+                 command: args.get('command', 'package'),
+                 manifest: androidConvention.androidManifest.path,
+                 assets: androidConvention.assetsDir,
+                 androidjar: ant['android.jar'],
+                 apkfolder: project.libsDir,
+                 resourcefilename: androidConvention.resourceFileName,
+                 projectLibrariesResName: 'project.libraries.res',
+                 projectLibrariesPackageName: 'project.libraries.package') {
+         res(path: androidConvention.resDir.path)
+       }
     }
   }
 
