@@ -40,8 +40,10 @@ class AaptExecTask_r14 extends AndroidAntTask {
                  projectLibrariesResName: 'project.libraries.res',
                  projectLibrariesPackageName: 'project.libraries.package',
                  manifestPackage: args.get('manifestPackage', null)) {
-        res(path: androidConvention.resDir.path)
-      }
+          androidConvention.resDirs.each { File file ->
+                res(path: file.path)
+          }
+        }
     } else {
       ant.aaptexec(executable: ant.aapt,
                  command: args.get('command', 'package'),
@@ -54,7 +56,9 @@ class AaptExecTask_r14 extends AndroidAntTask {
                  versionCode: args.get('versionCode'),
                  projectLibrariesResName: 'project.libraries.res',
                  projectLibrariesPackageName: 'project.libraries.package') {
-         res(path: androidConvention.resDir.path)
+         androidConvention.resDirs.each { File file ->
+                res(path: file.path)
+         }
        }
     }
   }
