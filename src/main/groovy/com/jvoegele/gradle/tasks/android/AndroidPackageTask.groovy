@@ -35,6 +35,8 @@ class AndroidPackageTask extends ConventionTask {
   String keyStorePassword
   String keyAliasPassword
   String manifestPackage
+  String versionName
+  String versionCode
 
   public boolean verbose
   public List<String> dexParams
@@ -84,6 +86,14 @@ class AndroidPackageTask extends ConventionTask {
 
   void setManifestPackage(String manifestPackage) {
       this.manifestPackage = manifestPackage
+  }
+
+  void setVersionName(String versionName) {
+      this.versionName = versionName
+  }
+
+  void setVersionCode(String versionCode) {
+      this.versionCode = versionCode
   }
 
   public AndroidPackageTask() {
