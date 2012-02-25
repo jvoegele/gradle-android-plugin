@@ -16,20 +16,18 @@
 
 package com.jvoegele.gradle.tasks.android
 
-import org.gradle.api.internal.ConventionTask
-
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-
-import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 
 /**
  * 
  * @author think01
  *
  */
-class AndroidPackageTask extends ConventionTask {
+class AndroidPackageTask extends DefaultTask {
   String keyStore
   String keyAlias
   String keyStorePassword

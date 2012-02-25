@@ -16,21 +16,15 @@
 
 package com.jvoegele.gradle.tasks.android;
 
-import java.io.File;
-
-import groovy.lang.MetaClass;
-import groovy.util.XmlSlurper;
-
-import org.gradle.api.internal.ConventionTask;
-import org.gradle.api.tasks.TaskAction;
-
-import com.jvoegele.gradle.plugins.android.AndroidPluginConvention;
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.TaskAction
 
 /**
  * Uses the ProGuard tool to create a minimal JAR containing only those classes
  * and resources actually used by the application code.
  */
-class ProGuard extends ConventionTask {
+class ProGuard extends DefaultTask {
   private static final String PRO_GUARD_RESOURCE = "proguard/ant/task.properties"
 
   String artifactGroup = "net.sf.proguard"

@@ -17,14 +17,10 @@
 package com.jvoegele.gradle.tasks.android
 
 import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
-import org.gradle.api.tasks.TaskAction
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Optional
-import org.gradle.api.internal.ConventionTask
+import org.gradle.api.DefaultTask
+import org.gradle.api.tasks.*
 
-class AndroidSignAndAlignTask extends ConventionTask {
+class AndroidSignAndAlignTask extends DefaultTask {
   @Optional @Input String keyStore
   @Optional @Input String keyAlias
   @Optional @Input String keyStorePassword
