@@ -9,6 +9,7 @@ group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
 project.artifact = artifact
+compileGroovy.groovyOptions.fork = false
 
 def isReleaseVersion = !version.endsWith('SNAPSHOT')
 
@@ -146,7 +147,7 @@ signing {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-6'
+    gradleVersion = '1.0-milestone-8a'
 }
 
 task generatePom << {

@@ -16,24 +16,25 @@
 
 package com.jvoegele.gradle.tasks.android
 
-import org.gradle.api.internal.ConventionTask
-
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
+import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
-
-import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 
 /**
  * 
  * @author think01
  *
  */
-class AndroidPackageTask extends ConventionTask {
+class AndroidPackageTask extends DefaultTask {
   String keyStore
   String keyAlias
   String keyStorePassword
   String keyAliasPassword
+  String manifestPackage
+  String versionName
+  String versionCode
 
   public boolean verbose
   public List<String> dexParams
@@ -79,6 +80,18 @@ class AndroidPackageTask extends ConventionTask {
   void setKeyAliasPassword(String keyAliasPassword) {
       this.keyAliasPassword = keyAliasPassword
       logKeyStoreConfigurationDeprecation()
+  }
+
+  void setManifestPackage(String manifestPackage) {
+      this.manifestPackage = manifestPackage
+  }
+
+  void setVersionName(String versionName) {
+      this.versionName = versionName
+  }
+
+  void setVersionCode(String versionCode) {
+      this.versionCode = versionCode
   }
 
   public AndroidPackageTask() {
@@ -129,7 +142,12 @@ class AndroidPackageTask extends ConventionTask {
     }
     
     logger.info("Packaging resources")
-    sdkTools.aaptexec.execute(command: 'package')
+
+    if (manifestPackage != null) { 
+      sdkTools.aaptexec.execute(command: 'package', manifestPackage: manifestPackage, versionName: versionName, versionCode: versionCode)
+    } else {
+      sdkTools.aaptexec.execute(command: 'package')
+    }
     sdkTools.apkbuilder.execute('sign': false, 'verbose': verbose)
   }
 }
