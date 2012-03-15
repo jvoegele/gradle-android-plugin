@@ -2,7 +2,7 @@ This is the Android plugin for the Gradle build system.  This plugin
 enables the creation of Android applications using Gradle, with all of
 the power and flexibility you've come to expect from Gradle.
 
-Currently, Gradle 1.0-milestone-6 is required.
+Currently, Gradle 1.0-milestone-8a is required.
 
 For mailing lists and issue tracking, please see the project page on Google Code:
 https://code.google.com/p/gradle-android-plugin/
@@ -105,7 +105,7 @@ conventions established by Android's Ant-based build, but in this case
 it is better to conform to Gradle's "source sets" convention, since it allows
 you to have separate test source code, or to use multiple languages.
 Therefore, we recommend that the source should be moved to src/main/java
-instead.  Once you've done this you can, of course, utilize Gradle's source 
+instead.  Once you've done this you can, of course, utilize Gradle's source
 sets to their full extent by placing resources in src/main/resources, Scala
 source files in src/main/scala etc.  However, if you prefer to keep your
 source code directly in the src directory (for example, if you need to retain
@@ -199,14 +199,14 @@ In this way you can get a full build with the command:
 
     gradle assemble
 
-It processes all the resources, expanding them with properties from the project's scope, 
+It processes all the resources, expanding them with properties from the project's scope,
 compiles classes, packs them into the dex file, builds the apk, signs it with
 the provided keystore (but does not process it with proguard) and zipaligns
 the package, which is named <project>-x.y.z.apk and placed in <project-root>/build/distributions.
 You can see the proguard task is skipped from Gradle's output during the build.
 
 You can create several build configurations and choose which one to execute from the
-gradle command line. 
+gradle command line.
 The task configureDebug (3) defines the Gradle classifier for the package name.
 Executing this build with the command:
 
@@ -304,7 +304,7 @@ We plan to make this more flexible and configurable in future versions.
 
 START EMULATOR
 =====================
-For starting the emulator wih gradle, you need do define the AVD-Name from your android-emulator 
+For starting the emulator wih gradle, you need do define the AVD-Name from your android-emulator
 in your build.gradle:
 
     androidEmulatorStart {
