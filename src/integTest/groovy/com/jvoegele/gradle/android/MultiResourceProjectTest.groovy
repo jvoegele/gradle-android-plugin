@@ -23,11 +23,11 @@ class MultiResourceProjectTest extends AbstractIntegrationTest {
   void build() {
     def p = project('multi_resource')
 
-    p.runTasks 'clean', 'build'
+    p.runTasks 'clean', 'build', buildScript: 'multi_resource.gradle'
 
-    p.fileExists 'build/libs/multi_resource-1.0.apk'
+    p.fileExists 'build/distributions/multi_resource-1.0.apk'
 
-    p.archive('build/libs/multi_resource-1.0.apk').assertContains 'res/drawable/icon.png'
-    p.archive('build/libs/multi_resource-1.0.apk').assertContains 'res/drawable/icon2.png'
+    p.archive('build/distributions/multi_resource-1.0.apk').assertContains 'res/drawable/icon.png'
+    p.archive('build/distributions/multi_resource-1.0.apk').assertContains 'res/drawable/icon2.png'
   }
 }
