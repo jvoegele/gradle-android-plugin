@@ -44,6 +44,8 @@ class AndroidSetupFactory {
   AndroidSetup getAndroidSetup() {
 	if (this.androidSdkToolsRevision < 14) {
 	  return new AndroidSetup_r13(project)
+	} else if (this.androidSdkToolsRevision >= 17) {
+	  return new AndroidSetup_r17(project)
 	} else {
 	  return new AndroidSetup_r14(project)
 	}

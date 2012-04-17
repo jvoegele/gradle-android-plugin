@@ -17,6 +17,7 @@
 package com.jvoegele.gradle.plugins.android;
 
 import org.gradle.api.Project 
+import org.gradle.api.file.FileCollection
 
 class AndroidPluginConvention {
   Project project
@@ -28,6 +29,8 @@ class AndroidPluginConvention {
   File intermediateDexFile
   String resourceFileName
   String instrumentationTestsRunner
+  FileCollection resDirs
+
 
   AndroidPluginConvention(Project project) {
     this.project = project
@@ -37,7 +40,8 @@ class AndroidPluginConvention {
     assetsDir = new File(project.projectDir, 'assets')
     nativeLibsDir = new File(project.projectDir, 'libs')
     androidManifest = new File(project.projectDir, 'AndroidManifest.xml')
-	
+    resDirs = project.files(resDir)
+
 	// Output paths
     // FIXME (Matthias): I find this misleading, this is NOT conventional; the gen/ folder
     // typically sits at the project root, not inside the build/ folder, that's a Gradle thing.
