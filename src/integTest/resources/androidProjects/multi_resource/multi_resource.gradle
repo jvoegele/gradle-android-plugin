@@ -1,0 +1,5 @@
+apply plugin: 'android'
+
+version = '1.0'
+
+resDirs = files("res") + files("res2")

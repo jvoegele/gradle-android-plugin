@@ -76,8 +76,10 @@ class ProcessAndroidResources extends DefaultTask {
       arg(path: genDir.absolutePath)
       arg(value: "-M")
       arg(path: androidConvention.androidManifest.absolutePath)
-      arg(value: "-S")
-      arg(path: androidConvention.resDir.absolutePath)
+      androidConvention.resDirs.each { File file ->      	
+        arg(value: "-S")
+        arg(path: file.absolutePath)
+      }
       arg(value: "-I")
       arg(path: ant['android.jar'])
     }
