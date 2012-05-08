@@ -16,15 +16,12 @@
 
 package com.jvoegele.gradle.tasks.android;
 
-import groovy.lang.MetaClass
-
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
-import org.gradle.api.internal.ConventionTask
 import org.gradle.api.tasks.TaskAction
 
-import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
-
-class ProcessAndroidResources extends ConventionTask {
+class ProcessAndroidResources extends DefaultTask {
   boolean verbose
 
   AndroidPluginConvention androidConvention
@@ -33,10 +30,7 @@ class ProcessAndroidResources extends ConventionTask {
   // Define which are the AIDL files (assuming they are created in the main sourceSet, 
   // and that we have only one main src directory).
   String aidlDir = project.sourceSets.main.java.srcDirs.iterator().next().getAbsolutePath() 
-  FileTree aidlFiles = project.fileTree {
-    from aidlDir
-    include "**/*.aidl"
-  }
+  FileTree aidlFiles = project.fileTree(dir: aidlDir, include: "**/*.aidl")
 
   public ProcessAndroidResources () {
     super()
@@ -82,8 +76,10 @@ class ProcessAndroidResources extends ConventionTask {
       arg(path: genDir.absolutePath)
       arg(value: "-M")
       arg(path: androidConvention.androidManifest.absolutePath)
-      arg(value: "-S")
-      arg(path: androidConvention.resDir.absolutePath)
+      androidConvention.resDirs.each { File file ->      	
+        arg(value: "-S")
+        arg(path: file.absolutePath)
+      }
       arg(value: "-I")
       arg(path: ant['android.jar'])
     }
