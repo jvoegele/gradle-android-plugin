@@ -16,7 +16,7 @@
 
 package com.jvoegele.gradle.android.support
 
-import org.gradle.internal.nativeplatform.OperatingSystem
+import org.gradle.internal.os.OperatingSystem
 import static org.junit.Assert.assertTrue
 
 class ZipAlignVerifier {

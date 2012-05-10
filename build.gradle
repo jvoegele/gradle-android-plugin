@@ -8,7 +8,7 @@ version = '1.1.1-SNAPSHOT'
 group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
-project.artifact = artifact
+project.ext.set('artifact', artifact)
 
 def isReleaseVersion = !version.endsWith('SNAPSHOT')
 
@@ -97,7 +97,7 @@ task developerBuild {
 idea {
     module {
         downloadSources = true
-        downloadJavadocs = true
+        downloadJavadoc = true
 
         testSourceDirs += file('src/integTest/groovy')
         testSourceDirs += file('src/integTest/resources')
@@ -146,7 +146,7 @@ signing {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '1.0-milestone-8a'
+    gradleVersion = '1.0-rc-3'
 }
 
 task generatePom << {
