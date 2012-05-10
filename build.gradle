@@ -97,7 +97,7 @@ task developerBuild {
 idea {
     module {
         downloadSources = true
-        downloadJavadocs = true
+        downloadJavadoc = true
 
         testSourceDirs += file('src/integTest/groovy')
         testSourceDirs += file('src/integTest/resources')
