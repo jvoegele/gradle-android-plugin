@@ -2,7 +2,7 @@ This is the Android plugin for the Gradle build system.  This plugin
 enables the creation of Android applications using Gradle, with all of
 the power and flexibility you've come to expect from Gradle.
 
-Currently, Gradle 1.0-milestone-8a is required.
+Currently, Gradle 1.0-rc-3 is required.
 
 For mailing lists and issue tracking, please see the project page on Google Code:
 https://code.google.com/p/gradle-android-plugin/
