@@ -8,7 +8,7 @@ version = '1.1.1-SNAPSHOT'
 group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
-project.artifact = artifact
+project.ext.set('artifact', artifact)
 
 def isReleaseVersion = !version.endsWith('SNAPSHOT')
 
