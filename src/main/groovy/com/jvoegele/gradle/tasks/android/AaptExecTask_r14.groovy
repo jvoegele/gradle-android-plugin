@@ -29,6 +29,7 @@ class AaptExecTask_r14 extends AndroidAntTask {
   public void execute(Map args) {
     ant.aaptexec(executable: ant.aapt,
                  command: args.get('command', 'package'),
+                 debug: project.jar.classifier && project.jar.classifier == 'debug',
                  manifest: androidConvention.androidManifest.path,
                  assets: androidConvention.assetsDir,
                  androidjar: ant['android.jar'],
