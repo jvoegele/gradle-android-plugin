@@ -18,8 +18,7 @@ package com.jvoegele.gradle.android.support
 
 import org.gradle.GradleLauncher
 import org.gradle.api.Project
-import org.gradle.os.OperatingSystem
-
+import org.gradle.internal.os.OperatingSystem
 import static org.junit.Assert.assertFalse
 import static org.junit.Assert.assertTrue
 

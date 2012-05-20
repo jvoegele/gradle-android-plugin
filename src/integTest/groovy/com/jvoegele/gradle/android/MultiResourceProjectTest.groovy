@@ -14,24 +14,20 @@
  * limitations under the License.
  */
 
-package com.jvoegele.gradle.android.support
+package com.jvoegele.gradle.android
 
-import org.gradle.internal.os.OperatingSystem
-import static org.junit.Assert.assertTrue
+import org.junit.Test
 
-class ZipAlignVerifier {
-  def project
+class MultiResourceProjectTest extends AbstractIntegrationTest {
+  @Test
+  void build() {
+    def p = project('multi_resource')
 
-  def verifyAligned(archive) {
-    def androidTools = new File(System.getenv("ANDROID_HOME"), "tools")
-    def zipalign = new File(androidTools, "zipalign${OperatingSystem.current().isWindows() ? '.exe' : ''}")
+    p.runTasks 'clean', 'build', buildScript: 'multi_resource.gradle'
 
-    def result = project.exec {
-      executable zipalign.canonicalPath
-      args '-c', 4, archive
-      ignoreExitValue = true
-    }
+    p.fileExists 'build/distributions/multi_resource-1.0.apk'
 
-    assertTrue("The archive ${archive} must be zipaligned", result.exitValue == 0)
+    p.archive('build/distributions/multi_resource-1.0.apk').assertContains 'res/drawable/icon.png'
+    p.archive('build/distributions/multi_resource-1.0.apk').assertContains 'res/drawable/icon2.png'
   }
 }
