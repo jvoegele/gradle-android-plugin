@@ -36,7 +36,7 @@ uploadArchives {
   repositories {
     mavenDeployer {
       beforeDeployment { deployment ->
-        signPom(deployment)
+        signing.signPom(deployment)
       }
 
       //configuration = configurations.sshDeploy
