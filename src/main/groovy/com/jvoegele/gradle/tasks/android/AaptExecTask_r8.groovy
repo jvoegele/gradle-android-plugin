@@ -26,14 +26,15 @@ class AaptExecTask_r8 extends AndroidAntTask {
    */
   @Override
   void execute(Map args) {
-    ant.aaptexec(executable: ant.aapt,
-                 command: args.get('command', 'package'),
-                 debug: project.jar.classifier && project.jar.classifier == 'debug',
-                 manifest: androidConvention.androidManifest.path,
-                 assets: androidConvention.assetsDir,
-                 androidjar: ant['android.jar'],
-                 apkfolder: project.libsDir,
-                 resourcefilename: androidConvention.resourceFileName) {
+    ant.aaptexec(
+        executable: ant.aapt,
+        command: args.get('command', 'package'),
+        debug: project.jar.classifier && project.jar.classifier == 'debug',
+        manifest: androidConvention.androidManifest.path,
+        assets: androidConvention.assetsDir,
+        androidjar: ant['android.jar'],
+        apkfolder: project.libsDir,
+        resourcefilename: androidConvention.resourceFileName) {
       androidConvention.resDirs.each { File file ->
         res(path: file.path)
       }

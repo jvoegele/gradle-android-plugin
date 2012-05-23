@@ -28,12 +28,13 @@ class ApkBuilderTask_r14 extends AndroidAntTask {
    */
   void execute(Map args) {
     assert ant != null
-    ant.apkbuilder(outfolder: project.libsDir,
-                   resourcefile: ant['resource.package.file.name'],
-                   apkfilepath: androidConvention.unsignedArchivePath,
-                   debugsigning: args.get('sign', false),
-                   hascode: ant['manifest.hasCode'],
-                   verbose: args.get('verbose', false)) {
+    ant.apkbuilder(
+        outfolder: project.libsDir,
+        resourcefile: ant['resource.package.file.name'],
+        apkfilepath: androidConvention.unsignedArchivePath,
+        debugsigning: args.get('sign', false),
+        hascode: ant['manifest.hasCode'],
+        verbose: args.get('verbose', false)) {
       dex(path: androidConvention.intermediateDexFile)
       // Takes resource files from the source folder - classes are processed by the dx command
       sourcefolder(path: project.sourceSets.main.output.classesDir)
@@ -44,17 +45,5 @@ class ApkBuilderTask_r14 extends AndroidAntTask {
 
       nativefolder(path: androidConvention.nativeLibsDir)
     }
-/*
-            <apkbuilder>
-                <dex path="${intermediate.dex.file}"/>
-                <sourcefolder path="${source.absolute.dir}" />
-                <sourcefolder refid="android.libraries.src" />
-                <jarfolder path="${external.libs.absolute.dir}" />
-                <jarfolder refid="android.libraries.libs" />
-                <nativefolder path="${native.libs.absolute.dir}" />
-                <nativefolder refid="android.libraries.libs" />
-                <extra-jars/>
-
- */
   }
 }

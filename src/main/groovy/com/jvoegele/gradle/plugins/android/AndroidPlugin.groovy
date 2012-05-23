@@ -144,34 +144,34 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineAndroidProcessResourcesTask() {
     androidProcessResourcesTask = project.task(
-      ANDROID_PROCESS_RESOURCES_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: "Generate R.java source file from Android resource XML files",
-      type: ProcessAndroidResources)
+        ANDROID_PROCESS_RESOURCES_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Generate R.java source file from Android resource XML files",
+        type: ProcessAndroidResources)
   }
 
   private void defineProguardTask() {
     proguardTask = project.task(
-      PROGUARD_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: "Process classes and JARs with ProGuard",
-      type: ProGuard)
+        PROGUARD_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Process classes and JARs with ProGuard",
+        type: ProGuard)
   }
 
   private void defineAndroidPackageTask() {
     androidPackageTask = project.task(
-      ANDROID_PACKAGE_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: "Creates the Android application apk package",
-      type: AndroidPackageTask)
+        ANDROID_PACKAGE_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Creates the Android application apk package",
+        type: AndroidPackageTask)
   }
 
   private void defineAndroidSignAndAlignTask() {
     androidSignAndAlignTask = project.task(
-      ANDROID_SIGN_AND_ALIGN_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: "Signs and zipaligns the application apk package",
-      type: AndroidSignAndAlignTask)
+        ANDROID_SIGN_AND_ALIGN_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Signs and zipaligns the application apk package",
+        type: AndroidSignAndAlignTask)
 
     ['keyStore', 'keyAlias', 'keyStorePassword', 'keyAliasPassword'].each { String propertyName ->
       androidSignAndAlignTask.conventionMapping[propertyName] = { androidPackageTask[propertyName] }
@@ -180,11 +180,10 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineAndroidInstallTask() {
     androidInstallTask = project.task(
-      ANDROID_INSTALL_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: "Installs the debug package onto a running emulator or device",
-      type: AdbExec) {
-
+        ANDROID_INSTALL_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Installs the debug package onto a running emulator or device",
+        type: AdbExec) {
       doFirst {
         logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
         args 'install', '-r', androidConvention.apkArchivePath
@@ -194,11 +193,10 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineAndroidUninstallTask() {
     androidUninstallTask = project.task(
-      ANDROID_UNINSTALL_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: "Uninstalls the application from a running emulator or device",
-      type: AdbExec) {
-
+        ANDROID_UNINSTALL_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Uninstalls the application from a running emulator or device",
+        type: AdbExec) {
       def manifestPackage = null
 
       try {
@@ -218,10 +216,10 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void defineAndroidEmulatorStartTask() {
     androidEmulatorStartTask = project.task(
-      ANDROID_START_EMULATOR_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: "Starts the android emulator",
-      type: EmulatorTask)
+        ANDROID_START_EMULATOR_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Starts the android emulator",
+        type: EmulatorTask)
   }
 
   private void defineAndroidInstrumentationTestsTask() {
@@ -241,10 +239,10 @@ class AndroidPlugin implements Plugin<Project> {
     """
 
     androidInstrumentationTestsTask = project.task(
-      ANDROID_INSTRUMENTATION_TESTS_TASK_NAME,
-      group: ANDROID_GROUP,
-      description: description,
-      type: InstrumentationTestsTask)
+        ANDROID_INSTRUMENTATION_TESTS_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: description,
+        type: InstrumentationTestsTask)
   }
 
   private void defineTaskDependencies() {

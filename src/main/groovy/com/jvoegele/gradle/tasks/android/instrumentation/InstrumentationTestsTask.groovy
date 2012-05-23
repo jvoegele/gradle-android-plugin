@@ -76,7 +76,6 @@ class InstrumentationTestsTask extends AdbExec {
 
   @Override
   def exec() {
-
     if (testRunnersConfig.performDefaultRun()) {
       def runConfig = testRunnersConfig.defaultConfig
       if (!runConfig) {

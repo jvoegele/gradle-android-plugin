@@ -30,7 +30,6 @@ class AndroidSignAndAlignTask extends DefaultTask {
   private File customUnsingedArchivePath
   private AndroidPluginConvention androidConvention = project.convention.plugins.android
 
-
   private File buildUnalignedArchivePath() {
     return new File(project.libsDir, "${androidConvention.apkBaseName}-unaligned.apk")
   }
@@ -80,6 +79,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
     }
 
     logger.info("Signing final apk...")
+
     project.ant.signjar(
         jar: unsignedArchivePath.absolutePath,
         signedjar: buildUnalignedArchivePath().absolutePath,
@@ -87,24 +87,25 @@ class AndroidSignAndAlignTask extends DefaultTask {
         storepass: getKeyStorePassword(),
         alias: getKeyAlias(),
         keypass: getKeyAliasPassword(),
-        verbose: verbose
-    )
+        verbose: verbose)
   }
 
   private String retrieveDebugKeystore() {
       File debugKeystore = new File(System.getProperty('user.home'), '.android/debug.keystore')
+
       if (!debugKeystore.exists()) {
-          logger.info('Creating a new debug key...')
-          project.ant.genkey(
-                  alias: 'androiddebugkey',
-                  storepass: 'android',
-                  keystore: debugKeystore.absolutePath,
-                  keypass: 'android',
-                  validity: 10 * 365,
-                  storetype: 'JKS',
-                  dname: 'CN=Android Debug,O=Android,C=US'
-          )
+        logger.info('Creating a new debug key...')
+
+        project.ant.genkey(
+            alias: 'androiddebugkey',
+            storepass: 'android',
+            keystore: debugKeystore.absolutePath,
+            keypass: 'android',
+            validity: 10 * 365,
+            storetype: 'JKS',
+            dname: 'CN=Android Debug,O=Android,C=US')
       }
+
       return debugKeystore.absolutePath
   }
 
@@ -118,8 +119,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
         storepass: 'android',
         alias: 'androiddebugkey',
         keypass: 'android',
-        verbose: verbose
-    )
+        verbose: verbose)
   }
 
   private void zipAlign() {

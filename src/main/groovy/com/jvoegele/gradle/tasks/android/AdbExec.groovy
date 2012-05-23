@@ -30,6 +30,7 @@ class AdbExec extends DefaultTask {
 
   def AdbExec() {
     exec.executable project.ant['adb']
+
     if (project.ant['adb.device.arg']) {
       exec.args project.ant['adb.device.arg'].split(" ")
     }
@@ -57,6 +58,7 @@ class AdbExec extends DefaultTask {
 
   def checkForErrors(stream) {
     def reader = new InputStreamReader(new ByteArrayInputStream(stream.toByteArray()))
+
     reader.eachLine {
       if (it.toLowerCase().contains("failure") || it.toLowerCase().contains("error")) {
         throw new AdbErrorException(it.trim())
