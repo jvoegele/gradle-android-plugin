@@ -17,7 +17,7 @@
 package com.jvoegele.gradle.tasks.android
 
 class ApkBuilderTask_r8 extends AndroidAntTask {
-  public ApkBuilderTask_r8(project) {
+  ApkBuilderTask_r8(project) {
     super(project)
   }
 
@@ -26,7 +26,7 @@ class ApkBuilderTask_r8 extends AndroidAntTask {
    * @param args Map of keyword arguments.  Supported keywords are sign and
    *             verbose, both of which should be boolean values if provided.
    */
-  public void execute(Map args) {
+  void execute(Map args) {
     assert ant != null
     ant.apkbuilder(outfolder: project.libsDir,
                    resourcefile: ant['resource.package.file.name'],

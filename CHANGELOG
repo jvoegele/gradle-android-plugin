@@ -1,29 +1,29 @@
 2011-12-15  Gradle Android Plugin Developers  <gradle-android-plugin-developers@googlegroups.com>
 
-    * Version 1.1.0 released!
+  * Version 1.1.0 released!
 
-    * Gradle Android Plugin is now in Maven Central!
+  * Gradle Android Plugin is now in Maven Central!
 
-        * Group ID is now org.gradle.api.plugins
+  * Group ID is now org.gradle.api.plugins
 
-        * Artifact ID is now gradle-android-plugins
+  * Artifact ID is now gradle-android-plugins
 
-    * Support for Android 4.0 "Ice Cream Sandwich", R14+
+  * Support for Android 4.0 "Ice Cream Sandwich", R14+
 
-    * Support for Discobot
+  * Support for Discobot
 
 2011-08-11  Gradle Android Plugin Developers  <gradle-android-plugin-developers@googlegroups.com>
 
-    * Version 1.0.0 released!
+  * Version 1.0.0 released!
 
-    * Generate Eclipse projects with "gradle eclipse"
+  * Generate Eclipse projects with "gradle eclipse"
 
-    * Use proguard.cfg for ProGuard configuration
+  * Use proguard.cfg for ProGuard configuration
 
-    * ProGuard is automatically enabled in Scala projects
+  * ProGuard is automatically enabled in Scala projects
 
-    * Ability to start Android emulator with Gradle
+  * Ability to start Android emulator with Gradle
 
-    * Instrumentation tests support; also contains support for Zutubi test runner
+  * Instrumentation tests support; also contains support for Zutubi test runner
 
-    * The plugin got some tests of itself; they can also serve as complete Gradle + Android project examples
+  * The plugin got some tests of itself; they can also serve as complete Gradle + Android project examples

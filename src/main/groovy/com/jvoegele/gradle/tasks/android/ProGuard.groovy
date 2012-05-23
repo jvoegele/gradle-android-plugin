@@ -34,25 +34,27 @@ class ProGuard extends DefaultTask {
   boolean warn = false
   boolean note = false
   boolean obfuscate = true
-  
-  public ProGuard () {
+
+  private boolean proGuardTaskDefined = false
+
+  ProGuard () {
     // By default, this task is disabled - it has to be explicitly enabled by user in build.gradle
     enabled = false
   }
-  
-  public File getTempFile() {
+
+  File getTempFile() {
     AndroidPluginConvention androidConvention = project.convention.plugins.android
     return new File (project.libsDir, androidConvention.getApkBaseName() + "-proguard-temp.jar")
   }
 
-  public File getProguardConfig() {
+  File getProguardConfig() {
     return new File(project.projectDir, "proguard.cfg")
   }
 
   @TaskAction
   protected void process() {
-
     defineProGuardTask()
+
     String tempFilePath = getTempFile().getAbsolutePath()
 
     Map proguardOptions = [
@@ -81,11 +83,13 @@ class ProGuard extends DefaultTask {
       project.configurations.compile.files.each { dependency ->
         injar(file: dependency)
       }
+
       outjar(file: tempFilePath)
+
       ant.references['android.target.classpath'].each { targetjar ->
         libraryjar(file: targetjar)
       }
-      
+
       if (!proguardConfig.exists()) {
         // use some minimal configuration if proguard.cfg doesn't exist
         // this is basically the same as what "android create project" generates
@@ -116,21 +120,23 @@ class ProGuard extends DefaultTask {
       keep(access: 'public', 'name': '**.R')
       keep('name': '**.R$*')
     }
-                 
+
     // Update the output file of this task
     ant.move(file: tempFilePath, toFile: project.jar.archivePath, overwrite: true)
   }
 
-  private boolean proGuardTaskDefined = false
   private void defineProGuardTask() {
     if (!proGuardTaskDefined) {
       project.configurations {
         proguard
       }
+
       project.dependencies {
         proguard group: artifactGroup, name: artifactName, version: artifactVersion
       }
+
       ant.taskdef(resource: PRO_GUARD_RESOURCE, classpath: project.configurations.proguard.asPath)
+
       proGuardTaskDefined = true
     }
   }

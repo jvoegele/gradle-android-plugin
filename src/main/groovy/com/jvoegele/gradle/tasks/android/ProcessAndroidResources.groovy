@@ -26,13 +26,13 @@ class ProcessAndroidResources extends DefaultTask {
 
   AndroidPluginConvention androidConvention
   File genDir
-  
-  // Define which are the AIDL files (assuming they are created in the main sourceSet, 
+
+  // Define which are the AIDL files (assuming they are created in the main sourceSet,
   // and that we have only one main src directory).
-  String aidlDir = project.sourceSets.main.java.srcDirs.iterator().next().getAbsolutePath() 
+  String aidlDir = project.sourceSets.main.java.srcDirs.iterator().next().getAbsolutePath()
   FileTree aidlFiles = project.fileTree(dir: aidlDir, include: "**/*.aidl")
 
-  public ProcessAndroidResources () {
+  ProcessAndroidResources () {
     super()
 
     androidConvention = project.convention.plugins.android
@@ -61,7 +61,7 @@ class ProcessAndroidResources extends DefaultTask {
         }
 
         // Note by Fabio: android.aidl is empty and the -p option wants a "preprocess" file in input, which
-        // I don't know what is or where came from, so I omitted.       
+        // I don't know what is or where came from, so I omitted.
 //        arg(value: '-p')
 //        arg(path: ant.references['android.aidl'])
       }
@@ -76,7 +76,7 @@ class ProcessAndroidResources extends DefaultTask {
       arg(path: genDir.absolutePath)
       arg(value: "-M")
       arg(path: androidConvention.androidManifest.absolutePath)
-      androidConvention.resDirs.each { File file ->      	
+      androidConvention.resDirs.each { File file ->
         arg(value: "-S")
         arg(path: file.absolutePath)
       }

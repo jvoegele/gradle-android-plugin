@@ -21,25 +21,25 @@ import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.TaskAction
 
 class EmulatorTask extends DefaultTask {
-	
-	@Input public String avdName
 
-	def EmulatorTask() {}
+  @Input public String avdName
 
-	@TaskAction
-	def start() {
-		if (avdName == null) {
-			throw new IllegalStateException("""
-Please specify avdName in your build.gradle:
+  def EmulatorTask() {}
 
-	androidEmulatorStart {
-		avdName = "YourAvdName"
-	}
-""")
-		}
+  @TaskAction
+  def start() {
+    if (avdName == null) {
+      throw new IllegalStateException("""
+          Please specify avdName in your build.gradle:
 
-		project.logger.info("Starting emulator...")
-		def command = project.ant['sdk.dir'] + "/tools/emulator -avd " +avdName
-		def proc = command.execute()
-	}
+          androidEmulatorStart {
+            avdName = "YourAvdName"
+          }
+        """)
+    }
+
+    project.logger.info("Starting emulator...")
+    def command = project.ant['sdk.dir'] + "/tools/emulator -avd " +avdName
+    def proc = command.execute()
+  }
 }
