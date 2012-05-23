@@ -24,7 +24,7 @@ class AndroidSetupFactory {
   private int toolsRevision = -1
 
   AndroidSetupFactory(project) {
-	this.project = project
+    this.project = project
   }
 
   int getAndroidSdkToolsRevision() {
@@ -49,5 +49,5 @@ class AndroidSetupFactory {
     } else {
       return new AndroidSetup_r17(project)
     }
-  } 
+  }
 }

@@ -18,32 +18,34 @@ package com.jvoegele.gradle.plugins.android
 
 class AndroidSetup_r17 extends AbstractAndroidSetup {
   AndroidSetup_r17(project) {
-  super(project)
+    super(project)
   }
 
   void setup() {
-  def ant = project.ant
-  def androidConvention = project.convention.plugins.android
-  
-  def sdkDir = ant['sdk.dir']
-  def toolsDir = new File(sdkDir, "tools")
+    def ant = project.ant
+    def androidConvention = project.convention.plugins.android
+
+    def sdkDir = ant['sdk.dir']
+    def toolsDir = new File(sdkDir, "tools")
     def platformToolsDir = new File(sdkDir, "platform-tools")
-  
+
     ant.condition('property': "exe", value: ".exe", 'else': "") { os(family: "windows") }
     ant.condition('property': "bat", value: ".bat", 'else': "") { os(family: "windows") }
+
     if (platformToolsDir.exists()) { // since SDK r8, adb is moved from tools to platform-tools
       ant.property(name: "adb", location: new File(platformToolsDir, "adb${ant['exe']}"))
     } else {
       ant.property(name: "adb", location: new File(toolsDir, "adb${ant['exe']}"))
     }
+
     ant.property(name: "zipalign", location: new File(toolsDir, "zipalign${ant['exe']}"))
     ant.property(name: 'adb.device.arg', value: '')
 
     def outDir = project.buildDir.absolutePath
     ant.property(name: "resource.package.file.name", value: "${project.name}.ap_")
-  
-  // Required since SDK r17
-  ant.property(name: "out.absolute.dir", value:'.')
+
+    // Required since SDK r17
+    ant.property(name: "out.absolute.dir", value:'.')
 
     ant.taskdef(name: 'setup', classname: 'com.android.ant.NewSetupTask', classpathref: 'android.antlibs')
 
@@ -75,8 +77,9 @@ class AndroidSetup_r17 extends AbstractAndroidSetup {
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/application/@android:hasCode", output: "manifest.hasCode", 'default': "true")
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/instrumentation/@android:name", output: "android.instrumentation")
+
     if (ant['android.instrumentation']) {
       androidConvention.instrumentationTestsRunner = ant['android.instrumentation']
-    } 
+    }
   }
 }

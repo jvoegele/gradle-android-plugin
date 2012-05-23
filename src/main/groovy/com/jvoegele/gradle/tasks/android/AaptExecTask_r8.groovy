@@ -17,8 +17,7 @@
 package com.jvoegele.gradle.tasks.android
 
 class AaptExecTask_r8 extends AndroidAntTask {
-
-  public AaptExecTask_r8(project) {
+  AaptExecTask_r8(project) {
     super(project);
   }
 
@@ -26,7 +25,7 @@ class AaptExecTask_r8 extends AndroidAntTask {
    * @see com.jvoegele.gradle.tasks.android.AndroidAntTask#execute(java.util.Map)
    */
   @Override
-  public void execute(Map args) {
+  void execute(Map args) {
     ant.aaptexec(executable: ant.aapt,
                  command: args.get('command', 'package'),
                  debug: project.jar.classifier && project.jar.classifier == 'debug',
@@ -35,10 +34,9 @@ class AaptExecTask_r8 extends AndroidAntTask {
                  androidjar: ant['android.jar'],
                  apkfolder: project.libsDir,
                  resourcefilename: androidConvention.resourceFileName) {
-        androidConvention.resDirs.each { File file ->
-                res(path: file.path)
-          }
+      androidConvention.resDirs.each { File file ->
+        res(path: file.path)
+      }
     }
   }
-
 }

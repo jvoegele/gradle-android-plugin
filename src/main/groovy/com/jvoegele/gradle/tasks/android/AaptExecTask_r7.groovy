@@ -36,5 +36,4 @@ class AaptExecTask_r7 extends AndroidAntTask {
                  outfolder: project.libsDir,
                  basename: project.name)
   }
-
 }
