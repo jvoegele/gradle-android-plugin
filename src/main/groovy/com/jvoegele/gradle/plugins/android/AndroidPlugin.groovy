@@ -39,7 +39,6 @@ import com.jvoegele.gradle.tasks.android.AndroidSignAndAlignTask
  * @author Jason Voegele (jason@jvoegele.com)
  */
 class AndroidPlugin implements Plugin<Project> {
-
   public static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
   public static final PROGUARD_TASK_NAME = "proguard"
   public static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
@@ -48,9 +47,9 @@ class AndroidPlugin implements Plugin<Project> {
   public static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
   public static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
   public static final ANDROID_START_EMULATOR_TASK_NAME = "androidEmulatorStart"
-  
+
   private static final ANDROID_GROUP = "Android";
-  
+
   private static final PROPERTIES_FILES = ['local', 'build', 'default', 'project']
   private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
 
@@ -59,13 +58,12 @@ class AndroidPlugin implements Plugin<Project> {
   private Project project
   private logger
 
-  private androidProcessResourcesTask, proguardTask, androidPackageTask, androidSignAndAlignTask,
-  androidInstallTask, androidUninstallTask, androidInstrumentationTestsTask, androidEmulatorStartTask
+  private androidProcessResourcesTask, proguardTask, androidPackageTask, androidSignAndAlignTask, androidInstallTask, androidUninstallTask, androidInstrumentationTestsTask, androidEmulatorStartTask
 
   boolean verbose = false
 
   @Override
-  public void apply(Project project) {
+  void apply(Project project) {
     project.plugins.apply(JavaPlugin.class)
 
     this.project = project
@@ -81,9 +79,9 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void androidSetup() {
-	registerPropertyFiles()
-	determineAndroidDirs()
-	registerAndroidJars()
+    registerPropertyFiles()
+    determineAndroidDirs()
+    registerAndroidJars()
 
     def setupFactory = new AndroidSetupFactory(project)
     setupFactory.androidSetup.setup()
@@ -96,10 +94,10 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void determineAndroidDirs() {
-	def ant = project.ant
-	def sdkDir
-	
-	// Determine the sdkDir value.
+    def ant = project.ant
+    def sdkDir
+
+    // Determine the sdkDir value.
     // First, let's try the sdk.dir property in local.properties file.
     try {
       sdkDir = ant['sdk.dir']
@@ -124,11 +122,11 @@ class AndroidPlugin implements Plugin<Project> {
 
   private void registerAndroidJars() {
     def ant = project.ant
-	def sdkDir = ant['sdk.dir']
+    def sdkDir = ant['sdk.dir']
 
     ant.path(id: 'android.antlibs') {
       ANDROID_JARS.each { pathelement(path: "${sdkDir}/tools/lib/${it}.jar") }
-    }	
+    }
   }
 
   private void defineTasks() {
@@ -145,28 +143,32 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void defineAndroidProcessResourcesTask() {
-    androidProcessResourcesTask = project.task(ANDROID_PROCESS_RESOURCES_TASK_NAME,
+    androidProcessResourcesTask = project.task(
+        ANDROID_PROCESS_RESOURCES_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Generate R.java source file from Android resource XML files",
         type: ProcessAndroidResources)
   }
 
   private void defineProguardTask() {
-    proguardTask = project.task(PROGUARD_TASK_NAME,
+    proguardTask = project.task(
+        PROGUARD_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Process classes and JARs with ProGuard",
         type: ProGuard)
   }
 
   private void defineAndroidPackageTask() {
-    androidPackageTask = project.task(ANDROID_PACKAGE_TASK_NAME,
+    androidPackageTask = project.task(
+        ANDROID_PACKAGE_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Creates the Android application apk package",
         type: AndroidPackageTask)
   }
 
   private void defineAndroidSignAndAlignTask() {
-    androidSignAndAlignTask = project.task(ANDROID_SIGN_AND_ALIGN_TASK_NAME,
+    androidSignAndAlignTask = project.task(
+        ANDROID_SIGN_AND_ALIGN_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Signs and zipaligns the application apk package",
         type: AndroidSignAndAlignTask)
@@ -177,11 +179,11 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void defineAndroidInstallTask() {
-    androidInstallTask = project.task(ANDROID_INSTALL_TASK_NAME,
+    androidInstallTask = project.task(
+        ANDROID_INSTALL_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Installs the debug package onto a running emulator or device",
         type: AdbExec) {
-
       doFirst {
         logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
         args 'install', '-r', androidConvention.apkArchivePath
@@ -190,12 +192,13 @@ class AndroidPlugin implements Plugin<Project> {
   }
 
   private void defineAndroidUninstallTask() {
-    androidUninstallTask = project.task(ANDROID_UNINSTALL_TASK_NAME,
+    androidUninstallTask = project.task(
+        ANDROID_UNINSTALL_TASK_NAME,
         group: ANDROID_GROUP,
         description: "Uninstalls the application from a running emulator or device",
         type: AdbExec) {
-
       def manifestPackage = null
+
       try {
         manifestPackage = ant['manifest.package']
       } catch (Exception e) {
@@ -210,24 +213,27 @@ class AndroidPlugin implements Plugin<Project> {
       }
     }
   }
-  
+
   private void defineAndroidEmulatorStartTask() {
-    androidEmulatorStartTask = project.task(ANDROID_START_EMULATOR_TASK_NAME,
-        description: "Starts the android emulator", type:EmulatorTask)
-    androidEmulatorStartTask.group = ANDROID_GROUP
+    androidEmulatorStartTask = project.task(
+        ANDROID_START_EMULATOR_TASK_NAME,
+        group: ANDROID_GROUP,
+        description: "Starts the android emulator",
+        type: EmulatorTask)
   }
-  
+
   private void defineAndroidInstrumentationTestsTask() {
-    def description = """Runs instrumentation tests on a running emulator or device.
+    def description = """
+      Runs instrumentation tests on a running emulator or device.
       Use the 'runners' closure to configure your test runners:
-          
+
          androidInstrumentationTests {
            runners {
              run testpackage: "com.my.package", with: "com.my.TestRunner"
              run annotation: "com.my.Annotation", with: "com.my.OtherRunner"
-           } 
+           }
          }
-          
+
       You can also use 'run with: "..."' to run all tests using the given runner, but
       note that this only works as long as you do not bind any other more specific runners.
     """
@@ -275,5 +281,4 @@ class AndroidPlugin implements Plugin<Project> {
     project.files(project.ant.references['android.target.classpath'].list())
     project.compileJava.options.bootClasspath = project.ant.references['android.target.classpath']
   }
-
 }

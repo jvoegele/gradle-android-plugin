@@ -30,7 +30,7 @@ class AndroidSdkToolsFactory {
   /**
    * Create a new AndroidSdkToolsFactory for the given project.
    */
-  public AndroidSdkToolsFactory(project) {
+  AndroidSdkToolsFactory(project) {
     this.project = project
     this.logger = project.logger
   }
@@ -39,7 +39,7 @@ class AndroidSdkToolsFactory {
    * Returns the value of the Pkg.Revision property from the source.properties
    * file in the Android SDK's tools directory.
    */
-  public int getAndroidSdkToolsRevision() {
+  int getAndroidSdkToolsRevision() {
     if (toolsRevision < 0) {
       def ant = project.ant
       def toolsDir = new File(ant['sdk.dir'], 'tools')
@@ -57,7 +57,7 @@ class AndroidSdkToolsFactory {
    * Returns an <code>AndroidAntTask</code> that invokes the appropriate
    * apkbuilder for the active Android SDK tools revision.
    */
-  public AndroidAntTask getApkbuilder() {
+  AndroidAntTask getApkbuilder() {
     if (this.androidSdkToolsRevision < 7) {
       return new ApkBuilderTask_r6(project)
     } else if (this.androidSdkToolsRevision < 8) {
@@ -69,7 +69,7 @@ class AndroidSdkToolsFactory {
     }
   }
 
-  public AndroidAntTask getAaptexec() {
+  AndroidAntTask getAaptexec() {
     if (this.androidSdkToolsRevision < 8) {
       return new AaptExecTask_r7(project)
     } else if (this.androidSdkToolsRevision < 14) {

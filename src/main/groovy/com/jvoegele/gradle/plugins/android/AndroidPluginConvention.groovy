@@ -16,7 +16,7 @@
 
 package com.jvoegele.gradle.plugins.android;
 
-import org.gradle.api.Project 
+import org.gradle.api.Project
 import org.gradle.api.file.FileCollection
 
 class AndroidPluginConvention {
@@ -33,15 +33,15 @@ class AndroidPluginConvention {
 
   AndroidPluginConvention(Project project) {
     this.project = project
-	
-	// Input paths
+
+    // Input paths
     resDir = new File(project.projectDir, 'res')
     assetsDir = new File(project.projectDir, 'assets')
     nativeLibsDir = new File(project.projectDir, 'libs')
     androidManifest = new File(project.projectDir, 'AndroidManifest.xml')
     resDirs = project.files(resDir)
-	
-	// Output paths
+
+    // Output paths
     // FIXME (Matthias): I find this misleading, this is NOT conventional; the gen/ folder
     // typically sits at the project root, not inside the build/ folder, that's a Gradle thing.
     // In fact, for the EclipseEnhancement to work, I had to hack around this by removing this
@@ -49,40 +49,44 @@ class AndroidPluginConvention {
     genDir = new File(project.buildDir, 'gen')
 
     intermediateDexFile = new File(project.libsDir, "classes.dex")
-	
-	resourceFileName = project.name + ".ap_"
-    
+
+    resourceFileName = project.name + ".ap_"
+
     // instrumentation conventions
     instrumentationTestsRunner = "android.test.InstrumentationTestRunner"
   }
-  
+
   /**
    * This value has to be calculated dynamically
    * @return
    */
-  public String getApkBaseName() {
+  String getApkBaseName() {
     def nameParts = [project.jar.baseName]
+
     if (project.jar.appendix) {
       nameParts << project.jar.appendix
     }
+
     if (project.version) {
       nameParts << project.version
     }
+
     if (project.jar.classifier) {
       nameParts << project.jar.classifier
     }
+
     return nameParts.join('-')
   }
-  
+
   /**
    * This value has to be calculated dynamically
    * @return
    */
-  public File getApkArchivePath() {
+  File getApkArchivePath() {
     return new File (project.distsDir, "${apkBaseName}.apk")
   }
 
-  public File getUnsignedArchivePath() {
+  File getUnsignedArchivePath() {
     return new File(project.libsDir, "${apkBaseName}-unsigned.apk")
   }
 }

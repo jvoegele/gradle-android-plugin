@@ -16,14 +16,14 @@
 
 package com.jvoegele.gradle.enhancements
 
-import org.gradle.api.Project 
+import org.gradle.api.Project
 
 class JavadocEnhancement extends GradlePluginEnhancement {
-  public JavadocEnhancement(Project project) {
+  JavadocEnhancement(Project project) {
     super(project)
   }
 
-  public void apply() {
+  void apply() {
     project.tasks.javadoc.classpath += project.files(ant['android.jar'])
   }
 }

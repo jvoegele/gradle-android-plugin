@@ -16,21 +16,19 @@
 
 package com.jvoegele.gradle.enhancements
 
-import org.gradle.api.Project 
+import org.gradle.api.Project
 import org.gradle.plugins.ide.eclipse.model.BuildCommand
 import org.gradle.plugins.ide.eclipse.model.SourceFolder;
 
 class EclipseEnhancement extends GradlePluginEnhancement {
-
   def androidConvention = project.convention.plugins.android
 
-  public EclipseEnhancement(Project project) {
+  EclipseEnhancement(Project project) {
     super(project)
   }
 
-  public void apply() {
+  void apply() {
     project.gradle.taskGraph.whenReady { taskGraph ->
-
       if (!project.plugins.hasPlugin('eclipse'))
         return;
 
@@ -38,6 +36,7 @@ class EclipseEnhancement extends GradlePluginEnhancement {
 
       project.eclipse.project {
         natures 'com.android.ide.eclipse.adt.AndroidNature'
+
         def builders = new LinkedList(buildCommands)
         builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.PreCompilerBuilder'))
         builders.addFirst(new BuildCommand('com.android.ide.eclipse.adt.ResourceManagerBuilder'))
@@ -78,6 +77,7 @@ class EclipseEnhancement extends GradlePluginEnhancement {
   private def detectAndroidLibraryProjects() {
     // Android's SetupTask sets this for use based on library references in default.properties
     def librarySrcPaths = project.ant.references['project.libraries.src']?.list()
+
     if (!librarySrcPaths?.any()) {
       return []
     }
@@ -87,6 +87,7 @@ class EclipseEnhancement extends GradlePluginEnhancement {
     // try to match the project's resolved dependencies against the libraries in default.properties
     project.configurations.compile.resolvedConfiguration.resolvedArtifacts.each { artifact ->
       def matchingSrcPath = librarySrcPaths.find { it ==~ /.*\/${artifact.name}\/src$/ }
+
       if (matchingSrcPath) {
         def libraryProject = new Expando()
         libraryProject.artifact = artifact

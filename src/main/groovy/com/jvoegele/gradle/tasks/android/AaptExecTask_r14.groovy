@@ -17,8 +17,7 @@
 package com.jvoegele.gradle.tasks.android
 
 class AaptExecTask_r14 extends AndroidAntTask {
-
-  public AaptExecTask_r14(project) {
+  AaptExecTask_r14(project) {
     super(project);
   }
 
@@ -26,21 +25,21 @@ class AaptExecTask_r14 extends AndroidAntTask {
    * @see com.jvoegele.gradle.tasks.android.AndroidAntTask#execute(java.util.Map)
    */
   @Override
-  public void execute(Map args) {
-    ant.aaptexec(executable: ant.aapt,
-                 command: args.get('command', 'package'),
-                 debug: project.jar.classifier && project.jar.classifier == 'debug',
-                 manifest: androidConvention.androidManifest.path,
-                 assets: androidConvention.assetsDir,
-                 androidjar: ant['android.jar'],
-                 apkfolder: project.libsDir,
-                 resourcefilename: androidConvention.resourceFileName,
-                 projectLibrariesResName: 'project.libraries.res',
-                 projectLibrariesPackageName: 'project.libraries.package') {
-        androidConvention.resDirs.each { File file ->
-                res(path: file.path)
-          }
+  void execute(Map args) {
+    ant.aaptexec(
+        executable: ant.aapt,
+        command: args.get('command', 'package'),
+        debug: project.jar.classifier && project.jar.classifier == 'debug',
+        manifest: androidConvention.androidManifest.path,
+        assets: androidConvention.assetsDir,
+        androidjar: ant['android.jar'],
+        apkfolder: project.libsDir,
+        resourcefilename: androidConvention.resourceFileName,
+        projectLibrariesResName: 'project.libraries.res',
+        projectLibrariesPackageName: 'project.libraries.package') {
+      androidConvention.resDirs.each { File file ->
+        res(path: file.path)
+      }
     }
   }
-
 }

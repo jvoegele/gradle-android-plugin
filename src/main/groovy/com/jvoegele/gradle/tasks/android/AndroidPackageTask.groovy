@@ -23,7 +23,7 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 
 /**
- * 
+ *
  * @author think01
  *
  */
@@ -33,53 +33,17 @@ class AndroidPackageTask extends DefaultTask {
   String keyStorePassword
   String keyAliasPassword
 
-  public boolean verbose
-  public List<String> dexParams
+  boolean verbose
+  List<String> dexParams
 
-  // Inputs and outputs files and directories (to be determined dynamically)
-  @InputFile
-  public File getJarArchivePath() {
-    return project.jar.archivePath
-  }
-  @OutputFile
-  public File getUnsignedArchivePath() {
-    return androidConvention.unsignedArchivePath
-  }
-  
-  // Internal fields
   AndroidPluginConvention androidConvention
   AndroidSdkToolsFactory sdkTools
+
   private boolean keyStoreConfigurationDeprecationShown = false
+
   def ant
 
-  private void logKeyStoreConfigurationDeprecation() {
-      if (!keyStoreConfigurationDeprecationShown) {
-        logger.warn('Configuring signing on androidPackage task is deprecated. You should now configure it on androidSignAndAlign task.')
-        keyStoreConfigurationDeprecationShown = true
-      }
-  }
-
-  void setKeyStore(String keyStore) {
-      this.keyStore = keyStore
-      logKeyStoreConfigurationDeprecation()
-  }
-
-  void setKeyAlias(String keyAlias) {
-      this.keyAlias = keyAlias
-      logKeyStoreConfigurationDeprecation()
-  }
-
-  void setKeyStorePassword(String keyStorePassword) {
-      this.keyStorePassword = keyStorePassword
-      logKeyStoreConfigurationDeprecation()
-  }
-
-  void setKeyAliasPassword(String keyAliasPassword) {
-      this.keyAliasPassword = keyAliasPassword
-      logKeyStoreConfigurationDeprecation()
-  }
-
-  public AndroidPackageTask() {
+  AndroidPackageTask() {
     // Initialize internal data
     androidConvention = project.convention.plugins.android
     sdkTools = new AndroidSdkToolsFactory(project)
@@ -93,13 +57,50 @@ class AndroidPackageTask extends DefaultTask {
     inputs.files (project.fileTree (dir: project.sourceSets.main.output.classesDir, exclude: "**/*.class"))
     dexParams = ['dex', "output=${androidConvention.intermediateDexFile}"]
   }
-    
+
+  // Inputs and outputs files and directories (to be determined dynamically)
+  @InputFile
+  File getJarArchivePath() {
+    return project.jar.archivePath
+  }
+
+  @OutputFile
+  File getUnsignedArchivePath() {
+    return androidConvention.unsignedArchivePath
+  }
+
+  private void logKeyStoreConfigurationDeprecation() {
+    if (!keyStoreConfigurationDeprecationShown) {
+      logger.warn('Configuring signing on androidPackage task is deprecated. You should now configure it on androidSignAndAlign task.')
+      keyStoreConfigurationDeprecationShown = true
+    }
+  }
+
+  void setKeyStore(String keyStore) {
+    this.keyStore = keyStore
+    logKeyStoreConfigurationDeprecation()
+  }
+
+  void setKeyAlias(String keyAlias) {
+    this.keyAlias = keyAlias
+    logKeyStoreConfigurationDeprecation()
+  }
+
+  void setKeyStorePassword(String keyStorePassword) {
+    this.keyStorePassword = keyStorePassword
+    logKeyStoreConfigurationDeprecation()
+  }
+
+  void setKeyAliasPassword(String keyAliasPassword) {
+    this.keyAliasPassword = keyAliasPassword
+    logKeyStoreConfigurationDeprecation()
+  }
+
   @TaskAction
   protected void process() {
-    
     // Create necessary directories for this task
     getUnsignedArchivePath().getParentFile().mkdirs()
-    
+
     createPackage()
   }
 
@@ -113,6 +114,7 @@ class AndroidPackageTask extends DefaultTask {
     logger.info("Converting compiled files and external libraries into ${androidConvention.intermediateDexFile}...")
     ant.apply(executable: ant.dx, failonerror: true, parallel: true, logError: true) {
       dexParams.each { arg(value: "--$it") }
+
       if (verbose) arg(line: "--verbose")
 
       // add classes from application JAR
@@ -125,7 +127,7 @@ class AndroidPackageTask extends DefaultTask {
         project.configurations.runtime.each { fileset file: it }
       }
     }
-    
+
     logger.info("Packaging resources")
     sdkTools.aaptexec.execute(command: 'package')
     sdkTools.apkbuilder.execute('sign': false, 'verbose': verbose)
