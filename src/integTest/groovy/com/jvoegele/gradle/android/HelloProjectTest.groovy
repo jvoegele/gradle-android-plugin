@@ -18,7 +18,11 @@ package com.jvoegele.gradle.android
 
 import org.junit.Test
 
+import com.jvoegele.gradle.tasks.android.AndroidSdkToolsFactory;
+
 class HelloProjectTest extends AbstractIntegrationTest {
+  private int toolsRevision = -1
+
   @Test
   void build() {
     def p = project('hello')
@@ -64,6 +68,9 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.archive('build/libs/hello-1.0-debug.jar').assertContains 'com/jvoegele/gradle/android/hello/HelloActivity.class'
 
     p.archive('build/distributions/hello-1.0-debug.apk').assertAligned()
+    if (this.androidSdkToolsRevision >= 8) {
+      p.archive('build/distributions/hello-1.0-debug.apk').assertDebuggable()
+    }
 
     p.archive('build/distributions/hello-1.0-debug.apk').assertSigned('CN=Android Debug, O=Android, C=US')
   }
@@ -107,7 +114,26 @@ class HelloProjectTest extends AbstractIntegrationTest {
     p.archive('build/libs/hello-1.0.jar').assertContains 'com/jvoegele/gradle/android/hello/HelloActivity.class'
 
     p.archive('build/distributions/hello-1.0.apk').assertAligned()
+    if (this.androidSdkToolsRevision >= 8) {
+      p.archive('build/distributions/hello-1.0.apk').assertNotDebuggable()
+    }
 
     p.archive('build/distributions/hello-1.0.apk').assertSigned('CN=Gradle Android Plugin integration tests, O=Gradle Android Plugin, C=US')
+  }
+  
+  int getAndroidSdkToolsRevision() {
+    if (toolsRevision < 0) {
+      def toolsDir = new File(System.getenv("ANDROID_HOME"), "tools")
+      assert toolsDir.exists()
+      def sourcePropertiesFile = new File(toolsDir, AndroidSdkToolsFactory.SOURCE_PROPERTIES_FILE)
+      assert sourcePropertiesFile.exists()
+
+      Properties props = new Properties()
+      props.load(new FileInputStream(sourcePropertiesFile))
+
+      toolsRevision = Integer.parseInt(props[AndroidSdkToolsFactory.PKG_REVISION_PROPERTY])
+    }
+
+    return toolsRevision
   }
 }
