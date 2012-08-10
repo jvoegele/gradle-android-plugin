@@ -74,8 +74,10 @@ class AndroidSdkToolsFactory {
       return new AaptExecTask_r7(project)
     } else if (this.androidSdkToolsRevision < 14) {
       return new AaptExecTask_r8(project)
-    } else {
+    } else if (this.androidSdkToolsRevision < 18) {
       return new AaptExecTask_r14(project)
+    } else {
+      return new AaptExecTask_r18(project)
     }
   }
 }
