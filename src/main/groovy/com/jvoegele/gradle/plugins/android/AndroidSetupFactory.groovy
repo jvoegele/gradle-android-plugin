@@ -35,7 +35,12 @@ class AndroidSetupFactory {
       def sourcePropertiesFile = new File(toolsDir, SOURCE_PROPERTIES_FILE)
       assert sourcePropertiesFile.exists()
       ant.property(file: sourcePropertiesFile)
-      toolsRevision = Integer.parseInt(ant[PKG_REVISION_PROPERTY])
+        String toolsFullRevision = ant[PKG_REVISION_PROPERTY];
+        if (toolsFullRevision.contains('.')) {
+            toolsRevision = Integer.parseInt(toolsFullRevision.substring(0, toolsFullRevision.indexOf('.')))
+        } else {
+            toolsRevision = Integer.parseInt(toolsFullRevision)
+        }
     }
 
     return toolsRevision
