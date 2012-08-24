@@ -4,13 +4,11 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'signing'
 
-version = '1.2.0-SNAPSHOT'
+version = '1.2.2'
 group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
 project.ext.set('artifact', artifact)
-
-def isReleaseVersion = !version.endsWith('SNAPSHOT')
 
 configurations {
   integrationTestCompile {
@@ -101,12 +99,6 @@ artifacts {
   archives jar
   archives sourcesJar
   archives javadocJar
-}
-
-signing {
-  if (isReleaseVersion) {
-    sign configurations.archives
-  }
 }
 
 task wrapper(type: Wrapper) {
