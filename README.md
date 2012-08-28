@@ -4,8 +4,11 @@ the power and flexibility you've come to expect from Gradle.
 
 Currently, Gradle 1.0-rc-3 is required.
 
-For mailing lists and issue tracking, please see the project page on Google Code:
+For mailing lists see the project page on Google Code:
 https://code.google.com/p/gradle-android-plugin/
+
+For issue tracking see the GitHub issues page: 
+https://github.com/jvoegele/gradle-android-plugin/issues
 
 FEATURES
 ========
