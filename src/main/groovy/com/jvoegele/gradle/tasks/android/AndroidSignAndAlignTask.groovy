@@ -34,6 +34,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
   private AndroidPluginConvention androidConvention = project.convention.plugins.android
 
   private void doSign(String keystore, String keypass, String storepass, String alias) {
+    println "keypass = " + keypass
     project.ant.copyfile(src: unsignedArchivePath.absolutePath,
                          dest: buildUnalignedArchivePath().absolutePath,
                          forceoverwrite: true)
@@ -121,7 +122,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
     logger.info("Signing final apk...")
 
-    doSign(getKeyStore(), getKeyAliasPassword(), getKeyStorePassword(), getKeyAlias())
+    doSign(getKeyStore(), keyAliasPassword, keyStorePassword, getKeyAlias())
   }
 
   private String retrieveDebugKeystore() {
