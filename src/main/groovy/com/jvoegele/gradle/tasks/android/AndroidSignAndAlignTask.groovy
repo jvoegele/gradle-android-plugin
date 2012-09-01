@@ -34,7 +34,6 @@ class AndroidSignAndAlignTask extends DefaultTask {
   private AndroidPluginConvention androidConvention = project.convention.plugins.android
 
   private void doSign(String keystore, String keypass, String storepass, String alias) {
-    println "keypass = " + keypass
     project.ant.copyfile(src: unsignedArchivePath.absolutePath,
                          dest: buildUnalignedArchivePath().absolutePath,
                          forceoverwrite: true)
