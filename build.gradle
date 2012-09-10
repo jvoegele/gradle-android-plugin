@@ -4,17 +4,13 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'signing'
 
-version = '1.2.0-SNAPSHOT'
+version = '1.2.2'
 group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
 project.ext.set('artifact', artifact)
 
-def isReleaseVersion = !version.endsWith('SNAPSHOT')
-
 configurations {
-  sshDeploy
-
   integrationTestCompile {
     extendsFrom testCompile
   }
@@ -29,47 +25,12 @@ repositories {
 }
 
 dependencies {
-  sshDeploy 'org.apache.maven.wagon:wagon-ssh:1.0-beta-7'
-}
-
-uploadArchives {
-  repositories {
-    mavenDeployer {
-      beforeDeployment { deployment ->
-        signing.signPom(deployment)
-      }
-
-      //configuration = configurations.sshDeploy
-      //repository(url: "scp://jvoegele@chilco.textdrive.com/web/public/maven2")
-      //repository(url: "file:///tmp/maven2")
-
-      def repositoryUsername = project.hasProperty('sonatypeUsername') ? sonatypeUsername : ''
-      def repositoryPassword = project.hasProperty('sonatypePassword') ? sonatypePassword : ''
-
-      if (isReleaseVersion) {
-        repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-          authentication(userName: repositoryUsername, password: repositoryPassword)
-        }
-      } else {
-        repository(url: 'https://oss.sonatype.org/content/repositories/snapshots') {
-          authentication(userName: repositoryUsername, password: repositoryPassword)
-        }
-      }
-
-      pom.project(pomConfiguration)
-    }
-  }
-}
-
-dependencies {
   // Add all JAR files in the lib directory of theGradle installation directory
   // to the groovy configuration (is also used by compile configuration)
   groovy fileTree(dir: new File(gradle.gradleHomeDir, 'lib'), includes: ['**/*.jar'])
 }
 
 // Make sure all code is compiled, tested and checked before uploadArchives.
-uploadArchives.dependsOn ':build'
-
 sourceSets {
   integrationTest {
     groovy.srcDir file('src/integTest/groovy')
@@ -140,76 +101,6 @@ artifacts {
   archives javadocJar
 }
 
-signing {
-  if (isReleaseVersion) {
-    sign configurations.archives
-  }
-}
-
 task wrapper(type: Wrapper) {
   gradleVersion = '1.0-rc-3'
-}
-
-task generatePom << {
-  def generatedPomFileName = 'pom.xml'
-
-  pom {
-    project(pomConfiguration)
-  }.writeTo("$buildDir/$generatedPomFileName")
-}
-
-def getPomConfiguration() {
-  return {
-    groupId project.group
-    artifactId project.artifact
-    version project.version
-    packaging 'jar'
-    name 'Gradle Android Plugin'
-    description 'Android plugin for the Gradle build system.'
-    url 'https://github.com/jvoegele/gradle-android-plugin'
-    licenses {
-      license {
-        name 'The Apache Software License, Version 2.0'
-        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
-        distribution 'repo'
-      }
-    }
-    scm {
-      url 'https://github.com/jvoegele/gradle-android-plugin'
-      connection 'scm:git://github.com/jvoegele/gradle-android-plugin.git'
-      developerConnection 'scm:git@github.com:jvoegele/gradle-android-plugin.git'
-    }
-    developers {
-      developer {
-        id 'jvoegele'
-        name 'Jason Voegele'
-        email 'jason.voegele@gmail.com'
-      }
-      developer {
-        id 'kaeppler'
-        name 'Matthias Käppler'
-        email 'm.kaeppler@googlemail.com'
-      }
-      developer {
-        id 'think01'
-        name 'Fabio Da Soghe'
-        email 'fabiodasoghe@gmail.com'
-      }
-      developer {
-        id 'Ladicek'
-        name 'Ladislav Thon'
-        email 'ladicek@gmail.com'
-      }
-      developer {
-        id 'ealden'
-        name 'Ealden Esto E. Escanan'
-        email 'ealden@gmail.com'
-      }
-      developer {
-        id 'erdi'
-        name 'Marcin Erdmann'
-        email 'erdi84@gmail.com'
-      }
-    }
-  }
 }
