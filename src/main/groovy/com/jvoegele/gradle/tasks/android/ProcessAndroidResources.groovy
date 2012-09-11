@@ -16,10 +16,13 @@
 
 package com.jvoegele.gradle.tasks.android;
 
-import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
+
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.FileTree
 import org.gradle.api.tasks.TaskAction
+
+import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
+import groovy.io.FileType
 
 class ProcessAndroidResources extends DefaultTask {
   boolean verbose
@@ -83,5 +86,36 @@ class ProcessAndroidResources extends DefaultTask {
       arg(value: "-I")
       arg(path: ant['android.jar'])
     }
+
+    generateBuildConfigFile()
   }
+
+  private void generateBuildConfigFile( ) {
+    project.logger.info( "Generating BuildConfig.java..." )
+    def packageDir = getPackageDir()
+
+    // Replace all path separators to a dot and strip out the first dot.
+    def packageDeclaration = packageDir.replaceAll( File.separator, '.' )
+    packageDeclaration = packageDeclaration.substring( 1, packageDeclaration.length() )
+
+    def isDebug = project.version.endsWith("-SNAPSHOT")
+
+    def BuildConfigFile = new File( genDir.absolutePath, packageDir + '/BuildConfig.java' )
+    BuildConfigFile.write( "package ${packageDeclaration};\n\npublic final class BuildConfig {\n\tpublic final static boolean DEBUG = ${isDebug};\n}" )
+  }
+
+  private String getPackageDir( ) {
+    def packageDir
+
+    def genDir = new File( genDir.absolutePath )
+    genDir.eachFileRecurse( FileType.FILES ) {
+      if ( ( ~/R.java/ ).matcher( it.name ).find() ) {
+        // Returns something like /com/example.
+        packageDir = it.parent.replace( genDir.absolutePath, '' )
+      }
+    }
+
+    packageDir
+  }
+
 }
