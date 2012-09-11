@@ -1,4 +1,4 @@
-/*
+	/*
  * Copyright 2011 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,6 +19,9 @@ package com.jvoegele.gradle.tasks.android
 import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.*
+import org.gradle.api.GradleException
+
+import org.apache.tools.ant.util.JavaEnvUtils
 
 class AndroidSignAndAlignTask extends DefaultTask {
   @Optional @Input String keyStore
@@ -29,6 +32,44 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
   private File customUnsingedArchivePath
   private AndroidPluginConvention androidConvention = project.convention.plugins.android
+
+  private void doSign(String keystore, String keypass, String storepass, String alias) {
+    project.ant.copyfile(src: unsignedArchivePath.absolutePath,
+                         dest: buildUnalignedArchivePath().absolutePath,
+                         forceoverwrite: true)
+
+    if (!(new File(keystore)).exists())
+      throw new GradleException("Keystore file ${keystore} not found")
+
+    def args = [JavaEnvUtils.getJdkExecutable('jarsigner'),
+                verbose?'-verbose':'',
+                '-sigalg', 'MD5withRSA',
+                '-digestalg', 'SHA1',
+                '-keystore', keystore,
+                '-keypass', keypass,
+                '-storepass', storepass,
+                buildUnalignedArchivePath().absolutePath,
+                alias]
+
+    println "Signing with command:"
+    for (String s : args)
+      print s + " "
+    println ""
+    def proc = args.execute()
+    def outRedir = new StreamRedir(proc.inputStream, System.out)
+    def errRedir = new StreamRedir(proc.errorStream, System.out)
+    
+    outRedir.start()
+    errRedir.start()
+
+    def result = proc.waitFor()
+    outRedir.join()
+    errRedir.join()
+	
+    if (result != 0)
+      throw new GradleException('Couldn\'t sign')
+ 
+  }
 
   private File buildUnalignedArchivePath() {
     return new File(project.libsDir, "${androidConvention.apkBaseName}-unaligned.apk")
@@ -80,14 +121,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
     logger.info("Signing final apk...")
 
-    project.ant.signjar(
-        jar: unsignedArchivePath.absolutePath,
-        signedjar: buildUnalignedArchivePath().absolutePath,
-        keystore: getKeyStore(),
-        storepass: getKeyStorePassword(),
-        alias: getKeyAlias(),
-        keypass: getKeyAliasPassword(),
-        verbose: verbose)
+    doSign(getKeyStore(), keyAliasPassword, keyStorePassword, getKeyAlias())
   }
 
   private String retrieveDebugKeystore() {
@@ -112,14 +146,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
   private void signWithDebugKey() {
     logger.info("Signing final apk with debug key...")
 
-    project.ant.signjar(
-        jar: unsignedArchivePath.absolutePath,
-        signedjar: buildUnalignedArchivePath().absolutePath,
-        keystore: retrieveDebugKeystore(),
-        storepass: 'android',
-        alias: 'androiddebugkey',
-        keypass: 'android',
-        verbose: verbose)
+    doSign(retrieveDebugKeystore(), 'android', 'android', 'androiddebugkey')
   }
 
   private void zipAlign() {
@@ -131,5 +158,21 @@ class AndroidSignAndAlignTask extends DefaultTask {
       if (verbose) args '-v'
       args '-f', 4, inPath, outPath
     }
+  }
+}
+
+class StreamRedir extends Thread {
+  private inStream
+  private outStream
+
+  public StreamRedir(inStream, outStream) {
+    this.inStream = inStream
+    this.outStream = outStream
+  }
+
+  public void run() {
+    int b;
+    while ((b = inStream.read()) != -1)
+      outStream.write(b)
   }
 }
