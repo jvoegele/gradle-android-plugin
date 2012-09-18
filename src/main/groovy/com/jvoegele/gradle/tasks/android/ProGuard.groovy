@@ -112,6 +112,9 @@ class ProGuard extends DefaultTask {
           method(access: 'public static', type: '**[]', name: 'values', parameters: '')
           method(access: 'public static', type: '**', name: 'valueOf', parameters: 'java.lang.String')
         }
+        keepclassmembers('extends': 'android.app.Activity') {
+          method(access: 'public', type: 'void', name: '*', parameters: 'android.view.View')
+        }
         keep('implements': 'android.os.Parcelable') {
           field(access: 'public static final', type: 'android.os.Parcelable$Creator')
         }
