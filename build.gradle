@@ -4,7 +4,7 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 apply plugin: 'signing'
 
-version = '1.2.0'
+version = '1.2.1-SNAPSHOT'
 group = 'org.gradle.api.plugins'
 
 def artifact = 'gradle-android-plugin'
