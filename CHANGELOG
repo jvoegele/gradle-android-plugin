@@ -1,3 +1,40 @@
+2012-09-18  Gradle Android Plugin Developers  <gradle-android-plugin-developers@googlegroups.com>
+
+	* Keep methods that could be used as click event handlers.
+
+	* Added support for generating BuildConfig.java
+
+	* Made sure resources from JAR dependencies get included in APK, as well
+
+	* Fixed retrieval of password when typed during the build
+
+	* Fixed issue of signing the app with a JDK 7.0
+
+	* Fixed NumberFormatException a second place
+
+	* Fixed NumberFormatException with sdk 20.0.x
+
+	* Update to support r20
+
+	* Add integration test assertions for debuggable flag
+
+	* Use signing.signPom instead of signPom as the latter is deprecated already
+
+	* Ignore jarlist.cache file
+
+	* Corrected `downloadJavadocs` entry to simply `downloadJavadoc` (without the "s")
+
+	* Changed package of OperatingSystem class from internal.nativeplatform to internal.os
+
+	* Added shawnlauzon's fix for #52, which he reported in #53.
+
+	* Avoiding Gradle internal class ConventionTask and replaced it with DefaultTask. Using fileTree method that provides parameters as Map to fix deprecation message.
+
+	* Also enable debug packages for SDK versions 8 through 13
+
+	* When making a debug package, make it debuggable
+
+
 2011-12-15  Gradle Android Plugin Developers  <gradle-android-plugin-developers@googlegroups.com>
 
   * Version 1.1.0 released!

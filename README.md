@@ -89,17 +89,17 @@ Gradle to use the src directory of your project directly.
 include the Android plugin as follows:
 
     buildscript {
-	  repositories {
-	    mavenCentral()
-	  }
+      repositories {
+        mavenCentral()
+      }
 
       dependencies {
-        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.1.0'
+        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.0'
       }
     }
     apply plugin: 'android'
     repositories {
-        mavenCentral()
+      mavenCentral()
     }
 
 2) The android create project command created the source code directly in the
@@ -150,12 +150,17 @@ build.gradle
 ------------
 
     buildscript {
-	  repositories {
-	    mavenCentral()
-	  }
+      repositories {
+        mavenCentral()
+        // To use a development snapshot version of the plugin, add the
+        // Sonatype Snapshots repository.
+        maven {
+          url "https://oss.sonatype.org/content/repositories/snapshots"
+        }
+      }
 
       dependencies {
-        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.1.0'
+        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.0'
       }
     }
 
@@ -166,14 +171,14 @@ build.gradle
     }
 
     // Sets the package version
-    version = "x.y.z"
+    version = "1.0.0"
 
     // Signing configuration, valid for all builds (1)
     androidSignAndAlign {
-    	keyStore = "path/to/my/keystore"
-    	keyAlias = "my-key-alias"
-    	keyStorePassword = "mystorepass"
-    	keyAliasPassword = "myaliaspass"
+      keyStore = "path/to/my/keystore"
+      keyAlias = "my-key-alias"
+      keyStorePassword = "mystorepass"
+      keyAliasPassword = "myaliaspass"
     }
 
     // Configure the filtering of resources with properties from the Gradle's project scope (2)
@@ -311,7 +316,7 @@ For starting the emulator wih gradle, you need do define the AVD-Name from your 
 in your build.gradle:
 
     androidEmulatorStart {
-    	avdName = "Main"
+      avdName = "Main"
     }
 
 
