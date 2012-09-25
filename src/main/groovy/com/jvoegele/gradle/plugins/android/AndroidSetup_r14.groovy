@@ -67,6 +67,7 @@ class AndroidSetup_r14 extends AbstractAndroidSetup {
     ant.taskdef(name: "apkbuilder", classname: "com.android.ant.ApkBuilderTask", classpathref: "android.antlibs")
 
     ant.property(name: "aapt", location: new File(platformToolsDir, "aapt${ant['exe']}"))
+    ant.property(name: "aidl", location: new File(platformToolsDir, "aidl${ant['exe']}"))
     ant.property(name: "dx", location: new File(platformToolsDir, "dx${ant['bat']}"))
 
     ant.xpath(input: androidConvention.androidManifest, expression: "/manifest/@package", output: "manifest.package")
