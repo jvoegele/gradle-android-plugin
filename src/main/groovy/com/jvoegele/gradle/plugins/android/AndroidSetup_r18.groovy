@@ -90,6 +90,7 @@ class AndroidSetup_r18 extends AbstractAndroidSetup {
     );
 
     ant.property(name: "aapt", location: new File(platformToolsDir, "aapt${ant['exe']}"))
+    ant.property(name: "aidl", location: new File(platformToolsDir, "aidl${ant['exe']}"))
     ant.property(name: "dx", location: new File(platformToolsDir, "dx${ant['bat']}"))
     ant.property(name: "renderscript", location: new File(platformToolsDir, "llvm-rs-cc${ant['bat']}"))
 

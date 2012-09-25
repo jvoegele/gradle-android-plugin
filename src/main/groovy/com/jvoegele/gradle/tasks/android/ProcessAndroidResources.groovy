@@ -30,11 +30,6 @@ class ProcessAndroidResources extends DefaultTask {
   AndroidPluginConvention androidConvention
   File genDir
 
-  // Define which are the AIDL files (assuming they are created in the main sourceSet,
-  // and that we have only one main src directory).
-  String aidlDir = project.sourceSets.main.java.srcDirs.iterator().next().getAbsolutePath()
-  FileTree aidlFiles = project.fileTree(dir: aidlDir, include: "**/*.aidl")
-
   ProcessAndroidResources () {
     super()
 
@@ -43,7 +38,6 @@ class ProcessAndroidResources extends DefaultTask {
 
     // Set input and output files and directories for this task
     inputs.file (androidConvention.androidManifest.absolutePath)
-    inputs.files (aidlFiles)
     inputs.dir (androidConvention.resDir.absolutePath)
     outputs.dir (genDir.absolutePath)
   }
@@ -53,22 +47,7 @@ class ProcessAndroidResources extends DefaultTask {
   protected void process() {
     genDir.mkdirs()
 
-    // Check if there is at least one AIDL file
-    if (!aidlFiles.isEmpty()) {
-      project.logger.info("Generating AIDL java files...")
-      project.ant.apply(executable: ant.aidl, failonerror: "true") {
-        arg(value: "-I${aidlDir}")
-        arg(value: "-o${genDir.absolutePath}")
-        fileset(dir: aidlDir) {
-          include(name: '**/*.aidl')
-        }
-
-        // Note by Fabio: android.aidl is empty and the -p option wants a "preprocess" file in input, which
-        // I don't know what is or where came from, so I omitted.
-//        arg(value: '-p')
-//        arg(path: ant.references['android.aidl'])
-      }
-    }
+    generateAIDLFiles()
 
     project.logger.info("Generating R.java / Manifest.java from the resources...")
     project.ant.exec(executable: ant.aapt, failonerror: "true") {
@@ -88,6 +67,29 @@ class ProcessAndroidResources extends DefaultTask {
     }
 
     generateBuildConfigFile()
+  }
+
+  private void generateAIDLFiles( ) {
+    project.logger.info( "Generating AIDL Java files..." )
+
+    project.sourceSets.main.java.srcDirs.each() {
+      def srcDir = it
+      if ( srcDir.exists() ) {
+        def aidlFileTree = project.fileTree( dir: srcDir, include: '**/*.aidl' )
+
+        if ( !aidlFileTree.isEmpty() ) {
+          aidlFileTree.getFiles().each() {
+            def aidlFile = new File( it.toString() )
+
+            project.ant.exec( executable: ant.aidl, failonerror: "true" ) {
+              arg( value: "-I${srcDir.getAbsolutePath()}" )
+              arg( value: "-o${genDir.absolutePath}" )
+              arg( value: aidlFile.getAbsolutePath() )
+            }
+          }
+        }
+      }
+    }
   }
 
   private void generateBuildConfigFile( ) {
