@@ -1,267 +1,411 @@
-/*
- * Copyright 2011 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.jvoegele.gradle.plugins.android
 
-import org.gradle.api.GradleException
+import com.jvoegele.gradle.enhancements.EclipseEnhancement
+import com.jvoegele.gradle.enhancements.JavadocEnhancement
+import com.jvoegele.gradle.enhancements.ScalaEnhancement
+import com.jvoegele.gradle.tasks.android.AbstractAaptPackageTask
+import com.jvoegele.gradle.tasks.android.AbstractAdbTask
+import com.jvoegele.gradle.tasks.android.Aidl
+import com.jvoegele.gradle.tasks.android.Dex
+import com.jvoegele.gradle.tasks.android.EmulatorTask
+import com.jvoegele.gradle.tasks.android.GenerateResources
+import com.jvoegele.gradle.tasks.android.Install
+import com.jvoegele.gradle.tasks.android.Lint
+import com.jvoegele.gradle.tasks.android.Package
+import com.jvoegele.gradle.tasks.android.PackageResources
+import com.jvoegele.gradle.tasks.android.ProGuard
+import com.jvoegele.gradle.tasks.android.Pull
+import com.jvoegele.gradle.tasks.android.Test
+import com.jvoegele.gradle.tasks.android.Uninstall
+import com.jvoegele.gradle.tasks.android.coverage.Instrument
+import com.jvoegele.gradle.tasks.android.coverage.Report
+import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask
+
+import org.apache.tools.ant.Target
+
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.logging.LogLevel
-import org.gradle.api.plugins.JavaPlugin
-
-import com.jvoegele.gradle.enhancements.JavadocEnhancement
-import com.jvoegele.gradle.tasks.android.AdbExec
-import com.jvoegele.gradle.tasks.android.AndroidPackageTask
-import com.jvoegele.gradle.tasks.android.EmulatorTask
-import com.jvoegele.gradle.enhancements.EclipseEnhancement
-import com.jvoegele.gradle.tasks.android.ProGuard
-import com.jvoegele.gradle.tasks.android.ProcessAndroidResources
-import com.jvoegele.gradle.tasks.android.instrumentation.InstrumentationTestsTask
-import com.jvoegele.gradle.enhancements.ScalaEnhancement
-import com.jvoegele.gradle.tasks.android.AndroidSignAndAlignTask
+import org.gradle.api.logging.Logging
+import org.gradle.api.tasks.compile.Compile
 
 /**
  * Gradle plugin that extends the Java plugin for Android development.
  *
+ * @author Marcus Better (marcus@better.se)
  * @author Jason Voegele (jason@jvoegele.com)
  */
 class AndroidPlugin implements Plugin<Project> {
-  public static final ANDROID_PROCESS_RESOURCES_TASK_NAME = "androidProcessResources"
-  public static final PROGUARD_TASK_NAME = "proguard"
-  public static final ANDROID_PACKAGE_TASK_NAME = "androidPackage"
-  public static final ANDROID_SIGN_AND_ALIGN_TASK_NAME = "androidSignAndAlign"
-  public static final ANDROID_INSTALL_TASK_NAME = "androidInstall"
-  public static final ANDROID_UNINSTALL_TASK_NAME = "androidUninstall"
-  public static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
-  public static final ANDROID_START_EMULATOR_TASK_NAME = "androidEmulatorStart"
+    public static final ANDROID_INSTRUMENTATION_TESTS_TASK_NAME = "androidInstrumentationTests"
+    public static final ANDROID_START_EMULATOR_TASK_NAME = "androidEmulatorStart"
 
-  private static final ANDROID_GROUP = "Android";
+    private static final ANDROID_GROUP = "Android"
 
-  private static final PROPERTIES_FILES = ['local', 'build', 'default', 'project']
-  private static final ANDROID_JARS = ['anttasks', 'sdklib', 'androidprefs', 'apkbuilder', 'jarutils']
+    private static final PROPERTIES_FILES = ['local', 'build', 'project']
+    final log = Logging.getLogger(AndroidPlugin)
 
-  private AndroidPluginConvention androidConvention
+    def appPackage
+    def manifest
 
-  private Project project
-  private logger
+    private Project project
+    def installTask
 
-  private androidProcessResourcesTask, proguardTask, androidPackageTask, androidSignAndAlignTask, androidInstallTask, androidUninstallTask, androidInstrumentationTestsTask, androidEmulatorStartTask
+    @Override
+    public void apply(Project project)
+    {
+        project.plugins.apply 'java'
+        this.project = project
 
-  boolean verbose = false
+        project.extensions.android = new AndroidPluginExtension(project)
+        androidSetup()
+        
+        def androidConfiguration = project.configurations.add('android').setVisible(false)
+        def emmaRuntimeConfiguration = project.configurations.add('emmaRuntime')
+        project.dependencies {
+            android project.files(project.ant.references['android.target.classpath'].list())
+            emmaRuntime project.files(new File(project.ant['emma.dir'], 'emma_device.jar'))
+        }
 
-  @Override
-  void apply(Project project) {
-    project.plugins.apply(JavaPlugin.class)
-
-    this.project = project
-    this.logger = project.logger
-
-    androidConvention = new AndroidPluginConvention(project)
-    project.convention.plugins.android = androidConvention
-
-    androidSetup()
-    defineTasks()
-    configureEnhancements()
-    configureCompile()
-  }
-
-  private void androidSetup() {
-    registerPropertyFiles()
-    determineAndroidDirs()
-    registerAndroidJars()
-
-    def setupFactory = new AndroidSetupFactory(project)
-    setupFactory.androidSetup.setup()
-  }
-
-  private void registerPropertyFiles() {
-    def ant = project.ant
-
-    PROPERTIES_FILES.each { ant.property(file: "${it}.properties") }
-  }
-
-  private void determineAndroidDirs() {
-    def ant = project.ant
-    def sdkDir
-
-    // Determine the sdkDir value.
-    // First, let's try the sdk.dir property in local.properties file.
-    try {
-      sdkDir = ant['sdk.dir']
-    } catch (MissingPropertyException e) {
-      sdkDir = null
+        defineTasks()
+        project.tasks.withType(Package).all {
+            conventionMapping.baseName = { project.archivesBaseName }
+            conventionMapping.version = { project.version == Project.DEFAULT_VERSION ? null : project.version }
+            conventionMapping.destinationDir = { project.distsDir }
+            conventionMapping.resourcePkg = { project.android.resourcePkg }
+        }
+        project.tasks.withType(AbstractAaptPackageTask).all { AbstractAaptPackageTask task ->
+            conventionMapping.manifest = { project.android.manifest }
+            conventionMapping.resourceDir = { project.android.resDir }
+        }
+        project.tasks.withType(GenerateResources).all { GenerateResources task ->
+            conventionMapping.genDir = { project.android.genDir }
+            conventionMapping.nonConstantId = { project.android.library }
+        }
+        project.tasks.withType(PackageResources).all { PackageResources task ->
+            conventionMapping.assetsDir = {
+                def assetsDir = project.file(project.android.assetsDir)
+                if (assetsDir.exists()) {
+                    assetsDir
+                }
+            }
+            conventionMapping.resourcePkg = { project.android.resourcePkg }
+            conventionMapping.versionName = { project.version }
+            conventionMapping.versionCode = { project.android.versionCode }
+        }
+        project.tasks.withType(Aidl).all { Aidl task ->
+            conventionMapping.genDir = { project.android.genDir }
+        }
+        project.tasks.withType(AbstractAdbTask).all { AbstractAdbTask task ->
+            conventionMapping.targetDevice = { project.android.targetDevice }
+            conventionMapping.adb = { new File(project.ant.adb) }
+        }
+        project.tasks.withType(Lint).all { Lint task ->
+            conventionMapping.lint = { new File(project.ant.'android.tools.dir', "lint$project.ant.exe") }
+        }
+        project.tasks.withType(Compile).all {
+            dependsOn project.configurations.android
+            options.bootClasspath = project.configurations.android.asPath
+        }
+        project.tasks.findAll { it.group == ANDROID_GROUP }.logging*.captureStandardOutput LogLevel.INFO
+        project.afterEvaluate {
+            project.sourceSets.main.java.srcDirs += project.android.genDir
+        }
+        configureEnhancements()
     }
 
-    if (sdkDir == null || sdkDir.length() == 0) {
-      // No local.properties and/or no sdk.dir property: let's try ANDROID_HOME
-      sdkDir = System.getenv("ANDROID_HOME")
-      // Propagate it to the Gradle's Ant environment
-      if (sdkDir != null) {
-        ant.setProperty("sdk.dir", sdkDir)
-      }
+    private void androidSetup() {
+        def ant = project.ant
+
+        PROPERTIES_FILES.each { ant.property(file: "${it}.properties") }
+
+        // Determine the sdkDir value.
+        def sdkDir
+        try {
+            sdkDir = ant['sdk.dir']
+        } catch (MissingPropertyException e) {
+            // ignore
+        }
+        if (!sdkDir) {
+            sdkDir = System.getenv("ANDROID_HOME")
+        }
+        if (!sdkDir) {
+            throw new MissingPropertyException("Unable to find location of Android SDK. Please read documentation.")
+        }
+        ant.'sdk.dir' = sdkDir
+
+        ['test', 'clean', 'install', 'uninstall', 'instrument'].each {
+            // avoid name clash with targets in build.xml
+            ant.project.addTarget(it, new Target())
+        }
+        ant.importBuild new File(sdkDir, 'tools/ant/build.xml')
+        ant.project.executeTarget '-setup'
+
+        // TODO: there can be several instrumentations defined
+        ant.xpath(input: project.android.manifest, expression: "/manifest/instrumentation/@android:targetPackage", output: "tested.manifest.package")
+        ant.xpath(input: project.android.manifest, expression: "/manifest/application/@android:hasCode",
+            output: "manifest.hasCode", 'default': "true")
+
+        ant.xpath(input: project.android.manifest, expression: "/manifest/instrumentation/@android:name", output: "android.instrumentation")
+        try {
+            manifest = new XmlSlurper().parse(project.android.manifest)
+            appPackage = manifest.@package.text()
+        } catch (Exception e) {
+            throw new RuntimeException("failed to parse $project.android.manifest", e)
+        }
+        if (ant['android.instrumentation']) {
+            project.android.instrumentationTestsRunner = ant['android.instrumentation']
+        }
     }
 
-    // Check for sdkDir correctly valued, and in case throw an error
-    if (sdkDir == null || sdkDir.length() == 0) {
-      throw new MissingPropertyException("Unable to find location of Android SDK. Please read documentation.")
+    def defineTasks() {
+        def genResourcesTask = project.task('genResources', group: ANDROID_GROUP, type: GenerateResources)
+        project.tasks.compileJava.dependsOn genResourcesTask
+        project.afterEvaluate { Project p ->
+            genResourcesTask.libResourceDirs = project.files()
+            genResourcesTask.libPackageNames = ''
+        }
+
+        def aidlTask = project.task('aidl', group: ANDROID_GROUP, type: Aidl)
+        project.tasks.compileJava.dependsOn aidlTask
+        project.afterEvaluate { Project p ->
+            aidlTask.srcDirs = project.files(project.sourceSets.main.java.srcDirs)
+            project.files()
+            genResourcesTask.libPackageNames = ''
+        }
+
+        def main = project.sourceSets.main
+        def classes = main.output.classesDir
+        def classesInstrumented = new File(project.buildDir, "instrumented/$main.name")
+        def instrument = project.task(main.getTaskName('instrument', null),
+            group: ANDROID_GROUP, type: Instrument,
+            description: 'instrument class files for Emma code coverage',
+            dependsOn: main.output)
+        instrument.inputs.source { classes }
+        def conv = instrument.conventionMapping
+        conv.destDir = { classesInstrumented }
+        conv.metadataFile = { project.android.coverageMetadataFile }
+
+        project.ant.taskdef(resource: 'proguard/ant/task.properties', classpath: new File(project.ant.'android.tools.dir', 'proguard/lib/proguard.jar'))
+        def proguardTask = project.task('proguard', type: ProGuard, group: ANDROID_GROUP,
+            description: 'process classes and libraries with ProGuard',
+            dependsOn: main.output) {
+            conventionMapping.configFile = { project.android.proguardConfigFile }
+            conventionMapping.dumpFile = { project.android.proguardDumpFile }
+            conventionMapping.seedsFile = { project.android.proguardSeedsFile }
+            conventionMapping.usageFile = { project.android.proguardUsageFile }
+            conventionMapping.mappingFile = { project.android.proguardMappingFile }
+            conventionMapping.outJar = { project.android.proguardOutJar }
+            inputs.source main.runtimeClasspath.filter { it.exists() }
+            libs = project.files(project.configurations.android)
+        }
+
+        def dexTask = project.task(main.getTaskName('dex', null), type: Dex, group: ANDROID_GROUP,
+                description: 'convert classes to .dex format',
+                dependsOn: { main.output.asFileTree }) {
+            inputs.source project.configurations.runtime, classes
+            conventionMapping.dexFile = { project.android.dexFile }
+        }
+        def dexInstrumented = project.task(main.getTaskName('dexInstrumented', null), type: Dex, group: ANDROID_GROUP,
+                description: 'convert instrumented classes to .dex format',
+                dependsOn: [instrument, project.configurations.emmaRuntime, { main.runtimeClasspath }]) {
+            inputs.source project.configurations.runtime, project.configurations.emmaRuntime, classesInstrumented
+            noLocals = true
+            conventionMapping.dexFile = { project.android.instrumentedDexFile }
+        }
+        def dexObfuscated = project.task(main.getTaskName('dexObfuscated', null), type: Dex, group: ANDROID_GROUP,
+            description: 'convert obfuscated classes to .dex format',
+            dependsOn: proguardTask) {
+            inputs.source proguardTask.outJar
+            conventionMapping.dexFile = { project.android.obfuscatedDexFile }
+        }
+
+        def packageResourcesTask = project.task('packageResources', type: PackageResources, group: ANDROID_GROUP,
+            description: 'put the resources into the package file')
+
+        def packageDebugTask = project.task('packageDebug', type: Package, group: ANDROID_GROUP,
+            description: 'build the debug application archive',
+            dependsOn: [dexTask, packageResourcesTask]) {
+            debug = true
+            appendix = 'debug'
+            jarFiles = project.files()
+            conventionMapping.dexFile = { dexTask.dexFile }
+        }
+        project.tasks.assemble.dependsOn packageDebugTask
+        def packageDebugObfuscatedTask = project.task('packageDebugObfuscated', type: Package, group: ANDROID_GROUP,
+            description: 'build the debug application archive',
+            dependsOn: [dexObfuscated, packageResourcesTask]) {
+            debug = true
+            appendix = 'debug-proguard'
+            jarFiles = project.files()
+            conventionMapping.dexFile = { dexObfuscated.dexFile }
+        }
+
+        def packageInstrumentedTask = project.task('packageInstrumented', type: Package, group: ANDROID_GROUP,
+            description: 'build the instrumented application archive',
+            dependsOn: [dexInstrumented, packageResourcesTask]) {
+            debug = true
+            appendix = 'instrumented'
+            jarFiles = project.configurations.emmaRuntime
+            conventionMapping.dexFile = { dexInstrumented.dexFile }
+        }
+
+        def androidLibs = project.configurations.add('androidLibs')
+        project.configurations.compile.extendsFrom androidLibs
+        project.afterEvaluate { Project p ->
+            p.tasks.withType(AbstractAaptPackageTask).all { AbstractAaptPackageTask task ->
+                task.libResourceDirs = project.files()
+                p.configurations.androidLibs.dependencies.withType(ProjectDependency).all { ProjectDependency dep ->
+                    task.libResourceDirs += project.files(dep.dependencyProject.android.resDir)
+                }
+            }
+        }
+
+        def packageReleaseTask = project.task('packageRelease', type: Package, group: ANDROID_GROUP,
+            description: 'build the release application archive',
+            dependsOn: [dexObfuscated, packageResourcesTask]) {
+            jarFiles = project.files()
+            conventionMapping.dexFile = { dexObfuscated.dexFile }
+        }
+        def mapping = packageReleaseTask.conventionMapping
+        def projOrSysProperty = { projectProp, systemProp ->
+            project.hasProperty(projectProp) ? project[projectProp] : System.getProperty(systemProp)
+        }
+        mapping.keyStore = {
+            def keyStore = project.android.keyStore
+            if (!keyStore) {
+                def keyStorePath = projOrSysProperty('keyStore', 'key.store')
+                if (keyStorePath) {
+                    keyStore = new File(keyStorePath)
+                }
+            }
+            keyStore
+        }
+        mapping.keyStorePassword = {
+            project.android.keyStorePassword ?: projOrSysProperty('keyStorePassword', 'key.store.password')
+        }
+        mapping.keyAlias = {
+            project.android.keyAlias ?: projOrSysProperty('keyAlias', 'key.alias')
+        }
+        mapping.keyPassword = {
+            project.android.keyPassword ?: projOrSysProperty('keyPassword', 'key.password')
+        }
+
+        installTask = project.task('install', group: ANDROID_GROUP, type: Install,
+            description: "Installs the debug package onto a running emulator or device",
+            dependsOn: packageDebugTask) {
+            conventionMapping.app = { packageDebugTask.archivePath }
+        }
+        project.task('installObfuscated', group: ANDROID_GROUP, type: Install,
+            description: "Installs the obfuscated debug package onto a running emulator or device",
+            dependsOn: packageDebugObfuscatedTask) {
+            conventionMapping.app = { packageDebugObfuscatedTask.archivePath }
+        }
+        def installInstrumentedTask = project.task('installInstrumented', group: ANDROID_GROUP, type: Install,
+            description: "Installs the instrumented package onto a running emulator or device",
+            dependsOn: packageInstrumentedTask) {
+            conventionMapping.app = { packageInstrumentedTask.archivePath }
+        }
+        def uninstallTask = project.task('uninstall', group: ANDROID_GROUP, type: Uninstall,
+            description: "Uninstalls the application from a running emulator or device") {
+            appPackage = this.appPackage
+        }
+
+        def junitreportConfig = project.configurations.add('junitreport')
+        project.dependencies {
+            junitreport group: 'org.apache.ant', name: 'ant-junit', version: '1.8.2'
+        }
+        def deviceTestTask = project.task('deviceTest', group: ANDROID_GROUP, type: Test, dependsOn: installTask) {
+            appPackage = this.appPackage
+            testRunnerClass = manifest.instrumentation.@name.text()
+            dataDir = "/data/data/${manifest.instrumentation.@targetPackage.text()}"
+        }
+        def deviceTestCoverageTask = project.task('deviceTestCoverage', group: ANDROID_GROUP, type: Test, dependsOn: installTask) {
+            appPackage = this.appPackage
+            testRunnerClass = manifest.instrumentation.@name.text()
+            dataDir = "/data/data/${manifest.instrumentation.@targetPackage.text()}"
+            emmaDumpFile = "$dataDir/coverage.ec"
+            params = [coverage: true, coverageFile: emmaDumpFile]
+        }
+        def copyTestReportTask = project.task('copyDeviceTestReport', group: ANDROID_GROUP, type: Pull,
+            dependsOn: junitreportConfig) {
+            outputs.upToDateWhen { false }
+            outputs.dir project.testReportDir
+            src = deviceTestTask.dataDir + "/files/junit-report.xml"
+            dest = new File(project.testResultsDir, 'junit-report.xml')
+        } << {
+            ant.xslt(basedir: dest.parent, destdir: project.testReportDir, includes: dest.name) {
+                style {
+                    javaresource name: 'org/apache/tools/ant/taskdefs/optional/junit/xsl/junit-frames.xsl',
+                        classpath: junitreportConfig.asPath
+                }
+                param name: 'output.dir', expression: project.testReportDir.absolutePath
+            }
+        }
+        def copyEmmaDumpFile = project.task('copyEmmaDumpFile', group: ANDROID_GROUP, type: Pull,
+            dependsOn: deviceTestCoverageTask) {
+            outputs.upToDateWhen { false }
+            outputs.dir project.testReportDir
+            src = deviceTestCoverageTask.emmaDumpFile
+            dest = new File(project.testResultsDir, 'coverage.ec')
+        }
+        def emmaReport = project.task('emmaReport', group: ANDROID_GROUP, type: Report,
+            dependsOn: copyEmmaDumpFile) {
+            inputs.file { copyEmmaDumpFile.dest }
+            conventionMapping.xmlReport = { project.android.coverageXmlReport }
+            conventionMapping.htmlReport = { project.android.coverageHtmlReport }
+        }
+        def lintTask = project.task('lint', group: ANDROID_GROUP, type: Lint,
+            dependsOn: project.tasks.compileJava) {
+            conventionMapping.xmlReport = { project.android.lintXmlReport }
+            outputs.upToDateWhen { false }
+        }
+
+        def testConfig = project.configurations.add('androidTest')
+        main.compileClasspath += testConfig
+        testConfig.dependencies.withType(ProjectDependency).all { ProjectDependency dep ->
+            def testedProject = dep.dependencyProject
+            def tasks = testedProject.tasks
+            uninstallTask.dependsOn tasks.uninstall
+            emmaReport.srcDirs = testedProject.files(testedProject.sourceSets.main.java.srcDirs)
+            tasks.withType(Instrument).all { t ->
+                emmaReport.inputs.file { t.metadataFile }
+            }
+            deviceTestTask.dependsOn tasks.install
+            deviceTestCoverageTask.dependsOn tasks.installInstrumented
+        }
+
+        defineAndroidEmulatorStartTask()
+        defineAndroidInstrumentationTestsTask()
     }
-  }
-
-  private void registerAndroidJars() {
-    def ant = project.ant
-    def sdkDir = ant['sdk.dir']
-
-    ant.path(id: 'android.antlibs') {
-      ANDROID_JARS.each { pathelement(path: "${sdkDir}/tools/lib/${it}.jar") }
-    }
-  }
-
-  private void defineTasks() {
-    defineAndroidProcessResourcesTask()
-    defineProguardTask()
-    defineAndroidPackageTask()
-    defineAndroidSignAndAlignTask()
-    defineAndroidInstallTask()
-    defineAndroidUninstallTask()
-    defineAndroidEmulatorStartTask()
-    defineAndroidInstrumentationTestsTask()
-    defineTaskDependencies()
-    configureTaskLogging()
-  }
-
-  private void defineAndroidProcessResourcesTask() {
-    androidProcessResourcesTask = project.task(
-        ANDROID_PROCESS_RESOURCES_TASK_NAME,
-        group: ANDROID_GROUP,
-        description: "Generate R.java source file from Android resource XML files",
-        type: ProcessAndroidResources)
-  }
-
-  private void defineProguardTask() {
-    proguardTask = project.task(
-        PROGUARD_TASK_NAME,
-        group: ANDROID_GROUP,
-        description: "Process classes and JARs with ProGuard",
-        type: ProGuard)
-  }
-
-  private void defineAndroidPackageTask() {
-    androidPackageTask = project.task(
-        ANDROID_PACKAGE_TASK_NAME,
-        group: ANDROID_GROUP,
-        description: "Creates the Android application apk package",
-        type: AndroidPackageTask)
-  }
-
-  private void defineAndroidSignAndAlignTask() {
-    androidSignAndAlignTask = project.task(
-        ANDROID_SIGN_AND_ALIGN_TASK_NAME,
-        group: ANDROID_GROUP,
-        description: "Signs and zipaligns the application apk package",
-        type: AndroidSignAndAlignTask)
-
-    ['keyStore', 'keyAlias', 'keyStorePassword', 'keyAliasPassword'].each { String propertyName ->
-      androidSignAndAlignTask.conventionMapping[propertyName] = { androidPackageTask[propertyName] }
-    }
-  }
-
-  private void defineAndroidInstallTask() {
-    androidInstallTask = project.task(
-        ANDROID_INSTALL_TASK_NAME,
-        group: ANDROID_GROUP,
-        description: "Installs the debug package onto a running emulator or device",
-        type: AdbExec) {
-      doFirst {
-        logger.info("Installing ${androidConvention.getApkArchivePath()} onto default emulator or device...")
-        args 'install', '-r', androidConvention.apkArchivePath
-      }
-    }
-  }
-
-  private void defineAndroidUninstallTask() {
-    androidUninstallTask = project.task(
-        ANDROID_UNINSTALL_TASK_NAME,
-        group: ANDROID_GROUP,
-        description: "Uninstalls the application from a running emulator or device",
-        type: AdbExec) {
-      def manifestPackage = null
-
-      try {
-        manifestPackage = ant['manifest.package']
-      } catch (Exception e) {
-        throw new GradleException("Application package is not defined in AndroidManifest.xml, unable to uninstall.", e)
-      }
-
-      // Should uninstall fail only because the package wasn't on the device? It does now...
-      args 'uninstall', manifestPackage
-
-      doFirst {
-        logger.info("Uninstalling ${manifestPackage} from the default emulator or device...")
-      }
-    }
-  }
 
   private void defineAndroidEmulatorStartTask() {
-    androidEmulatorStartTask = project.task(
-        ANDROID_START_EMULATOR_TASK_NAME,
-        group: ANDROID_GROUP,
-        description: "Starts the android emulator",
-        type: EmulatorTask)
+    def androidEmulatorStartTask = project.task(ANDROID_START_EMULATOR_TASK_NAME,
+        description: "Starts the android emulator", type:EmulatorTask)
+    androidEmulatorStartTask.group = ANDROID_GROUP
   }
-
+  
   private void defineAndroidInstrumentationTestsTask() {
-    def description = """
-      Runs instrumentation tests on a running emulator or device.
+    def description = """Runs instrumentation tests on a running emulator or device.
       Use the 'runners' closure to configure your test runners:
-
+          
          androidInstrumentationTests {
            runners {
              run testpackage: "com.my.package", with: "com.my.TestRunner"
              run annotation: "com.my.Annotation", with: "com.my.OtherRunner"
-           }
+           } 
          }
-
+          
       You can also use 'run with: "..."' to run all tests using the given runner, but
       note that this only works as long as you do not bind any other more specific runners.
     """
 
-    androidInstrumentationTestsTask = project.task(
+    def androidInstrumentationTestsTask = project.task(
         ANDROID_INSTRUMENTATION_TESTS_TASK_NAME,
         group: ANDROID_GROUP,
         description: description,
-        type: InstrumentationTestsTask)
-  }
-
-  private void defineTaskDependencies() {
-    project.tasks.compileJava.dependsOn(androidProcessResourcesTask)
-    proguardTask.dependsOn(project.tasks.jar)
-    androidPackageTask.dependsOn(proguardTask)
-    androidSignAndAlignTask.dependsOn(androidPackageTask)
-    project.tasks.assemble.dependsOn(androidSignAndAlignTask)
-    androidInstallTask.dependsOn(project.tasks.assemble)
-    androidInstrumentationTestsTask.dependsOn(androidInstallTask)
-  }
-
-  private void configureTaskLogging() {
-    androidProcessResourcesTask.logging.captureStandardOutput(LogLevel.INFO)
-    proguardTask.logging.captureStandardOutput(LogLevel.INFO)
-    androidPackageTask.logging.captureStandardOutput(LogLevel.INFO)
-    androidSignAndAlignTask.logging.captureStandardOutput(LogLevel.INFO)
-    androidInstallTask.logging.captureStandardOutput(LogLevel.INFO)
-    androidUninstallTask.logging.captureStandardOutput(LogLevel.INFO)
+        type: InstrumentationTestsTask, testPackage: appPackage)
+    androidInstrumentationTestsTask.dependsOn(installTask)
   }
 
   /**
@@ -272,13 +416,5 @@ class AndroidPlugin implements Plugin<Project> {
     new JavadocEnhancement(project).apply()
     new EclipseEnhancement(project).apply()
     new ScalaEnhancement(project).apply()
-  }
-
-  private void configureCompile() {
-    def mainSource = project.tasks.compileJava.source
-    project.tasks.compileJava.source = [androidConvention.genDir, mainSource]
-    project.sourceSets.main.compileClasspath +=
-    project.files(project.ant.references['android.target.classpath'].list())
-    project.compileJava.options.bootClasspath = project.ant.references['android.target.classpath']
   }
 }

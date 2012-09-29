@@ -1,19 +1,3 @@
-/*
- * Copyright 2011 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.jvoegele.gradle.tasks.android.instrumentation
 
 import com.jvoegele.gradle.plugins.android.AndroidPlugin;
@@ -33,36 +17,33 @@ class InstrumentationTestsTask extends AdbExec {
   def testReportsSourcePath
   def testReportsTargetPath
   def defaultAdbArgs
-
+  
   def InstrumentationTestsTask() {
-    logger.info("Running instrumentation tests...")
-
-    this.testPackage = ant['manifest.package']
     this.defaultAdbArgs = super.getArgs()
     this.testRunnersConfig = new TestRunnersConfig(project, testPackage)
-
+    
     def testedPackage = ant['tested.manifest.package']
     if (testedPackage) { // this is only set for instrumentation projects
       this.testReportsSourcePath = "/data/data/$testedPackage/files"
       this.testReportsTargetPath = project.file('build/test-results').toString()
     }
-
+    
     onlyIf {
       boolean isTestingOtherPackage = testedPackage || false
-      if (!isTestingOtherPackage) {
+      if (!isTestingOtherPackage) { 
         logger.warn("!! Skipping $AndroidPlugin.ANDROID_INSTRUMENTATION_TESTS_TASK_NAME task "
           + "for project $project.name since no target package was specified in the manifest")
       }
       isTestingOtherPackage
     }
-  }
-
+  } 
+  
   /**
    * Used to configure test runners using a closure, e.g.:
    * <code>
    * androidInstrumentationTests {
    *   runners {
-   *     run testpackage: "com.my.package", with: "com.my.TestRunner"
+   *     run testpackage: "com.my.package", with: "com.my.TestRunner"  
    *   }
    * }
    * </code>
@@ -73,9 +54,10 @@ class InstrumentationTestsTask extends AdbExec {
     config.delegate = testRunnersConfig
     config()
   }
-
+  
   @Override
   def exec() {
+
     if (testRunnersConfig.performDefaultRun()) {
       def runConfig = testRunnersConfig.defaultConfig
       if (!runConfig) {
@@ -98,7 +80,7 @@ class InstrumentationTestsTask extends AdbExec {
       }
     }
   }
-
+  
   def performTestRun(def runConfig, def filter = null) {
     // run the tests
     setArgs(defaultAdbArgs)
@@ -123,14 +105,14 @@ class InstrumentationTestsTask extends AdbExec {
         logger.warn "!! Failed to publish test reports"
       }
     }
-
+    
     logger.info "Test run complete."
-
+    
     if (testFailure) {
       throw testFailure
     }
   }
-
+  
   private void publishTestReport(def runConfig, def reportFile) {
     logger.info("Publishing test results from $reportFile to $testReportsTargetPath")
 
@@ -138,7 +120,7 @@ class InstrumentationTestsTask extends AdbExec {
     pullTestReport.args "pull", "$reportFile", "$testReportsTargetPath"
     pullTestReport.exec()
   }
-
+  
   @Override
   def checkForErrors(stream) {
     def reader = new InputStreamReader(new ByteArrayInputStream(stream.toByteArray()))
@@ -148,7 +130,7 @@ class InstrumentationTestsTask extends AdbExec {
       detectAdbErrors(reader);
     }
   }
-
+  
   private void detectBuildFailures(def reader) {
     def success = false
     // ADB currently fails with errors on stdout, so we literally have to check
@@ -159,12 +141,12 @@ class InstrumentationTestsTask extends AdbExec {
         return
       }
     }
-
+    
     if (!success) {
       throw new InstrumentationTestsFailedException();
     }
   }
-
+  
   // at the moment, ADB errors are actually reported via stdout instead of stderr.
   // this method may become useful though once Google fixes that.
   private void detectAdbErrors(def reader) {
