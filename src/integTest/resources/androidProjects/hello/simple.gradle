@@ -1,3 +1,0 @@
-apply plugin: 'android'
-
-version = '1.0'
