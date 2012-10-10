@@ -1,3 +1,7 @@
+2012-10-10  Gradle Android Plugin Developers  <gradle-android-plugin-developers@googlegroups.com>
+
+	* Fix problem with androidSignAndAlign task.
+
 2012-09-18  Gradle Android Plugin Developers  <gradle-android-plugin-developers@googlegroups.com>
 
 	* Keep methods that could be used as click event handlers.

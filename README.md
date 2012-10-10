@@ -94,7 +94,7 @@ include the Android plugin as follows:
       }
 
       dependencies {
-        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.0'
+        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
       }
     }
     apply plugin: 'android'
@@ -160,7 +160,7 @@ build.gradle
       }
 
       dependencies {
-        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.0'
+        classpath 'org.gradle.api.plugins:gradle-android-plugin:1.2.1'
       }
     }
 
