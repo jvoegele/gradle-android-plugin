@@ -29,9 +29,9 @@ class AndroidSetup_r18 extends AbstractAndroidSetup {
     def toolsDir = new File(sdkDir, "tools")
     def platformToolsDir = new File(sdkDir, "platform-tools")
 
-    println "sdkDir = ${sdkDir}";
-    println "toolsDir = ${toolsDir}";
-    println "platformToolsDir = ${platformToolsDir}";
+    project.logger.info("sdkDir = ${sdkDir}");
+    project.logger.info("toolsDir = ${toolsDir}");
+    project.logger.info("platformToolsDir = ${platformToolsDir}");
 
     ant.condition('property': "exe", value: ".exe", 'else': "") { os(family: "windows") }
     ant.condition('property': "bat", value: ".bat", 'else': "") { os(family: "windows") }
