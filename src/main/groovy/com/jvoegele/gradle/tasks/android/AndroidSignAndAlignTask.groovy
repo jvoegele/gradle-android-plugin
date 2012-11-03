@@ -28,6 +28,8 @@ class AndroidSignAndAlignTask extends DefaultTask {
   @Optional @Input String keyAlias
   @Optional @Input String keyStorePassword
   @Optional @Input String keyAliasPassword
+  @Optional @Input String sigalg
+  @Optional @Input String digestalg
   boolean verbose
 
   private File customUnsingedArchivePath
@@ -43,8 +45,8 @@ class AndroidSignAndAlignTask extends DefaultTask {
 
     def args = [JavaEnvUtils.getJdkExecutable('jarsigner'),
                 '-verbose',
-                '-sigalg', 'MD5withRSA',
-                '-digestalg', 'SHA1',
+                '-sigalg', sigalg != null ? sigalg : 'MD5withRSA',
+                '-digestalg', digestalg != null ? digestalg : 'SHA1',
                 '-keystore', keystore,
                 '-keypass', keypass,
                 '-storepass', storepass,
