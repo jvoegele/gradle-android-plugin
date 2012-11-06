@@ -97,7 +97,7 @@ class ProcessAndroidResources extends DefaultTask {
     def packageDir = getPackageDir()
 
     // Replace all path separators to a dot and strip out the first dot.
-    def packageDeclaration = packageDir.replaceAll( File.separator, '.' )
+    def packageDeclaration = packageDir.replaceAll( Matcher.quoteReplacement(File.separator), '.' )
     packageDeclaration = packageDeclaration.substring( 1, packageDeclaration.length() )
 
     def isDebug = project.version.endsWith("-SNAPSHOT")
