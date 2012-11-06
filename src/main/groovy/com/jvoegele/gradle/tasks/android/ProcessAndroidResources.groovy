@@ -24,6 +24,8 @@ import org.gradle.api.tasks.TaskAction
 import com.jvoegele.gradle.plugins.android.AndroidPluginConvention
 import groovy.io.FileType
 
+import java.util.regex.Matcher
+
 class ProcessAndroidResources extends DefaultTask {
   boolean verbose
 
