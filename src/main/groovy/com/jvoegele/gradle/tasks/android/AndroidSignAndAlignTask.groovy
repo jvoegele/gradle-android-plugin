@@ -139,7 +139,9 @@ class AndroidSignAndAlignTask extends DefaultTask {
             keypass: 'android',
             validity: 10 * 365,
             storetype: 'JKS',
-            dname: 'CN=Android Debug,O=Android,C=US')
+            dname: 'CN=Android Debug,O=Android,C=US',
+            sigalg: sigalg != null ? sigalg : 'MD5withRSA',
+            keyalg: digestalg != null ? digestalg : 'SHA1')
       }
 
       return debugKeystore.absolutePath
