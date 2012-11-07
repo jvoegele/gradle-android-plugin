@@ -30,6 +30,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
   @Optional @Input String keyAliasPassword
   @Optional @Input String sigalg
   @Optional @Input String digestalg
+  @Optional @Input String keyalg
   boolean verbose
 
   private File customUnsingedArchivePath
@@ -141,7 +142,7 @@ class AndroidSignAndAlignTask extends DefaultTask {
             storetype: 'JKS',
             dname: 'CN=Android Debug,O=Android,C=US',
             sigalg: sigalg != null ? sigalg : 'MD5withRSA',
-            keyalg: digestalg != null ? digestalg : 'SHA1')
+            keyalg: keyalg != null ? keyalg : 'RSA')
       }
 
       return debugKeystore.absolutePath
