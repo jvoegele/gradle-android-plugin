@@ -128,7 +128,15 @@ class AndroidSignAndAlignTask extends DefaultTask {
   }
 
   private String retrieveDebugKeystore() {
-      File debugKeystore = new File(System.getProperty('user.home'), '.android/debug.keystore')
+      File usersAndroidDir = new File(System.getProperty('user.home'), '.android')
+      if(!usersAndroidDir.exists()){
+        def result = usersAndroidDir.mkdirs()
+        if(!result){
+          throw new GradleException("Failed creating " + usersAndroidDir)
+        }
+      }
+
+      File debugKeystore = new File(usersAndroidDir, 'debug.keystore')
 
       if (!debugKeystore.exists()) {
         logger.info('Creating a new debug key...')
