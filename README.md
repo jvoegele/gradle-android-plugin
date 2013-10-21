@@ -1,3 +1,14 @@
+DISCONTINUED
+============
+
+We are very sorry to announce that development of this plugin has been discontinued.
+Google has created their own Android development toolchain based on Gradle, which supercedes this plugin.
+
+Please see http://tools.android.com/tech-docs/new-build-system/user-guide for further information.
+
+ABOUT
+=====
+
 This is the Android plugin for the Gradle build system.  This plugin
 enables the creation of Android applications using Gradle, with all of
 the power and flexibility you've come to expect from Gradle.
